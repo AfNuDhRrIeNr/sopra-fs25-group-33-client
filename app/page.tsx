@@ -5,7 +5,6 @@ import Image from "next/image";
 import styles from "@/styles/page.module.css";
 
 export default function Home() {
-  const router = useRouter();
   return (
     <div className={styles.page}>
       <h1 className={styles.header}>ScrabbleNow is in progress</h1>
