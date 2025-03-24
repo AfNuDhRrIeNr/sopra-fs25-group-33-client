@@ -26,9 +26,9 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* background-image: url('/home/silvankasper/SoPra/sopra-fs25-group-33-client/images/image-1742802849924.png'); /* Replace with your image path */
+  background-image: url('../images/BackgroundImageLogin.jpg'); /* Replace with your image path */
   background-size: cover;
-  background-position: center;
+  background-position: top center;
 }
 
 * {
@@ -57,11 +57,11 @@ a {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 400px;
+  width: 370px;
+  height: 400px;
   padding: 20px;
-  border-radius: 20px;
+  border-radius: 30px;
   background: var(--Text-Background-purple, #9A9CF5);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .login-container h1 {
@@ -82,8 +82,8 @@ a {
   padding: 10px;
   border-radius: 20px;
   background: var(--Button-green, #4AAC55);
-  color: white;
-  font-size: 16px;
+  color: black;
+  font-size: 20px;
   font-weight: bold;
   border: none;
   cursor: pointer;
@@ -99,7 +99,10 @@ input {
   padding: 10px;
   margin-bottom: 15px;
   border-radius: 10px;
-  border: 1px solid #ccc;
+  background-color: white;
+  color: black;
+  border: none;
+  outline: none;
 }
 
 .card-container {
