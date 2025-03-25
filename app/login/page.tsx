@@ -34,33 +34,45 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="login-container">
-      <h1>Welcome to ScrabbleNow</h1>
-      <p>Who are you?</p>
-      <form onSubmit={handleLogin}>
-        <input
-          type="text"
-          name="username"
-          placeholder="username"
-          required
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="password"
-          required
-        />
-        <button type="submit" className="login-button">
-          Login
-        </button>
-        <button
-          type="button"
-          className="login-button"
-          onClick={() => router.push("/register")}
-        >
-          Register
-        </button>
-      </form>
+    <div
+      style={{
+        backgroundImage: "url('/BackgroundImageLogin.jpg')", // Correct absolute path
+        backgroundSize: "cover",
+        backgroundPosition: "top center",
+        minHeight: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <div className="login-container">
+        <h1>Welcome to ScrabbleNow</h1>
+        <p>Who are you?</p>
+        <form onSubmit={handleLogin}>
+          <input
+            type="text"
+            name="username"
+            placeholder="username"
+            required
+          />
+          <input
+            type="password"
+            name="password"
+            placeholder="password"
+            required
+          />
+          <button type="submit" className="login-button">
+            Login
+          </button>
+          <button
+            type="button"
+            className="login-button"
+            onClick={() => router.push("/register")}
+          >
+            Register
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

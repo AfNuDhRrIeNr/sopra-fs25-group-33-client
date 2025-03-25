@@ -26,9 +26,6 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-image: url('../images/BackgroundImageLogin.jpg'); /* Replace with your image path */
-  background-size: cover;
-  background-position: top center;
 }
 
 * {
@@ -61,7 +58,7 @@ a {
   height: 400px;
   padding: 20px;
   border-radius: 30px;
-  background: var(--Text-Background-purple, #9A9CF5);
+  background: var(--Box-purple);
 }
 
 .login-container h1 {
