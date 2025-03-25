@@ -23,6 +23,9 @@ const DashboardPage: React.FC = () => {
             { id: 2, name: 'Monica', avatar: '/UserIcon.png' },
             { id: 3, name: 'Daniel', avatar: '/UserIcon.png' },
             { id: 4, name: 'Marcel', avatar: '/UserIcon.png' },
+            { id: 5, name: 'Thomas', avatar: '/UserIcon.png' },
+            { id: 6, name: 'Marc', avatar: '/UserIcon.png' },
+
         ];
         setFriends(hardcodedFriends);
 
