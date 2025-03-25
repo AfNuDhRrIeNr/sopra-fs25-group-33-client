@@ -5,6 +5,7 @@
   --Button-green: #4AAC55;
   --Button-red: #D04949;
   --Button-gold: #DCBB73;
+  --Dashboard-box-height: 400px;
 }
 
 html,
@@ -103,29 +104,50 @@ input {
 }
 
 .dashboard-container {
-  flex: 1;
-  margin-top: 50px; /* Space below the header */
-  padding: 20px;
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: flex-start;
+  margin-top: 50px;
+  padding: 20px;
   background-color: var(--background);
 }
 
-.friends-list, .scrabble-now, .leaderboard {
-  background-color: var(--Box-purple);
-  border-radius: 20px;
-  padding: 20px;
-  text-align: center;
+.dashboard-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   width: 30%;
 }
 
-.friends-list h2, .scrabble-now h2, .leaderboard h2 {
-  font-size: 20px;
+.dashboard-section h2 {
   margin-bottom: 10px;
+  font-size: 30px;
+  text-align: center;
+}
+
+.friends-list, .leaderboard {
+  background-color: var(--Box-purple);
+  border-radius: 30px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 20px;
+  width: 100%;
+  height: var(--Dashboard-box-height);
+  text-align: center;
+}
+
+.scrabble-now {
+  background-color: var(--background);
+  margin-top: 10px;
+  margin-bottom: 10px;
+  height: var(--Dashboard-box-height);
 }
 
 .friends-list ul {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
   list-style: none;
   padding: 0;
   margin: 0;
@@ -134,60 +156,60 @@ input {
 .friends-list li {
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
-  font-size: 16px;
+  margin-bottom: 20px;
+  font-size: 24px;
 }
 
 .friends-list li img {
-  width: 24px;
-  height: 24px;
-  margin-right: 10px;
-}
-
-.add-friend-button, .create-game-button, .show-more-button {
-  margin-top: 20px;
-  padding: 10px;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: bold;
-}
-
-.add-friend-button {
-  background-color: var(--Button-gold);
-}
-
-.create-game-button {
-  background-color: var(--Button-green);
-}
-
-.show-more-button {
-  background-color: var(--Button-gold);
-}
-
-.scrabble-board img {
-  width: 100%;
-  border-radius: 10px;
+  width: 60px;
+  height: 60px;
+  margin-right: 20px;
 }
 
 .leaderboard-list {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 20px; /* Space between rows */
+}
+
+.leaderboard-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px; /* Space between items */
 }
 
 .leader {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  margin-bottom: 10px;
   font-size: 16px;
 }
 
 .leader img {
-  width: 32px;
-  height: 32px;
-  margin-right: 10px;
+  width: 50px;
+  height: 50px;
+  margin-bottom: 5px; /* Space between image and text */
+}
+
+.scrabble-board img {
+  height: 400px;
+}
+
+.add-friend-button, .create-game-button, .show-more-button {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 24px;
+  font-weight: bold;
+  background-color: var(--Button-gold);
+}
+
+.create-game-button {
+  background-color: var(--Button-green);
 }
 
 .content-container {
