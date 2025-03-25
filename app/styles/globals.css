@@ -1,13 +1,10 @@
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #C0D7E7;
+  --foreground: #000000;
+  --Box-purple: #9A9CF5;
+  --Button-green: #4AAC55;
+  --Button-red: #D04949;
+  --Button-gold: #DCBB73;
 }
 
 html,
@@ -18,7 +15,7 @@ body {
 
 body {
   color: var(--foreground);
-  background: var(--background);
+  background-color: var(--background);
   font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -35,22 +32,61 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
-}
-
 .login-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  background-color: rgb(41, 44, 59);
+  width: 370px;
+  height: 400px;
+  padding: 20px;
+  border-radius: 30px;
+  background: var(--Box-purple);
+}
+
+.login-container h1 {
+  font-size: 24px;
+  font-weight: bold;
+  color: black;
+  margin-bottom: 10px;
+}
+
+.login-container p {
+  font-size: 16px;
+  color: black;
+  margin-bottom: 20px;
 }
 
 .login-button {
   width: 100%;
+  padding: 10px;
+  border-radius: 20px;
+  background: var(--Button-green, #4AAC55);
+  color: black;
+  font-size: 20px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.login-button:hover {
+  background: #3a8c45;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  background-color: white;
+  color: black;
+  border: none;
+  outline: none;
 }
 
 .card-container {
@@ -59,4 +95,114 @@ a {
   align-items: center;
   min-height: 100vh;
   background-color: rgb(41, 44, 59);
+}
+
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-container {
+  flex: 1;
+  margin-top: 50px; /* Space below the header */
+  padding: 20px;
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  background-color: var(--background);
+}
+
+.friends-list, .scrabble-now, .leaderboard {
+  background-color: var(--Box-purple);
+  border-radius: 20px;
+  padding: 20px;
+  text-align: center;
+  width: 30%;
+}
+
+.friends-list h2, .scrabble-now h2, .leaderboard h2 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.friends-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.friends-list li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.friends-list li img {
+  width: 24px;
+  height: 24px;
+  margin-right: 10px;
+}
+
+.add-friend-button, .create-game-button, .show-more-button {
+  margin-top: 20px;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.add-friend-button {
+  background-color: var(--Button-gold);
+}
+
+.create-game-button {
+  background-color: var(--Button-green);
+}
+
+.show-more-button {
+  background-color: var(--Button-gold);
+}
+
+.scrabble-board img {
+  width: 100%;
+  border-radius: 10px;
+}
+
+.leaderboard-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.leader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.leader img {
+  width: 32px;
+  height: 32px;
+  margin-right: 10px;
+}
+
+.content-container {
+  flex: 1;
+  margin-top: 100px;
+  padding: 20px;
+}
+
+.header {
+  height: 100px;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: black;
+  font-size: 24px;
+  font-weight: bold;
 }
