@@ -1,17 +1,11 @@
 :root {
-  --background: #C0D7E6;
+  --background: #C0D7E7;
   --foreground: #000000;
   --Box-purple: #9A9CF5;
   --Button-green: #4AAC55;
   --Button-red: #D04949;
   --Button-gold: #DCBB73;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --Dashboard-box-height: 400px;
 }
 
 html,
@@ -84,7 +78,7 @@ div.Title {
 
 body {
   color: var(--foreground);
-  background: var(--background);
+  background-color: var(--background);
   font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -101,22 +95,63 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
-}
+/* Login */
 
 .login-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  background-color: rgb(41, 44, 59);
+  width: 370px;
+  height: 400px;
+  padding: 20px;
+  border-radius: 30px;
+  background: var(--Box-purple);
+}
+
+.login-container h1 {
+  font-size: 24px;
+  font-weight: bold;
+  color: black;
+  margin-bottom: 10px;
+}
+
+.login-container p {
+  font-size: 16px;
+  color: black;
+  margin-bottom: 20px;
 }
 
 .login-button {
   width: 100%;
+  padding: 10px;
+  border-radius: 20px;
+  background: var(--Button-green, #4AAC55);
+  color: black;
+  font-size: 20px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.login-button:hover {
+  background: #3a8c45;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  background-color: white;
+  color: black;
+  border: none;
+  outline: none;
 }
 
 .card-container {
