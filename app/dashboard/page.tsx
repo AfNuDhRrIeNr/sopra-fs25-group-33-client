@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
+import './dashboard.css';
 
 interface Friend {
     id: number;
