@@ -1,6 +1,8 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import './dashboard.css';
+import Image from "next/image";
+
 
 interface Friend {
     id: number;
@@ -16,6 +18,15 @@ interface LeaderboardPlayer {
 const DashboardPage: React.FC = () => {
     const [friends, setFriends] = useState<Friend[]>([]);
     const [leaderboard, setLeaderboard] = useState<LeaderboardPlayer[]>([]);
+
+
+    const handleIconClick = () => {
+        alert("Icon clicked!");
+    };
+
+    const handleLogoutClick = () => {
+        alert("Logout clicked!")
+    }
 
     useEffect(() => {
         // Hardcoded list of friends
@@ -41,7 +52,38 @@ const DashboardPage: React.FC = () => {
 
     return (
         <div className="dashboard-page">
-            <div className="header">Header Placeholder</div>
+            <header>
+                  <button 
+                  className = "nav_button"
+                  onClick={handleLogoutClick}
+                  style = {{ backgroundColor: '#D04949', left: 0, marginLeft: '1vw'}}
+                  >
+                    Logout
+                  </button>
+            
+                  <div className = "Title">
+                    ScrabbleNow
+                  </div>
+            
+                  <div className="userSnippet">
+                    <span className="username">
+                      {"Guest"/* {username || "Guest"} */}
+                    </span>
+            
+                    <Image
+                      className = "icon"
+                      src="/images/User_Icon.jpg"
+                      alt="User Icon"
+                      width={100}
+                      height={100}
+                      priority
+                      onClick={handleIconClick}
+                      style = {{cursor: "pointer"}}
+                      />
+                </div>
+            </header>
+
+
             <div className="dashboard-container">
                 <div className="dashboard-section">
                     <h2>Friends List</h2>

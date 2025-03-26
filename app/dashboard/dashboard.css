@@ -1,3 +1,7 @@
+:root {
+  --Dashboard-box-height: 400px;
+}
+
 .dashboard-page {
     display: flex;
     flex-direction: column;
@@ -7,7 +11,7 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-top: 50px;
+    margin-top: 11vh;
     padding: 20px;
     background-color: var(--background);
   }
