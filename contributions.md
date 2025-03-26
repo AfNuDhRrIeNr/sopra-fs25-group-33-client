@@ -42,8 +42,9 @@ reason).
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **LucKer58** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **SilvanKasper** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **SilvanKasper** | 25.03.25   | [#37 Design login page](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/issues/37) | Design of login page | Login is the landing page of ScrabbleNow |
+|                    | 26.03.25   | [Login logic #22](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/issues/22) [Register logic #23](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/issues/23)| Both Login and Register work from the same page | Only logged in users can play ScrabbleNow |
+|                    | 26.03.25   | [Design of Dashboard page #24](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/issues/24) | Design the Dashboards components | From the Dashboard a user can create or join a game |
 
 ---
 
