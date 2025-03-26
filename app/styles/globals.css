@@ -5,13 +5,7 @@
   --Button-green: #4AAC55;
   --Button-red: #D04949;
   --Button-gold: #DCBB73;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #C0D7E7;
-    --foreground: #ffffff;
-  }
+  --Dashboard-box-height: 400px;
 }
 
 html,
@@ -99,12 +93,6 @@ body {
 a {
   color: inherit;
   text-decoration: none;
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
 }
 
 .card-container {
