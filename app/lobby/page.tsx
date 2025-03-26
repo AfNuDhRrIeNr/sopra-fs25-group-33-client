@@ -1,30 +1,22 @@
 "use client"; // For components that need React hooks and browser APIs, SSR (server side rendering) has to be disabled. Read more here: https://nextjs.org/docs/pages/building-your-application/rendering/server-side-rendering
 
 import { useRouter } from "next/navigation"; // use NextJS router for navigation
-import { useApi } from "@/hooks/useApi";
-import useLocalStorage from "@/hooks/useLocalStorage";
-import { User } from "@/types/user";
-import { Button, Form, Input } from "antd";
-import React, { useEffect, useState } from "react";
+import { Button, Input, Modal } from "antd";
+import React, { useState } from "react";
 import "@ant-design/v5-patch-for-react-19";
 //import { useRouter } from "next/navigation";
 import Image from "next/image";
-import styles from "@/styles/page.module.css";
 import "./lobby.css";
 // Optionally, you can import a CSS module or file for additional styling:
 // import styles from "@/styles/page.module.css";
-
-
-interface FormFieldProps {
-  label: string;
-  value: string;
-}
 
 const Login: React.FC = () => {
   const games = 0;
   const rank = 0;
   const router = useRouter();
-  const [isAlone, setIsAlone] = useState(false);
+  const [isAlone, setIsAlone] = useState(true);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [editValue, setEditValue] = useState("");
   // const apiService = useApi();
   // const [form] = Form.useForm();
   // useLocalStorage hook example use
@@ -38,12 +30,19 @@ const Login: React.FC = () => {
     alert("Icon clicked!");
   };
 
-  const handleInvite = () => {
-    alert("Invite clicked!")
+  /* opens the Modal*/
+  const openEditModal = () => {
+    setIsModalVisible(true);
   }
 
   const startGame = () => {
-    alert("Game was started!")
+    alert("Game was started!");
+  }
+
+  const handleInvite = () => {
+    alert(`Invite to ${editValue} was sent!`);
+    setIsAlone(false);
+    setIsModalVisible(false);
   }
 
 
@@ -125,7 +124,7 @@ return (
       <div id = "lowerScreen">
         <button className = "nav_button" 
         id = "invitePlayer"
-        onClick = {isAlone ? handleInvite : startGame} 
+        onClick = {isAlone ? openEditModal : startGame}
         style = {{background: "#4AAC55"}}>
           {isAlone ? "Invite Player" : "Start Game"}
         </button>
@@ -146,7 +145,27 @@ return (
             />
         </div>
       </div>
-
+      <Modal
+      title = {`Send lobby invite`}
+      open = {isModalVisible}
+      onCancel = {() => setIsModalVisible(false)}
+      footer = {[
+        <Button key = "cancel" onClick = {() => setIsModalVisible(false)}>
+          Cancel
+        </Button>,
+        <Button key = "Send" type="primary" onClick = {handleInvite}>
+          Send
+        </Button>
+      ]}
+      >
+        <Input
+        type="string"
+        value = {editValue}
+        onChange = {(e) => setEditValue(e.target.value)}
+        placeholder="Enter username"
+        >
+        </Input>
+      </Modal>
     </main>
 
   </div>
@@ -154,49 +173,3 @@ return (
 }
 
 export default Login;
-
-// export default function Home() {
-  //   return (
-    //     <div className={styles.page}>
-    //       <h1 className={styles.header}>ScrabbleNow is in progress</h1>
-    //       <main className={styles.main}>
-    //         <Image
-    //           className={styles.logo}
-    //           src="/next.svg"
-    //           alt="Next.js logo"
-    //           width={180}
-    //           height={38}
-    //           priority
-    //         />
-    //       </main>
-    //     </div>
-    //     );
-    //   }
-
-
-    // const {
-    //   // value: token, // is commented out because we do not need the token value
-    //   set: setToken, // we need this method to set the value of the token to the one we receive from the POST request to the backend server API
-    //   // clear: clearToken, // is commented out because we do not need to clear the token when logging in
-    // } = useLocalStorage<string>("token", ""); // note that the key we are selecting is "token" and the default value we are setting is an empty string
-    // // if you want to pick a different token, i.e "usertoken", the line above would look as follows: } = useLocalStorage<string>("usertoken", "");
-    
-    // const handleLogin = async (values: FormFieldProps) => {
-    //   try {
-    //     // Call the API service and let it handle JSON serialization and error handling
-    //     const response = await apiService.post<User>("/users", values);
-    
-    //     // Use the useLocalStorage hook that returned a setter function (setToken in line 41) to store the token if available
-    //     if (response.token) {
-    //       setToken(response.token);
-    //     }
-    
-    //     // Navigate to the user overview
-    //     router.push("/users");
-    //   } catch (error) {
-    //     if (error instanceof Error) {
-    //       alert(`Something went wrong during the login:\n${error.message}`);
-    //     } else {
-    //       console.error("An unknown error occurred during login.");
-    //     }
-    //   }
