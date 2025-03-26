@@ -2,19 +2,24 @@
 import "@ant-design/v5-patch-for-react-19";
 //import { useRouter } from "next/navigation";
 import Image from "next/image";
-import styles from "@/styles/page.module.css";
 
 export default function Home() {
   return (
-    <div className={styles.page}>
-      <h1 className={styles.header}>ScrabbleNow is in progress</h1>
-      <main className={styles.main}>
+    <div>
+      <h1
+        style={{
+          textAlign: "center",
+        }}
+      >
+        ScrabbleNow is in progress
+      </h1>
+      <main>
         <Image
-          className={styles.logo}
           src="/next.svg"
           alt="Next.js logo"
           width={180}
           height={38}
+          style={{ display: "block", margin: "0 auto" }}
           priority
         />
       </main>
