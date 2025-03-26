@@ -23,7 +23,7 @@ const Login: React.FC = () => {
   // The hook returns an object with the value and two functions
   // Simply choose what you need from the hook:
   const handleButtonClick = () => {
-    router.push("/Dashboard");
+    router.push("/dashboard");
   };
 
   const handleIconClick = () => {
