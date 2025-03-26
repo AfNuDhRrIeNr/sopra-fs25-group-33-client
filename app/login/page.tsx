@@ -1,5 +1,6 @@
 "use client"; // For components that need React hooks and browser APIs, SSR (server side rendering) has to be disabled. Read more here: https://nextjs.org/docs/pages/building-your-application/rendering/server-side-rendering
 
+import '@ant-design/v5-patch-for-react-19';
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
@@ -10,33 +11,37 @@ const Login: React.FC = () => {
   const apiService = useApi();
   const { set: setToken } = useLocalStorage<string>("token", "");
 
-  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const values = {
-      username: formData.get("username") as string,
-      password: formData.get("password") as string,
-    };
-
+  const handleRegister = async (values: { username: string; password: string }) => {
     try {
-      const response = await apiService.post<User>("/users", values);
+      const response = await apiService.post<User>("/users/register", values);
+
       if (response.token) {
         setToken(response.token);
+        router.push("/dashboard");
       }
-      router.push("/users");
     } catch (error) {
-      if (error instanceof Error) {
-        alert(`Something went wrong during the login:\n${error.message}`);
-      } else {
-        console.error("An unknown error occurred during login.");
-      }
+      console.error("Registration Error:", error);
+      alert(`Registration failed: ${(error as Error).message}`);
     }
   };
+
+  const handleLogin = async (values: { username: string; password: string }) => {
+    try {
+      const response = await apiService.post<User>("/users/login", values);
+
+      if (response.token) {
+        setToken(response.token);
+        router.push("/dashboard");
+    }} catch (error) {
+        console.error("Registration Error:", error);
+        alert(`Registration failed: ${(error as Error).message}`);
+      }
+    };
 
   return (
     <div
       style={{
-        backgroundImage: "url('/BackgroundImageLogin.jpg')", // Correct absolute path
+        backgroundImage: "url('/BackgroundImageLogin.jpg')",
         backgroundSize: "cover",
         backgroundPosition: "top center",
         minHeight: "100vh",
@@ -48,7 +53,18 @@ const Login: React.FC = () => {
       <div className="login-container">
         <h1>Welcome to ScrabbleNow</h1>
         <p>Who are you?</p>
-        <form onSubmit={handleLogin}>
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            const form = event.currentTarget;
+            const formData = new FormData(form);
+            const values = {
+              username: formData.get("username") as string,
+              password: formData.get("password") as string,
+            };
+            handleLogin(values);
+          }}
+        >
           <input
             type="text"
             name="username"
@@ -67,7 +83,17 @@ const Login: React.FC = () => {
           <button
             type="button"
             className="login-button"
-            onClick={() => router.push("/register")}
+            onClick={() => {
+              const form = document.querySelector("form");
+              if (form) {
+                const formData = new FormData(form);
+                const values = {
+                  username: formData.get("username") as string,
+                  password: formData.get("password") as string,
+                };
+                handleRegister(values);
+              }
+            }}
           >
             Register
           </button>
