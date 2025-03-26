@@ -12,6 +12,68 @@ html,
 body {
   max-width: 100vw;
   overflow-x: hidden;
+  background-color: var(--background);
+}
+
+header {
+  width: 100%;
+  height: clamp(2rem, 11vh, 11vh);
+  background-color: rgb(255, 255, 255); /* Makes it a white box */
+  /* padding: 2% 5%; */
+  align-items: center;
+  justify-content: center; 
+  position: fixed; /* Sticks it to the top */
+  top: 0;
+  z-index: 1000; /* higher z => higher layer */
+  display: flex;
+  /* border: 2px solid black; */
+}
+
+.userSnippet {
+  position: absolute;
+  right: 1vw;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  /* border: 2px solid #0a0a0a; */
+  height: 100%;
+
+}
+
+.icon {
+  height: clamp(1rem, min(73vh, 7vw), 100%);
+  width: auto;
+}
+
+.username {
+  font-size: clamp(1rem, 4vh, 100%);
+}
+
+.nav_button {
+  height: clamp(1rem, 4.7vh, 100%);
+  width: auto;
+  font-size: clamp(1rem, 4vh, 100%);
+  position: absolute;
+  cursor: pointer;
+  padding: 3px 30px;
+  border: none;
+  border-radius:30px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+div.Title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 11vh;
+  width: 50vw;
+  font-size: clamp(1rem, 8vh, 11vh);
+  font-family: monospace;
+  letter-spacing: 10%;
+  /* border: 2px solid black; */
 }
 
 body {
