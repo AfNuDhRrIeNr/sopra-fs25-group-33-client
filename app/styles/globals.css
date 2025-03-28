@@ -17,15 +17,13 @@ body {
 header {
   width: 100%;
   height: clamp(2rem, 11vh, 11vh);
-  background-color: rgb(255, 255, 255); /* Makes it a white box */
-  /* padding: 2% 5%; */
+  background-color: rgb(255, 255, 255);
   align-items: center;
   justify-content: center; 
-  position: fixed; /* Sticks it to the top */
+  position: fixed;
   top: 0;
   z-index: 1000; /* higher z => higher layer */
   display: flex;
-  /* border: 2px solid black; */
 }
 
 .userSnippet {
@@ -34,7 +32,6 @@ header {
   display: flex;
   align-items: center;
   gap: 10px;
-  /* border: 2px solid #0a0a0a; */
   height: 100%;
 
 }
@@ -72,7 +69,6 @@ div.Title {
   font-size: clamp(1rem, 8vh, 11vh);
   font-family: monospace;
   letter-spacing: 10%;
-  /* border: 2px solid black; */
 }
 
 body {
