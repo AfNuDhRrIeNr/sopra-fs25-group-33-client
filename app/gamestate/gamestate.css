@@ -16,9 +16,13 @@ div {
 #game-board {
     height: 95vh;
     width: 95vh;
-    border-color: pink;
-    display: flex;
+    /* border-color: pink; */
+    display: grid;
     margin: auto;
+}
+
+#game-board div {
+    cursor: pointer;
 }
 
 #rest-container {
@@ -32,4 +36,27 @@ div {
 #rest-container div {
     width:100%;
     height: 33.33vh;
+}
+
+.TW {
+    background-color: #D04949;
+}
+
+.DL {
+    background-color: #8B8FD6;
+}
+
+.DW {
+    background-color: #CE8D8D;
+}
+
+.TL {
+    background-color: #5261AC;
+}
+
+.Center {
+    background-color: #C4C4C4;
+}
+.Base {
+    background-color: #DCBB73;
 }
