@@ -42,6 +42,7 @@ reason).
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **LucKer58** | 26.03.25   | [Commit ad3827f](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/ad3827fefdd462a3e43e98310a8ae521e6747fc4)| Implement users/register endpoint and funtionality | User needs account to play the game|
 |                    | 26.03.25   | [Commit 42a9585](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/42a95850d1c986b843748bd1b4c765be5f85a339) | Implement users/login endpoint and funtionality | Allows only users with valid credentials to login and play
+|                    | 29.03.25   | [Commit 5ebe85b](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/5ebe85bf103d59b1cb7ddf6b27f41480fa98803e) | Test cases for the users/register and users/login endpoints | Asserts validity of endpoints |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **SilvanKasper** | 25.03.25   | [#37 Design login page](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/issues/37) | Design of login page | Login is the landing page of ScrabbleNow |
 |                    | 26.03.25   | [Login logic #22](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/issues/22) [Register logic #23](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/issues/23)| Both Login and Register work from the same page | Only logged in users can play ScrabbleNow |
