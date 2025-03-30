@@ -1,7 +1,5 @@
 "use client"; // For components that need React hooks and browser APIs, SSR (server side rendering) has to be disabled. Read more here: https://nextjs.org/docs/pages/building-your-application/rendering/server-side-rendering
 
-import { useRouter } from "next/navigation"; // use NextJS router for navigation
-import { Button, Input, Modal } from "antd";
 import React, { useState } from "react";
 import "@ant-design/v5-patch-for-react-19";
 //import { useRouter } from "next/navigation";
@@ -11,7 +9,9 @@ import "./gamestate.css";
 // import styles from "@/styles/page.module.css";
 
 const Gamestate: React.FC = () => {
-
+    const [letter, setLetter] = useState("");
+    const [number, setNumber] = useState<number | null>(null);
+    const [submittedLetter, setSubmittedLetter] = useState("");
     // Initialize the specialTiles dictionary
     const specialTiles: { [key: string]: string } = {};
 
@@ -91,13 +91,34 @@ const Gamestate: React.FC = () => {
         alert(`Tile clicked at (${col}, ${row}) with class: ${tileClass}`);
     };
 
+    const handleCheck = async () => {
+        if (letter.length !== 1 || !/[a-zA-Z]/.test(letter)) {
+            alert("Please enter a single letter.");
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:3000/gamestate/get-remaining-${letter}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            });
+
+            const data = await response.json();
+            setNumber(data.number);
+            setSubmittedLetter(letter.toUpperCase());
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
+    };
+
     return (
         <div id="screen">
           <div id="board-container">
             <div id="game-board" style={{
               gridTemplateColumns: 'repeat(15, 1fr)',
-              gridTemplateRows: 'repeat(15, 1fr)'
-            //   gap: '1px',
+              gridTemplateRows: 'repeat(15, 1fr)',
             }}>
               {[...Array(15)].map((_, row) => (
                 [...Array(15)].map((_, col) => {
@@ -116,9 +137,58 @@ const Gamestate: React.FC = () => {
               ))}
             </div>
           </div>
+
+
+
           <div id="rest-container">
             <div id="top"></div>
-            <div id="bag"></div>
+            <div id="bag-stuff">
+              <div id="bag-image">
+                <Image
+                    id = "bag-jpg"
+                    src="/TilesBag.png"
+                    alt="Letters Bag"
+                    width={248}
+                    height={204}
+                    priority
+                />
+              </div>
+              <div id="bag-info">
+                <div id="bag-description-container">
+                    <div id="bag-description">
+                        Ask the bag for remaining tiles
+                    </div>
+                </div>
+                <div id="bag-interaction">
+                    <div id="bag-input-container">
+                        <input 
+                        type="text"
+                        id="bag-input"
+                        value={letter}
+                        onChange={(e) => setLetter(e.target.value)} // Ensure only 1 letter
+                        maxLength={1}
+                        placeholder="// Letter"
+                        />
+                    </div>
+                    <div id="bag-button-container">
+                        <button 
+                        id="bag-button" 
+                        onClick={handleCheck}
+                        >
+                            Ask
+                        </button>
+                    </div>
+                </div>
+                <div id="tiles-info-container">
+                    <div>
+                        Remaining {submittedLetter || '{x}'}:
+                    </div>
+                    <div>
+                        {number || 0}
+                    </div>
+                </div>
+              </div>
+            </div>
             <div id="game-buttons"></div>
           </div>
         </div>
