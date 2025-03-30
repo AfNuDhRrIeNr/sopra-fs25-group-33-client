@@ -38,6 +38,7 @@ reason).
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **AfNuDhRrIeNr** | 25.03.25   | [Commit 35b62ce](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/35b62ce646edc8369f6d878e5ecc13035b64fe5d)| Implementing game structure (lobby database structure) | relevant for creating a lobby |
 |                    | 27.03.25   | [Commit df2acfd](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/df2acfd16a25d522bd2c416688ce5396b2fd39ec) | createGame endpoint implementation| relevant for creating a new game (creating lobby)|
+|                    | 30.03.25   | [Commit bd786f2](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/bd786f246e7227a9f8773040004d779c7b48e5e2) | Implementation lobby endpoint GET & PUT (3 commits in total [67f2da0], [651acd1]) | User can join a game |
 | **Mex7180** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **LucKer58** | 26.03.25   | [Commit ad3827f](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/ad3827fefdd462a3e43e98310a8ae521e6747fc4)| Implement users/register endpoint and funtionality | User needs account to play the game|
