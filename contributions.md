@@ -45,9 +45,9 @@ reason).
 |                    | 26.03.25   | [Commit 42a9585](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/42a95850d1c986b843748bd1b4c765be5f85a339) | Implement users/login endpoint and funtionality | Allows only users with valid credentials to login and play
 |                    | 29.03.25   | [Commit 5ebe85b](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/5ebe85bf103d59b1cb7ddf6b27f41480fa98803e) | Test cases for the users/register and users/login endpoints | Asserts validity of endpoints |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **SilvanKasper** | 25.03.25   | [#37 Design login page](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/issues/37) | Design of login page | Login is the landing page of ScrabbleNow |
-|                    | 26.03.25   | [Login logic #22](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/issues/22) [Register logic #23](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/issues/23)| Both Login and Register work from the same page | Only logged in users can play ScrabbleNow |
-|                    | 26.03.25   | [Design of Dashboard page #24](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/issues/24) | Design the Dashboards components | From the Dashboard a user can create or join a game |
+| **SilvanKasper** | 25.03.25   | [Commit fcec503](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/fcec503a1e376296fb6709d97e0e903a1b02447d) | Design of login page | Login is the landing page of ScrabbleNow |
+|                    | 26.03.25   | [Commit 8c422b2](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/8c422b242729fa8325b460fba54473ec3f91fbed)| Both Login and Register work from the same page | Only logged in users can play ScrabbleNow |
+|                    | 26.03.25   | [Commit 61d6a1a](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/pull/40/commits/61d6a1aa08780ff33e35f2b5023e3e58932ad149) | Design the Dashboards components | From the Dashboard a user can create or join a game |
 
 ---
 
