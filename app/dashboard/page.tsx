@@ -31,12 +31,12 @@ const DashboardPage: React.FC = () => {
     useEffect(() => {
         // Hardcoded list of friends
         const hardcodedFriends: Friend[] = [
-            { id: 1, name: 'Marcus', avatar: '/UserIcon.png' },
-            { id: 2, name: 'Monica', avatar: '/UserIcon.png' },
-            { id: 3, name: 'Daniel', avatar: '/UserIcon.png' },
-            { id: 4, name: 'Marcel', avatar: '/UserIcon.png' },
-            { id: 5, name: 'Thomas', avatar: '/UserIcon.png' },
-            { id: 6, name: 'Marc', avatar: '/UserIcon.png' },
+            { id: 1, name: 'Marcus', avatar: '/User_Icon.jpg' },
+            { id: 2, name: 'Monica', avatar: '/User_Icon.jpg' },
+            { id: 3, name: 'Daniel', avatar: '/User_Icon.jpg' },
+            { id: 4, name: 'Marcel', avatar: '/User_Icon.jpg' },
+            { id: 5, name: 'Thomas', avatar: '/User_Icon.jpg' },
+            { id: 6, name: 'Marc', avatar: '/User_Icon.jpg' },
 
         ];
         setFriends(hardcodedFriends);
@@ -72,7 +72,7 @@ const DashboardPage: React.FC = () => {
             
                     <Image
                       className = "icon"
-                      src="/images/User_Icon.jpg"
+                      src="/User_Icon.jpg"
                       alt="User Icon"
                       width={100}
                       height={100}

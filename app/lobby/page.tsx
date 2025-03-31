@@ -69,7 +69,7 @@ return (
 
         <Image
           className = "icon"
-          src="/images/User_Icon.jpg"
+          src="/User_Icon.jpg"
           alt="User Icon"
           width={100}
           height={100}
@@ -86,7 +86,7 @@ return (
         <div className = "user" style={{marginLeft: "8.1%"}}>
           <Image
             className = "bigger_icon"
-            src="/images/User_Icon.jpg"
+            src="/User_Icon.jpg"
             alt="User Icon"
             width={100}
             height={100}
@@ -110,7 +110,7 @@ return (
         <div className = "user" style={{opacity: isAlone ? 0.5 : 1, marginLeft:"-1.5vw", marginRight: "8.1%"}}>
           <Image
             className = "bigger_icon"
-            src="/images/User_Icon.jpg"
+            src="/User_Icon.jpg"
             alt="User Icon"
             width={100}
             height={100}
@@ -137,7 +137,7 @@ return (
         <div id= "boardImage">
           <Image
               className = "board"
-              src="/images/Board.jpg"
+              src="/Board.jpg"
               alt="Board Image"
               width={330}
               height={330}
