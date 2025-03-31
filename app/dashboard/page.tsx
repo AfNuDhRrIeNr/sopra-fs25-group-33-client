@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import './dashboard.css';
 import Image from "next/image";
+import { useApi } from "@/hooks/useApi";
 
 
 interface Friend {
@@ -18,28 +19,20 @@ interface LeaderboardPlayer {
 const DashboardPage: React.FC = () => {
     const [friends, setFriends] = useState<Friend[]>([]);
     const [leaderboard, setLeaderboard] = useState<LeaderboardPlayer[]>([]);
+    const [pendingRequests, setPendingRequests] = useState<Friend[]>([]);
+    const [sentRequests, setSentRequests] = useState<Friend[]>([]);
+    const [isSendFriendModalOpen, setIsSendFriendModalOpen] = useState(false);
+    const [isPendingRequestsModalOpen, setIsPendingRequestsModalOpen] = useState(false);
+    const [newFriendUsername, setNewFriendUsername] = useState<string>('');
+
+    const apiService = useApi();
 
 
-    const handleIconClick = () => {
-        alert("Icon clicked!");
-    };
-
-    const handleLogoutClick = () => {
-        alert("Logout clicked!")
-    }
-
+    // Fetch pending friend requests on component mount
     useEffect(() => {
-        // Hardcoded list of friends
-        const hardcodedFriends: Friend[] = [
-            { id: 1, name: 'Marcus', avatar: '/User_Icon.jpg' },
-            { id: 2, name: 'Monica', avatar: '/User_Icon.jpg' },
-            { id: 3, name: 'Daniel', avatar: '/User_Icon.jpg' },
-            { id: 4, name: 'Marcel', avatar: '/User_Icon.jpg' },
-            { id: 5, name: 'Thomas', avatar: '/User_Icon.jpg' },
-            { id: 6, name: 'Marc', avatar: '/User_Icon.jpg' },
-
-        ];
-        setFriends(hardcodedFriends);
+        apiService.get<Friend[]>('/friend-requests')
+            .then((data) => setPendingRequests(data))
+            .catch((error) => console.error('Error fetching friend requests:', error));
 
         // Hardcoded leaderboard
         const hardcodedLeaderboard: LeaderboardPlayer[] = [
@@ -48,7 +41,45 @@ const DashboardPage: React.FC = () => {
             { rank: 3, name: 'Marcel' },
         ];
         setLeaderboard(hardcodedLeaderboard);
-    }, []);
+
+    }, [apiService]);
+
+    // Function to send a friend request
+    const sendFriendRequest = () => {
+        if (!newFriendUsername.trim()) {
+            alert('Please enter a valid username.');
+            return;
+        }
+
+        apiService.post<Friend>('/friend-request', { username: newFriendUsername })
+            .then((data) => {
+                alert('Friend request sent!');
+                setSentRequests([...sentRequests, data]);
+                setNewFriendUsername(''); // Reset input
+                setIsSendFriendModalOpen(false); // Close modal
+            })
+            .catch((error) => console.error('Error sending friend request:', error));
+    };
+    // Function to accept or decline a friend request
+    const handleFriendRequest = (requestId: number, action: 'accept' | 'decline') => {
+        apiService.put<Friend>(`/friend-request/${requestId}`, { action })
+            .then((data) => {
+                alert(`Friend request ${action}ed!`);
+                setPendingRequests(pendingRequests.filter((req) => req.id !== requestId));
+                if (action === 'accept') {
+                    setFriends([...friends, data]);
+                }
+            })
+            .catch((error) => console.error(`Error ${action}ing friend request:`, error));
+    };
+
+    const handleIconClick = () => {
+        setIsPendingRequestsModalOpen(true);
+    };
+
+    const handleLogoutClick = () => {
+        alert("Logout clicked!")
+    }
 
     return (
         <div className="dashboard-page">
@@ -77,7 +108,7 @@ const DashboardPage: React.FC = () => {
                       width={100}
                       height={100}
                       priority
-                      onClick={handleIconClick}
+                      onClick={handleIconClick} // Open pending requests Modal
                       style = {{cursor: "pointer"}}
                       />
                 </div>
@@ -97,7 +128,7 @@ const DashboardPage: React.FC = () => {
                             ))}
                         </ul>
                     </div>
-                    <button className="add-friend-button">Add Friend</button>
+                    <button className="add-friend-button" onClick={() => setIsSendFriendModalOpen(true)}>Add Friend</button>
                 </div>
                 <div className="dashboard-section">
                     <h2>ScrabbleNow!</h2>
@@ -136,6 +167,45 @@ const DashboardPage: React.FC = () => {
                     </div>
                     <button className="show-more-button">Show more</button>
                 </div>
+                {/* Modal for Adding Friend */}
+                {isSendFriendModalOpen && (
+                    <div className="modal-overlay">
+                        <div className="modal">
+                            <h2>Add Friend</h2>
+                            <input
+                                type="text"
+                                placeholder="Enter Friend's Username"
+                                value={newFriendUsername}
+                                onChange={(e) => setNewFriendUsername(e.target.value)}
+                            />
+                            <button onClick={sendFriendRequest}>Send Request</button>
+                            <button onClick={() => setIsSendFriendModalOpen(false)}>Cancel</button>
+                        </div>
+                    </div>
+                )}
+                {/* Modal for Pending Friend Requests */}
+                {isPendingRequestsModalOpen && (
+                    <div className="modal-overlay">
+                        <div className="modal">
+                            <h2>Pending Friend Requests</h2>
+                            <ul>
+                                {pendingRequests.map((request) => (
+                                    <li key={request.id}>
+                                        <img src={request.avatar} alt={`${request.name}'s Avatar`} />
+                                        {request.name}
+                                        <button onClick={() => handleFriendRequest(request.id, 'accept')}>
+                                            Accept
+                                        </button>
+                                        <button onClick={() => handleFriendRequest(request.id, 'decline')}>
+                                            Decline
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                            <button onClick={() => setIsPendingRequestsModalOpen(false)}>Close</button>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
