@@ -30,7 +30,7 @@ const DashboardPage: React.FC = () => {
 
     // Fetch pending friend requests on component mount
     useEffect(() => {
-        apiService.get<Friend[]>('/friend-requests')
+        apiService.get<Friend[]>('/friendRequests/{userId}') // TODO retrieve userID to get current friendRequests
             .then((data) => setPendingRequests(data))
             .catch((error) => console.error('Error fetching friend requests:', error));
 
@@ -51,7 +51,7 @@ const DashboardPage: React.FC = () => {
             return;
         }
 
-        apiService.post<Friend>('/friend-request', { username: newFriendUsername })
+        apiService.post<Friend>('/friendRequests', { username: newFriendUsername })
             .then((data) => {
                 alert('Friend request sent!');
                 setSentRequests([...sentRequests, data]);
@@ -62,7 +62,7 @@ const DashboardPage: React.FC = () => {
     };
     // Function to accept or decline a friend request
     const handleFriendRequest = (requestId: number, action: 'accept' | 'decline') => {
-        apiService.put<Friend>(`/friend-request/${requestId}`, { action })
+        apiService.put<Friend>(`/friendRequests/${requestId}`, { action })
             .then((data) => {
                 alert(`Friend request ${action}ed!`);
                 setPendingRequests(pendingRequests.filter((req) => req.id !== requestId));
@@ -70,7 +70,7 @@ const DashboardPage: React.FC = () => {
                     setFriends([...friends, data]);
                 }
             })
-            .catch((error) => console.error(`Error ${action}ing friend request:`, error));
+            .catch((error) => console.error(`${action} failed:`, error));
     };
 
     const handleIconClick = () => {
