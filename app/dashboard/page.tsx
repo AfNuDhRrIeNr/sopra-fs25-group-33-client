@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import './dashboard.css';
 import Image from "next/image";
 import { useApi } from "@/hooks/useApi";
+import { Marcellus } from 'next/font/google';
 
 
 interface Friend {
@@ -19,14 +20,21 @@ interface LeaderboardPlayer {
 const DashboardPage: React.FC = () => {
     const [friends, setFriends] = useState<Friend[]>([]);
     const [leaderboard, setLeaderboard] = useState<LeaderboardPlayer[]>([]);
-    const [pendingRequests, setPendingRequests] = useState<Friend[]>([]);
+    const [pendingRequests, setPendingRequests] = useState<Friend[]>([{
+        id: 1,
+        name: "Marco",
+        avatar: "/User_Icon.jpg" 
+    },{
+        id: 1,
+        name: "Seb",
+        avatar: "/User_Icon.jpg"
+    }]);
     const [sentRequests, setSentRequests] = useState<Friend[]>([]);
     const [isSendFriendModalOpen, setIsSendFriendModalOpen] = useState(false);
     const [isPendingRequestsModalOpen, setIsPendingRequestsModalOpen] = useState(false);
     const [newFriendUsername, setNewFriendUsername] = useState<string>('');
 
     const apiService = useApi();
-
 
     // Fetch pending friend requests on component mount
     useEffect(() => {
@@ -100,7 +108,7 @@ const DashboardPage: React.FC = () => {
                     <span className="username">
                       {"Guest"/* {username || "Guest"} */}
                     </span>
-            
+                    <div className='user-icon'>
                     <Image
                       className = "icon"
                       src="/User_Icon.jpg"
@@ -111,6 +119,8 @@ const DashboardPage: React.FC = () => {
                       onClick={handleIconClick} // Open pending requests Modal
                       style = {{cursor: "pointer"}}
                       />
+                      {pendingRequests.length > 0 && <div className="notification-dot"></div>}
+                    </div>
                 </div>
             </header>
 
@@ -178,33 +188,41 @@ const DashboardPage: React.FC = () => {
                                 value={newFriendUsername}
                                 onChange={(e) => setNewFriendUsername(e.target.value)}
                             />
-                            <button onClick={sendFriendRequest}>Send Request</button>
-                            <button onClick={() => setIsSendFriendModalOpen(false)}>Cancel</button>
+                            <button className='modal-button-green' onClick={sendFriendRequest}>Send Request</button>
+                            <button className='modal-button-red' onClick={() => setIsSendFriendModalOpen(false)}>Cancel</button>
                         </div>
                     </div>
                 )}
                 {/* Modal for Pending Friend Requests */}
                 {isPendingRequestsModalOpen && (
-                    <div className="modal-overlay">
-                        <div className="modal">
-                            <h2>Pending Friend Requests</h2>
-                            <ul>
-                                {pendingRequests.map((request) => (
-                                    <li key={request.id}>
-                                        <img src={request.avatar} alt={`${request.name}'s Avatar`} />
-                                        {request.name}
-                                        <button onClick={() => handleFriendRequest(request.id, 'accept')}>
-                                            Accept
-                                        </button>
-                                        <button onClick={() => handleFriendRequest(request.id, 'decline')}>
-                                            Decline
-                                        </button>
-                                    </li>
-                                ))}
-                            </ul>
-                            <button onClick={() => setIsPendingRequestsModalOpen(false)}>Close</button>
-                        </div>
-                    </div>
+                  <div className="modal-overlay">
+                      <div className="modal">
+                          <h2>Pending Friend Requests</h2>
+                          {pendingRequests.length > 0 ? (
+                             <ul>
+                                 {pendingRequests.map((request) => (
+                                     <li key={request.id} className='friend-request-row'>
+                                         <img 
+                                         src={request.avatar} 
+                                         alt={`${request.name}'s Avatar`}
+                                         className='modal-avatar'
+                                         />
+                                         <span className='friend-username'>{request.name}</span>
+                                         <button className='modal-button-green' onClick={() => handleFriendRequest(request.id, 'accept')}>
+                                             Accept
+                                         </button>
+                                            <button className='modal-button-red' onClick={() => handleFriendRequest(request.id, 'decline')}>
+                                                Decline
+                                            </button>
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <p>No pending friend requests.</p>
+                            )}
+                            <button className='modal-button-gold' onClick={() => setIsPendingRequestsModalOpen(false)}>Close</button>
+                       </div>
+                 </div>
                 )}
             </div>
         </div>
