@@ -3,8 +3,6 @@ import React, { useEffect, useState } from 'react';
 import './dashboard.css';
 import Image from "next/image";
 import { useApi } from "@/hooks/useApi";
-import { Marcellus } from 'next/font/google';
-
 
 interface Friend {
     id: number;
@@ -20,15 +18,15 @@ interface LeaderboardPlayer {
 const DashboardPage: React.FC = () => {
     const [friends, setFriends] = useState<Friend[]>([]);
     const [leaderboard, setLeaderboard] = useState<LeaderboardPlayer[]>([]);
-    const [pendingRequests, setPendingRequests] = useState<Friend[]>([{
+    const [pendingRequests, setPendingRequests] = useState<Friend[]>([/*{
         id: 1,
         name: "Marco",
         avatar: "/User_Icon.jpg" 
     },{
-        id: 1,
-        name: "Seb",
+        id: 2,
+        name: "Sebastiano12345678",
         avatar: "/User_Icon.jpg"
-    }]);
+    }*/]);
     const [sentRequests, setSentRequests] = useState<Friend[]>([]);
     const [isSendFriendModalOpen, setIsSendFriendModalOpen] = useState(false);
     const [isPendingRequestsModalOpen, setIsPendingRequestsModalOpen] = useState(false);
@@ -38,7 +36,7 @@ const DashboardPage: React.FC = () => {
 
     // Fetch pending friend requests on component mount
     useEffect(() => {
-        apiService.get<Friend[]>('/friendRequests/{userId}') // TODO retrieve userID to get current friendRequests
+        apiService.get<Friend[]>('/users/friendRequests')
             .then((data) => setPendingRequests(data))
             .catch((error) => console.error('Error fetching friend requests:', error));
 
@@ -59,7 +57,7 @@ const DashboardPage: React.FC = () => {
             return;
         }
 
-        apiService.post<Friend>('/friendRequests', { username: newFriendUsername })
+        apiService.post<Friend>('/users/friendRequests', { username: newFriendUsername })
             .then((data) => {
                 alert('Friend request sent!');
                 setSentRequests([...sentRequests, data]);
@@ -70,9 +68,9 @@ const DashboardPage: React.FC = () => {
     };
     // Function to accept or decline a friend request
     const handleFriendRequest = (requestId: number, action: 'accept' | 'decline') => {
-        apiService.put<Friend>(`/friendRequests/${requestId}`, { action })
+        apiService.put<Friend>(`/users/friendRequests/${requestId}`, { action })
             .then((data) => {
-                alert(`Friend request ${action}ed!`);
+                alert(`Friend request ${action}`);
                 setPendingRequests(pendingRequests.filter((req) => req.id !== requestId));
                 if (action === 'accept') {
                     setFriends([...friends, data]);

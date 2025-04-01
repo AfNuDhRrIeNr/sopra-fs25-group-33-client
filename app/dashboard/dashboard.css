@@ -123,17 +123,6 @@
     padding: 20px;
   }
 
-  .header {
-    height: 100px;
-    background-color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: black;
-    font-size: 24px;
-    font-weight: bold;
-  }
-
   /* Modal Overlay */
 .modal-overlay {
   position: fixed;
@@ -164,6 +153,11 @@
 
 .modal p {
   margin-bottom: 20px;
+}
+
+.modal span {
+  text-align: left;
+  overflow: hidden;
 }
 
 .modal input {
