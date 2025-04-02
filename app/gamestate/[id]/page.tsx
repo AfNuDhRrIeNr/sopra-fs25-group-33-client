@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import "@ant-design/v5-patch-for-react-19";
+import { Button } from "antd"; 
 import Image from "next/image";
 import "../gamestate.css";
 
@@ -113,6 +114,22 @@ const Gamestate: React.FC = () => {
         }
     };
 
+    const verifyWord = () => {
+        alert("WordVerify");
+    }
+
+    const exchangeTiles = () => {
+        alert("Exchange");
+    }
+
+    const skipTurn = () => {
+        alert("Skip");
+    }
+
+    const commitWord = () => {
+        alert("WordCommited");
+    }
+
     return (
         <div id="screen">
             <div id="board-container">
@@ -143,10 +160,12 @@ const Gamestate: React.FC = () => {
                 </div>
             </div>
             <div id="rest-container">
-                <div id="top"></div>
+                <div id="top">
+
+                </div>
                 <div id="bag-stuff">
                     <div id="bag-image">
-                        <Image id="bag-jpg" src="/TilesBag.png" alt="Letters Bag" width={248} height={204} priority />
+                        <Image id="bag-jpg" src="/TilesBag.png" alt="Letters Bag" width={222} height={168} priority />
                     </div>
                     <div id="bag-info">
                         <div id="bag-description-container">
@@ -173,7 +192,45 @@ const Gamestate: React.FC = () => {
                         </div>
                     </div>
                 </div>
-                <div id="game-buttons"></div>
+                <div id="tiles-storage-container">
+                <div 
+                    id="tiles-storage" 
+                    >
+                    {[...Array(7)].map((_, col) => (
+                        <div 
+                        key={col} 
+                        id={col.toString()} 
+                        className="tile-placeholder"
+                        />
+                    ))}
+                    </div>
+                </div>
+                <div id="game-buttons">
+                    <div id="upper-row-container">
+                        <div id="verify-button-container">
+                            <Button onClick = {verifyWord} id="verify-button"  className="game-buttons">
+                                Verify
+                            </Button>
+                        </div>
+                        <div id="exchange-button-container">
+                            <Button onClick = {() => exchangeTiles()} id="exhange-button" className="game-buttons">
+                                Exchange
+                            </Button>
+                        </div>
+                        <div id="skip-button-container">
+                            <Button onClick = {skipTurn} id="skip-button" className="game-buttons">
+                                Skip
+                            </Button>
+                        </div>
+                    </div>
+                    <div id="lower-row-container">
+                        <div id="commit-button-container">
+                            <Button onClick = {commitWord} id="commit-button" className="game-buttons">
+                                Play Word
+                            </Button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );

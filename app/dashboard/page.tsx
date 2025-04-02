@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import './dashboard.css';
 import Image from "next/image";
 import { useApi } from "@/hooks/useApi";
-import useLocalStorage from "@/hooks/useLocalStorage";
+// import useLocalStorage from "@/hooks/useLocalStorage";
 
 
 interface Friend {
