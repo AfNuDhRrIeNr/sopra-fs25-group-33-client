@@ -18,7 +18,7 @@ const Login: React.FC = () => {
     try {
       const response = await apiService.post<User>("/users/register", values);
 
-      if (response.token) {
+      if (response.token && response.id && response.username) {
         setToken(response.token);
         setUserId(response.id);
         setUsername(response.username);
@@ -34,7 +34,7 @@ const Login: React.FC = () => {
     try {
       const response = await apiService.post<User>("/users/login", values);
 
-      if (response.token && response.id) {
+      if (response.token && response.id && response.username) {
         setToken(response.token);
         setUserId(response.id);
         setUsername(response.username);

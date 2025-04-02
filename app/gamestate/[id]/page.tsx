@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import "@ant-design/v5-patch-for-react-19";
 import Image from "next/image";
-import "./gamestate.css";
+import "../gamestate.css";
 
 // Generate specialTiles outside the component to prevent re-execution
 const generateSpecialTiles = () => {
