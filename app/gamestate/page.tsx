@@ -1,20 +1,13 @@
-"use client"; // For components that need React hooks and browser APIs, SSR (server side rendering) has to be disabled. Read more here: https://nextjs.org/docs/pages/building-your-application/rendering/server-side-rendering
+"use client"; // Required for using React hooks in Next.js
 
 import React, { useState } from "react";
 import "@ant-design/v5-patch-for-react-19";
-//import { useRouter } from "next/navigation";
 import Image from "next/image";
 import "./gamestate.css";
-// Optionally, you can import a CSS module or file for additional styling:
-// import styles from "@/styles/page.module.css";
 
-const Gamestate: React.FC = () => {
-    const [letter, setLetter] = useState("");
-    const [number, setNumber] = useState<number | null>(null);
-    const [submittedLetter, setSubmittedLetter] = useState("");
-    // Initialize the specialTiles dictionary
+// Generate specialTiles outside the component to prevent re-execution
+const generateSpecialTiles = () => {
     const specialTiles: { [key: string]: string } = {};
-
     for (let row = 0; row < 15; row++) {
         for (let col = 0; col < 15; col++) {
             // Triple Word (TW)
@@ -70,7 +63,7 @@ const Gamestate: React.FC = () => {
                 col === 7 && row ===7
             )
                 {
-                    const key = `7-7`;
+                    const key = 7-7;
                     specialTiles[key] = 'Center';
                     continue; 
                 }
@@ -79,15 +72,26 @@ const Gamestate: React.FC = () => {
             specialTiles[key] = 'Base'; 
         }
     }
+    return specialTiles;
+};
 
-    // Function to check if a tile is special and return its class
+const specialTiles = generateSpecialTiles();
+
+
+
+const Gamestate: React.FC = () => {
+    const [letter, setLetter] = useState("");
+    const [number, setNumber] = useState<number | null>(null);
+    const [submittedLetter, setSubmittedLetter] = useState("");
+
+    // Function to get the tile class
     const getTileClass = (row: number, col: number) => {
         const key = `${col}-${row}`;
-        return specialTiles[key]; // Return the class if special, otherwise empty
+        return specialTiles[key];
     };
 
     const handleTileClick = (row: number, col: number) => {
-        const tileClass = getTileClass(row, col); // Get the class for the clicked tile
+        const tileClass = getTileClass(row, col);
         alert(`Tile clicked at (${col}, ${row}) with class: ${tileClass}`);
     };
 
@@ -96,15 +100,11 @@ const Gamestate: React.FC = () => {
             alert("Please enter a single letter.");
             return;
         }
-
         try {
             const response = await fetch(`http://localhost:3000/gamestate/get-remaining-${letter}`, {
                 method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                }
+                headers: { "Content-Type": "application/json" },
             });
-
             const data = await response.json();
             setNumber(data.number);
             setSubmittedLetter(letter.toUpperCase());
@@ -115,84 +115,61 @@ const Gamestate: React.FC = () => {
 
     return (
         <div id="screen">
-          <div id="board-container">
-            <div id="game-board" style={{
-              gridTemplateColumns: 'repeat(15, 1fr)',
-              gridTemplateRows: 'repeat(15, 1fr)',
-            }}>
-              {[...Array(15)].map((_, row) => (
-                [...Array(15)].map((_, col) => {
-                    const tileClass = getTileClass(row,col);
-                    return(
-                        <div key={`${col}-${row}`} 
-                            id={`tile-${col}-${row}`} 
-                            data-coordinates={`(${col},${row})`} 
-                            className={`${tileClass}`}
-                            onClick={() => handleTileClick(row, col)}
-                                >
-                            {/* Tile content will go here */}
+            <div id="board-container">
+                <div id="game-board" style={{
+                    gridTemplateColumns: 'repeat(15, 1fr)',
+                    gridTemplateRows: 'repeat(15, 1fr)',
+                }}>
+                    {[...Array(15)].map((_, row) => (
+                        [...Array(15)].map((_, col) => {
+                            const tileClass = getTileClass(row, col);
+                            return (
+                                <div key={`${col}-${row}`} 
+                                    id={`tile-${col}-${row}`} 
+                                    data-coordinates={`(${col},${row})`} 
+                                    className={tileClass}
+                                    onClick={() => handleTileClick(row, col)}>
+                                </div>
+                            );
+                        })
+                    ))}
+                </div>
+            </div>
+            <div id="rest-container">
+                <div id="top"></div>
+                <div id="bag-stuff">
+                    <div id="bag-image">
+                        <Image id="bag-jpg" src="/TilesBag.png" alt="Letters Bag" width={248} height={204} priority />
+                    </div>
+                    <div id="bag-info">
+                        <div id="bag-description-container">
+                            <div id="bag-description">Ask the bag for remaining tiles</div>
                         </div>
-                    )
-                })
-              ))}
+                        <div id="bag-interaction">
+                            <div id="bag-input-container">
+                                <input 
+                                    type="text"
+                                    id="bag-input"
+                                    value={letter}
+                                    onChange={(e) => setLetter(e.target.value)}
+                                    maxLength={1}
+                                    placeholder="// Letter"
+                                />
+                            </div>
+                            <div id="bag-button-container">
+                                <button id="bag-button" onClick={handleCheck}>Ask</button>
+                            </div>
+                        </div>
+                        <div id="tiles-info-container">
+                            <div>Remaining {submittedLetter || '{x}'}:</div>
+                            <div>{number || 0}</div>
+                        </div>
+                    </div>
+                </div>
+                <div id="game-buttons"></div>
             </div>
-          </div>
-
-
-
-          <div id="rest-container">
-            <div id="top"></div>
-            <div id="bag-stuff">
-              <div id="bag-image">
-                <Image
-                    id = "bag-jpg"
-                    src="/TilesBag.png"
-                    alt="Letters Bag"
-                    width={248}
-                    height={204}
-                    priority
-                />
-              </div>
-              <div id="bag-info">
-                <div id="bag-description-container">
-                    <div id="bag-description">
-                        Ask the bag for remaining tiles
-                    </div>
-                </div>
-                <div id="bag-interaction">
-                    <div id="bag-input-container">
-                        <input 
-                        type="text"
-                        id="bag-input"
-                        value={letter}
-                        onChange={(e) => setLetter(e.target.value)} // Ensure only 1 letter
-                        maxLength={1}
-                        placeholder="// Letter"
-                        />
-                    </div>
-                    <div id="bag-button-container">
-                        <button 
-                        id="bag-button" 
-                        onClick={handleCheck}
-                        >
-                            Ask
-                        </button>
-                    </div>
-                </div>
-                <div id="tiles-info-container">
-                    <div>
-                        Remaining {submittedLetter || '{x}'}:
-                    </div>
-                    <div>
-                        {number || 0}
-                    </div>
-                </div>
-              </div>
-            </div>
-            <div id="game-buttons"></div>
-          </div>
         </div>
-      );
-    };
+    );
+};
 
 export default Gamestate;
