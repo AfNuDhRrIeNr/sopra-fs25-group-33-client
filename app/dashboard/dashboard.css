@@ -167,15 +167,27 @@
   background-color: var(--Box-purple);
   border: var(--Box-purple);
   border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .modal button {
   padding: 10px 20px;
-  margin: 5px;
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  color:black
+  color:black;
+}
+
+.modal-input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
 }
 
 .modal-button-green {
@@ -188,6 +200,7 @@
 
 .modal-button-gold {
   background-color: var(--Button-gold, #DCBB73);
+  margin-top: 10px;
 }
 
 .user-icon {
@@ -234,7 +247,7 @@
   align-items: center;
   justify-content: space-between; /* Spread items across the row */
   padding: 10px;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
   background-color: var(--Box-purple); /* Optional: Add a background color */
   border-radius: 8px; /* Optional: Add rounded corners */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle shadow */

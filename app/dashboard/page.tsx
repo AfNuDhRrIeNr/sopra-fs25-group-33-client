@@ -24,7 +24,7 @@ const DashboardPage: React.FC = () => {
         avatar: "/User_Icon.jpg" 
     },{
         id: 2,
-        name: "Sebastiano12345678",
+        name: "Sebastiano",
         avatar: "/User_Icon.jpg"
     }*/]);
     const [sentRequests, setSentRequests] = useState<Friend[]>([]);
@@ -180,14 +180,18 @@ const DashboardPage: React.FC = () => {
                     <div className="modal-overlay">
                         <div className="modal">
                             <h2>Add Friend</h2>
+                            <div className="modal-input-container">
                             <input
                                 type="text"
                                 placeholder="Enter Friend's Username"
                                 value={newFriendUsername}
                                 onChange={(e) => setNewFriendUsername(e.target.value)}
                             />
+                            <div className='modal-buttons'>
                             <button className='modal-button-green' onClick={sendFriendRequest}>Send Request</button>
                             <button className='modal-button-red' onClick={() => setIsSendFriendModalOpen(false)}>Cancel</button>
+                            </div>
+                            </div>
                         </div>
                     </div>
                 )}
@@ -206,12 +210,14 @@ const DashboardPage: React.FC = () => {
                                          className='modal-avatar'
                                          />
                                          <span className='friend-username'>{request.name}</span>
+                                         <div className='modal-buttons'>
                                          <button className='modal-button-green' onClick={() => handleFriendRequest(request.id, 'accept')}>
                                              Accept
                                          </button>
                                             <button className='modal-button-red' onClick={() => handleFriendRequest(request.id, 'decline')}>
                                                 Decline
                                             </button>
+                                        </div>
                                         </li>
                                     ))}
                                 </ul>
