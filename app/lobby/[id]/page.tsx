@@ -6,7 +6,7 @@ import React, { useState } from "react";
 import "@ant-design/v5-patch-for-react-19";
 //import { useRouter } from "next/navigation";
 import Image from "next/image";
-import "./lobby.css";
+import "../lobby.css";
 // Optionally, you can import a CSS module or file for additional styling:
 // import styles from "@/styles/page.module.css";
 

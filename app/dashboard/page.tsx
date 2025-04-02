@@ -1,8 +1,11 @@
 'use client';
+import { useRouter } from "next/navigation"; // use NextJS router for navigation
 import React, { useEffect, useState } from 'react';
 import './dashboard.css';
 import Image from "next/image";
 import { useApi } from "@/hooks/useApi";
+import useLocalStorage from "@/hooks/useLocalStorage";
+
 
 interface Friend {
     id: number;
@@ -15,7 +18,16 @@ interface LeaderboardPlayer {
     name: string;
 }
 
+interface Game {
+    id: number;
+    host: string;
+    status: string;
+}
+
 const DashboardPage: React.FC = () => {
+    const userId = localStorage.getItem("userId");
+    const router = useRouter();
+    
     const [friends, setFriends] = useState<Friend[]>([]);
     const [leaderboard, setLeaderboard] = useState<LeaderboardPlayer[]>([]);
     const [pendingRequests, setPendingRequests] = useState<Friend[]>([/*{
@@ -87,6 +99,21 @@ const DashboardPage: React.FC = () => {
         alert("Logout clicked!")
     }
 
+
+    const createGamestate = async () => {
+        try {
+              const response = await apiService.post<Game>("/games", userId);
+        
+              if (response.id) {
+                router.push(`/lobby/${response.id}`);
+
+            }} catch (error) {
+                console.error("Error creating lobby:", error);
+                alert(`Could not create lobby: ${(error as Error).message}`);
+              }
+            };
+
+
     return (
         <div className="dashboard-page">
             <header>
@@ -145,7 +172,7 @@ const DashboardPage: React.FC = () => {
                             <img src="/Board.jpg" alt="Scrabble Board" />
                         </div>
                     </div>
-                    <button className="create-game-button">Create Game</button>
+                    <button className="create-game-button" onClick = {createGamestate} >Create Game</button>
                 </div>
                 <div className="dashboard-section">
                     <h2>Leaderboard</h2>

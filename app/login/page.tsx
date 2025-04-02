@@ -11,6 +11,7 @@ const Login: React.FC = () => {
   const router = useRouter();
   const apiService = useApi();
   const { set: setToken } = useLocalStorage<string>("token", "");
+  const { set: setUserId } = useLocalStorage<string>("userId", "0")
 
   const handleRegister = async (values: { username: string; password: string }) => {
     try {
@@ -30,8 +31,9 @@ const Login: React.FC = () => {
     try {
       const response = await apiService.post<User>("/users/login", values);
 
-      if (response.token) {
+      if (response.token && response.id) {
         setToken(response.token);
+        setUserId(response.id);
         router.push("/dashboard");
     }} catch (error) {
         console.error("Registration Error:", error);
