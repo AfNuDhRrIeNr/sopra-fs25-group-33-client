@@ -63,7 +63,7 @@ const generateSpecialTiles = () => {
                 col === 7 && row ===7
             )
                 {
-                    const key = 7-7;
+                    const key = "7-7";
                     specialTiles[key] = 'Center';
                     continue; 
                 }
@@ -128,7 +128,14 @@ const Gamestate: React.FC = () => {
                                     id={`tile-${col}-${row}`} 
                                     data-coordinates={`(${col},${row})`} 
                                     className={tileClass}
-                                    onClick={() => handleTileClick(row, col)}>
+                                    role="button"
+                                    tabIndex={0}
+                                    onClick={() => handleTileClick(row, col)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter" || e.key === " ") {
+                                            handleTileClick(row, col);
+                                        }
+                                    }}>
                                 </div>
                             );
                         })
