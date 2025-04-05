@@ -10,7 +10,7 @@ import "./login.css";
 const Login: React.FC = () => {
   const router = useRouter();
   const apiService = useApi();
-  const { set: setToken } = useLocalStorage<string>('token', '');
+  const { set: setToken } = useLocalStorage<string>("token", "");
   const { set: setUserId } = useLocalStorage<string>("userId", "0");
   const { set: setUsername } = useLocalStorage<string>("username", "");
 
@@ -33,8 +33,10 @@ const Login: React.FC = () => {
     try {
       const response = await apiService.post<User>("/users/login", values);
 
-      if (response.token) {
+      if (response.token && response.id && response.username) {
         setToken(response.token);
+        setUserId(response.id);
+        setUsername(response.username);
         router.push("/dashboard");
     }} catch (error) {
         console.error("Registration Error:", error);

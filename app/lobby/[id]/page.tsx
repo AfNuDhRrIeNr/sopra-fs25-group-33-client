@@ -1,12 +1,12 @@
 "use client"; // For components that need React hooks and browser APIs, SSR (server side rendering) has to be disabled. Read more here: https://nextjs.org/docs/pages/building-your-application/rendering/server-side-rendering
 
-import { useRouter } from "next/navigation"; // use NextJS router for navigation
+import { useParams, useRouter } from "next/navigation"; // use NextJS router for navigation
 import { Button, Input, Modal } from "antd";
 import React, { useState } from "react";
 import "@ant-design/v5-patch-for-react-19";
 //import { useRouter } from "next/navigation";
 import Image from "next/image";
-import "./lobby.css";
+import "../lobby.css";
 // Optionally, you can import a CSS module or file for additional styling:
 // import styles from "@/styles/page.module.css";
 
@@ -17,6 +17,8 @@ const Login: React.FC = () => {
   const [isAlone, setIsAlone] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editValue, setEditValue] = useState("");
+  const username = localStorage.getItem("username");
+  const { id } = useParams();
   // const apiService = useApi();
   // const [form] = Form.useForm();
   // useLocalStorage hook example use
@@ -36,7 +38,7 @@ const Login: React.FC = () => {
   }
 
   const startGame = () => {
-    alert("Game was started!");
+    router.push(`/gamestate/${id}`)
   }
 
   const handleInvite = () => {
@@ -64,7 +66,7 @@ return (
 
       <div className="userSnippet">
         <span className="username">
-          {"Guest"/* {username || "Guest"} */}
+          {username}
         </span>
 
         <Image
@@ -93,7 +95,7 @@ return (
             priority
           />
           <div>
-            {"Guest"}
+            {username}
           </div>
         </div>
         <div className = "userInfo" style = {{marginLeft: "-1.5vw"}}>
@@ -117,7 +119,7 @@ return (
             priority
           />
           <div>
-            {isAlone ? "?" : "Guest"}
+            {isAlone ? "?" : editValue}
           </div>
         </div>
       </div>

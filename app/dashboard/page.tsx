@@ -1,4 +1,5 @@
 'use client';
+import { useRouter } from "next/navigation"; // use NextJS router for navigation
 import React, { useEffect, useState } from 'react';
 import './dashboard.css';
 import Image from "next/image";
@@ -19,6 +20,12 @@ interface Friend {
 interface LeaderboardPlayer {
     rank: number;
     name: string;
+}
+
+interface Game {
+    id: number;
+    host: string;
+    status: string;
 }
 
 const DashboardPage: React.FC = () => {
@@ -190,7 +197,7 @@ const DashboardPage: React.FC = () => {
                             <img src="/Board.jpg" alt="Scrabble Board" />
                         </div>
                     </div>
-                    <button className="create-game-button">Create Game</button>
+                    <button className="create-game-button" onClick = {createGamestate} >Create Game</button>
                 </div>
                 <div className="dashboard-section">
                     <h2>Leaderboard</h2>

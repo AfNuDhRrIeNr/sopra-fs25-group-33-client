@@ -46,7 +46,7 @@
 .userInfo span {
     font-size: clamp(1rem, 1.5vw, 3rem);
     height: fit-content;
-    padding: 1% 0;
+    padding: 0 2%;
     display: flex;
     justify-content: space-between;
     /* border: 2px solid pink; */
