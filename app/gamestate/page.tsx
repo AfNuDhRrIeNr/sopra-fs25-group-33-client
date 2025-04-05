@@ -3,6 +3,10 @@
 import React, { useState } from "react";
 import "@ant-design/v5-patch-for-react-19";
 import Image from "next/image";
+import "../gamestate.css";
+import { useApi } from "@/hooks/useApi";
+import useLocalStorage from "@/hooks/useLocalStorage";
+
 import "./gamestate.css";
 
 // Generate specialTiles outside the component to prevent re-execution
@@ -77,12 +81,18 @@ const generateSpecialTiles = () => {
 
 const specialTiles = generateSpecialTiles();
 
-
+interface Tile {
+    letter: string;
+    remaining: number;
+}
 
 const Gamestate: React.FC = () => {
     const [letter, setLetter] = useState("");
     const [number, setNumber] = useState<number | null>(null);
     const [submittedLetter, setSubmittedLetter] = useState("");
+    const apiService = useApi();
+    const userId = localStorage.getItem("userId")
+    
 
     // Function to get the tile class
     const getTileClass = (row: number, col: number) => {
@@ -100,18 +110,36 @@ const Gamestate: React.FC = () => {
             alert("Please enter a single letter.");
             return;
         }
-        try {
-            const response = await fetch(`http://localhost:3000/gamestate/get-remaining-${letter}`, {
-                method: "GET",
-                headers: { "Content-Type": "application/json" },
-            });
-            const data = await response.json();
-            setNumber(data.number);
-            setSubmittedLetter(letter.toUpperCase());
+        try 
+        {
+            const response = await apiService.get<Tile>(`/gamestate/users/${userId}/remaining/${letter}`);
+        
+            if (response != null) {
+                setNumber(response.remaining);
+                setSubmittedLetter(response.letter.toUpperCase());
+                setLetter("");
+            }
         } catch (error) {
-            console.error("Error fetching data:", error);
+            console.error("Retrieval Error:", error);
+            alert(`Retrieval failed: ${(error as Error).message}`);
         }
     };
+
+    const verifyWord = () => {
+        alert("WordVerify");
+    }
+
+    const exchangeTiles = () => {
+        alert("Exchange");
+    }
+
+    const skipTurn = () => {
+        alert("Skip");
+    }
+
+    const commitWord = () => {
+        alert("WordCommited");
+    }
 
     return (
         <div id="screen">

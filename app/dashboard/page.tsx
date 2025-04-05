@@ -3,6 +3,10 @@ import React, { useEffect, useState } from 'react';
 import './dashboard.css';
 import Image from "next/image";
 import { useApi } from "@/hooks/useApi";
+import useLocalStorage from "@/hooks/useLocalStorage";
+
+// import useLocalStorage from "@/hooks/useLocalStorage";
+
 
 interface Friend {
     id: number;
@@ -16,6 +20,10 @@ interface LeaderboardPlayer {
 }
 
 const DashboardPage: React.FC = () => {
+    const token = localStorage.getItem("token");
+    const username = localStorage.getItem("username");
+    const router = useRouter();
+    
     const [friends, setFriends] = useState<Friend[]>([]);
     const [leaderboard, setLeaderboard] = useState<LeaderboardPlayer[]>([]);
     const [pendingRequests, setPendingRequests] = useState<Friend[]>([/*{
@@ -83,9 +91,44 @@ const DashboardPage: React.FC = () => {
         setIsPendingRequestsModalOpen(true);
     };
 
-    const handleLogoutClick = () => {
-        alert("Logout clicked!")
+    const {
+        clear: clearToken
+      } = useLocalStorage<string>("token", "");
+      
+      const {
+        clear: clearId
+      } = useLocalStorage<string>("userId", "");
+      
+      const {
+        clear: clearUsername
+      } = useLocalStorage<string>("username", "");
+      
+
+    const handleLogoutClick = async () => {
+        try {          
+            clearToken(); // Clear the token
+            clearId();
+            clearUsername();
+            router.push("/login"); // Redirect to login
+        } catch (error) {
+            console.error("Error during logout:", error);
+        }
     }
+
+
+    const createGamestate = async () => {
+        try {
+              const response = await apiService.post<Game>("/games", token);
+        
+              if (response.id) {
+                router.push(`/lobby/${response.id}`);
+
+            }} catch (error) {
+                console.error("Error creating lobby:", error);
+                alert(`Could not create lobby: ${(error as Error).message}`);
+              }
+            };
+
 
     return (
         <div className="dashboard-page">
@@ -104,7 +147,7 @@ const DashboardPage: React.FC = () => {
             
                   <div className="userSnippet">
                     <span className="username">
-                      {"Guest"/* {username || "Guest"} */}
+                      {username}
                     </span>
                     <div className='user-icon'>
                     <Image

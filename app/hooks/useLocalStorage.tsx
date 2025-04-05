@@ -33,7 +33,12 @@ export default function useLocalStorage<T>(
     try {
       const stored = globalThis.localStorage.getItem(key);
       if (stored) {
-        setValue(JSON.parse(stored) as T);
+        // Check if the stored value looks like a string with quotes
+        const parsedValue = stored.startsWith('"') && stored.endsWith('"')
+          ? stored.slice(1, -1) // Remove the quotes
+          : stored;
+
+        setValue(parsedValue as T); // Update the state
       }
     } catch (error) {
       console.error(`Error reading localStorage key "${key}":`, error);
@@ -44,7 +49,10 @@ export default function useLocalStorage<T>(
   const set = (newVal: T) => {
     setValue(newVal);
     if (typeof window !== "undefined") {
-      globalThis.localStorage.setItem(key, JSON.stringify(newVal));
+      // Check if the value is a string and prevent adding extra quotes
+      const valueToStore =
+        typeof newVal === "string" ? newVal : JSON.stringify(newVal); // Only stringify non-string values
+      globalThis.localStorage.setItem(key, valueToStore);
     }
   };
 
