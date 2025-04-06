@@ -1,6 +1,6 @@
 "use client"; // Required for using React hooks in Next.js
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "@ant-design/v5-patch-for-react-19";
 import { Button } from "antd"; 
 import Image from "next/image";
@@ -8,7 +8,7 @@ import "../gamestate.css";
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
 
-import "./gamestate.css";
+import "../gamestate.css";
 
 // Generate specialTiles outside the component to prevent re-execution
 const generateSpecialTiles = () => {
@@ -82,6 +82,7 @@ const generateSpecialTiles = () => {
 
 const specialTiles = generateSpecialTiles();
 
+
 interface Tile {
     letter: string;
     remaining: number;
@@ -93,7 +94,8 @@ const Gamestate: React.FC = () => {
     const [submittedLetter, setSubmittedLetter] = useState("");
     const apiService = useApi();
     const userId = localStorage.getItem("userId")
-    
+    const [tileImages, setTileImages] = useState <(string | null)[]>(new Array(7).fill(null));
+    const [boardTiles, setBoardTiles] = useState<{ [key:string]: string | null }>({});
 
     // Function to get the tile class
     const getTileClass = (row: number, col: number) => {
@@ -142,6 +144,119 @@ const Gamestate: React.FC = () => {
         alert("WordCommited");
     }
 
+    const setTileImageAt = (index: number, imagePath: string | null) => {
+        setTileImages(prev => {
+            const updated = [...prev];
+            updated[index] = imagePath;
+            return updated;
+        })
+    }
+
+      // Handle drag start
+    const handleDragStart = (e: React.DragEvent, index: number | null, col: number | null, row: number | null) => {
+        if (index !== null) {
+            e.dataTransfer.setData("index", index.toString()); // Store the image index from inside the hand
+            e.dataTransfer.setData("imageSrc", tileImages[index] || ''); // Store the image source
+        } else if (col !== null && row !== null) {
+            e.dataTransfer.setData("col", col.toString());
+            e.dataTransfer.setData("row", row.toString());
+            e.dataTransfer.setData("imageSrc", boardTiles[`${col}-${row}`] || '');
+        }
+        
+        const target = e.target as HTMLImageElement; //set original e (e meaning event) (e.target) type as htmlimage
+        target.style.opacity = '0'; //set opacity to 0 to fake moving the tile
+        
+        //keep the dragged Image visible since reference opacity is now 0
+        const dragPreview = document.createElement("img");
+        dragPreview.src = target.src;
+        dragPreview.style.width = target.width + "px";
+        dragPreview.style.height = target.height + "px";
+
+        e.dataTransfer.setDragImage(dragPreview, target.width/2, target.height/2);
+    };
+
+    // Handle drop
+    const handleHandDrop = (e: React.DragEvent, index: number) => {
+        e.preventDefault(); //prevent default dropping logic and apply custom logic
+        //get stored info of the image
+        const draggedIndex = e.dataTransfer.getData("index");
+        const draggedImage = e.dataTransfer.getData("imageSrc");
+        const draggedCol = parseInt(e.dataTransfer.getData("col"));
+        const draggedRow = parseInt(e.dataTransfer.getData("row"));
+
+        // If the target is empty, swap the images
+        if (draggedImage && !tileImages[index]) {
+            const newTileImages = [...tileImages];
+            newTileImages[index] = draggedImage;
+            newTileImages[parseInt(draggedIndex)] = null;
+            setTileImages(newTileImages);
+        }
+        if (draggedCol && draggedRow) {
+            const keyFrom = `${draggedCol}-${draggedRow}`;
+            setBoardTiles(prev => {
+                const updated = { ...prev };
+                delete updated[keyFrom];  // Clear the dragged tile from its original position
+                return updated;
+            });
+        }
+    };
+
+    const handleBoardDrop = (e: React.DragEvent, col: number, row: number) => {
+        e.preventDefault();
+        const draggedIndex = parseInt(e.dataTransfer.getData("index"));
+        const draggedImage = e.dataTransfer.getData("imageSrc");
+
+        // Handling dropping an image from the hand to the board
+        if (draggedIndex) {
+            const newTileImages = [...tileImages];
+            newTileImages[draggedIndex] = null;
+            setTileImages(newTileImages);
+
+            const key = `${col}-${row}`;
+            setBoardTiles(prev => ({
+                ...prev,
+                [key]: draggedImage
+            }));
+        }
+        // Handling dropping an image from the board to another board tile
+        else {
+            const draggedCol = parseInt(e.dataTransfer.getData("col"));
+            const draggedRow = parseInt(e.dataTransfer.getData("row"));
+            const draggedImageFromBoard = e.dataTransfer.getData("imageSrc");
+
+            const keyFrom = `${draggedCol}-${draggedRow}`;
+            const keyTo = `${col}-${row}`;
+
+            // Remove image from original board tile
+            setBoardTiles(prev => {
+                const updated = { ...prev };
+                delete updated[keyFrom];  // Clear the dragged tile from its original position
+                updated[keyTo] = draggedImageFromBoard;  // Place it on the new tile
+                return updated;
+            });
+        }
+    };
+
+    // Handle drag over (to allow dropping)
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault(); // Allow drop
+    };
+
+    useEffect(() => {
+        setTileImageAt(0, "/letters/A Tile 70.jpg");
+        setTileImageAt(1, "/letters/B Tile 70.jpg");
+        setTileImageAt(2, "/letters/S Tile 70.jpg");
+        setTileImageAt(3, "/letters/R Tile 70.jpg");
+        setTileImageAt(4, "/letters/T Tile 70.jpg");
+        setTileImageAt(5, "/letters/T Tile 70.jpg");
+        setTileImageAt(6, "/letters/H Tile 70.jpg");
+    }, []);
+
+    useEffect(() => {
+        console.log(boardTiles);
+    }, [boardTiles]);
+
+
     return (
         <div id="screen">
             <div id="board-container">
@@ -157,14 +272,20 @@ const Gamestate: React.FC = () => {
                                     id={`tile-${col}-${row}`} 
                                     data-coordinates={`(${col},${row})`} 
                                     className={tileClass}
-                                    role="button"
-                                    tabIndex={0}
-                                    onClick={() => handleTileClick(row, col)}
-                                    onKeyDown={(e) => {
-                                        if (e.key === "Enter" || e.key === " ") {
-                                            handleTileClick(row, col);
-                                        }
-                                    }}>
+                                    onDragOver={handleDragOver}
+                                    onDrop={(e) => handleBoardDrop(e, col, row)}
+                                    >
+                                       {boardTiles[`${col}-${row}`] && (
+                                        <Image 
+                                            src={boardTiles[`${col}-${row}`] || "/letters/empty tile 70.jpg"} 
+                                            alt={`Tile at ${col}-${row}`} 
+                                            className="board-tiles"
+                                            width={100} 
+                                            height={100}
+                                            draggable
+                                            onDragStart={(e) => handleDragStart(e, null, col, row)} 
+                                        /> 
+                                        )}
                                 </div>
                             );
                         })
@@ -205,17 +326,27 @@ const Gamestate: React.FC = () => {
                     </div>
                 </div>
                 <div id="tiles-storage-container">
-                <div 
-                    id="tiles-storage" 
+                {tileImages.map((src, index) => (
+                    <div 
+                    key={index} 
+                    id={index.toString()} 
+                    className="tile-placeholder"
+                    onDragOver={handleDragOver}
+                    onDrop={(e)=> handleHandDrop(e, index) }
                     >
-                    {[...Array(7)].map((_, col) => (
-                        <div 
-                        key={col} 
-                        id={col.toString()} 
-                        className="tile-placeholder"
+                    {src && (
+                        <Image 
+                        className="tiles"
+                        src={src} 
+                        alt={`Tile ${index}`} 
+                        width={100}
+                        height={100} 
+                        draggable
+                        onDragStart={(e)=>handleDragStart(e, index, null, null)}
                         />
-                    ))}
+                    )}
                     </div>
+                ))}
                 </div>
                 <div id="game-buttons">
                     <div id="upper-row-container">
