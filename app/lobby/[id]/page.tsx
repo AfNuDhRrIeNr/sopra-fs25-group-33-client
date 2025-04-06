@@ -10,7 +10,7 @@ import "../lobby.css";
 // Optionally, you can import a CSS module or file for additional styling:
 // import styles from "@/styles/page.module.css";
 
-const Login: React.FC = () => {
+const Lobby: React.FC = () => {
   const games = 0;
   const rank = 0;
   const router = useRouter();
@@ -174,4 +174,4 @@ return (
   )
 }
 
-export default Login;
+export default Lobby;

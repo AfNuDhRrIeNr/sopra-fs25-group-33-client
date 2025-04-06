@@ -1,12 +1,15 @@
 "use client"; // Required for using React hooks in Next.js
 
-import React, { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation"; // use NextJS router for navigation
+import React, { useState, useEffect, useRef } from "react";
 import "@ant-design/v5-patch-for-react-19";
 import { Button } from "antd"; 
 import Image from "next/image";
 import "../gamestate.css";
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { Client } from "@stomp/stompjs";
+import SockJS from "sockjs-client";
 
 import "../gamestate.css";
 
@@ -96,6 +99,52 @@ const Gamestate: React.FC = () => {
     const userId = localStorage.getItem("userId")
     const [tileImages, setTileImages] = useState <(string | null)[]>(new Array(7).fill(null));
     const [boardTiles, setBoardTiles] = useState<{ [key:string]: string | null }>({});
+    const [messages, setMessages] = useState<string[]>([]);
+    const { gameId } = useParams();
+    const stompClientRef = useRef<Client | null>(null);
+
+    useEffect(() => {
+        const connectWebSocket = () => {
+            const socket = new SockJS("http://localhost:8080/connections"); // Your WebSocket URL
+            const stompClient = new Client({
+                webSocketFactory: () => socket,
+                reconnectDelay: 5000,
+                debug: (str) => console.log(str),
+            });
+
+            stompClient.onConnect = () => {
+                console.log("Connected to WebSocket");
+
+                // Subscribe to the game state topic dynamically using the gameId
+                stompClient.subscribe(`/topic/game_states/${gameId}`, (message) => {
+                    console.log("Received message:", message.body);
+                    setMessages((prev) => [...prev, `📩 ${message.body}`]); // Display received messages
+                });
+            };
+
+            stompClient.activate();
+            stompClientRef.current = stompClient;
+        };
+
+        // Call the function to connect the WebSocket
+        connectWebSocket();
+
+        // Cleanup WebSocket connection when the component unmounts
+        return () => {
+            if (stompClientRef.current) {
+                stompClientRef.current.deactivate();
+            }
+        };
+    }, [gameId])
+
+    const sendMessage = (messageBody: string) => {
+        if (stompClientRef.current) {
+            stompClientRef.current.publish({
+                destination: `ws/game_states/${gameId}`,
+                body: messageBody,
+            });
+        }
+    };
 
     // Function to get the tile class
     const getTileClass = (row: number, col: number) => {
@@ -103,10 +152,6 @@ const Gamestate: React.FC = () => {
         return specialTiles[key];
     };
 
-    const handleTileClick = (row: number, col: number) => {
-        const tileClass = getTileClass(row, col);
-        alert(`Tile clicked at (${col}, ${row}) with class: ${tileClass}`);
-    };
 
     const handleCheck = async () => {
         if (letter.length !== 1 || !/[a-zA-Z]/.test(letter)) {
