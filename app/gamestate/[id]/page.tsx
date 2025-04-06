@@ -162,7 +162,8 @@ const Gamestate: React.FC = () => {
             e.dataTransfer.setData("row", row.toString());
             e.dataTransfer.setData("imageSrc", boardTiles[`${col}-${row}`] || '');
         }
-        
+        console.log(`${index}, ${e.dataTransfer.getData("imageSrc")}, ${col}, ${row}`)
+        console.log(`${tileImages}`)
         const target = e.target as HTMLImageElement; //set original e (e meaning event) (e.target) type as htmlimage
         target.style.opacity = '0'; //set opacity to 0 to fake moving the tile
         
@@ -207,7 +208,7 @@ const Gamestate: React.FC = () => {
         const draggedImage = e.dataTransfer.getData("imageSrc");
 
         // Handling dropping an image from the hand to the board
-        if (draggedIndex) {
+        if (draggedIndex !== null) {
             const newTileImages = [...tileImages];
             newTileImages[draggedIndex] = null;
             setTileImages(newTileImages);
