@@ -93,9 +93,11 @@ const Gamestate: React.FC = () => {
     const [number, setNumber] = useState<number | null>(null);
     const [submittedLetter, setSubmittedLetter] = useState("");
     const apiService = useApi();
-    const userId = localStorage.getItem("userId")
+    const userId = localStorage.getItem("userId");
+    const username = localStorage.getItem("username");
     const [tileImages, setTileImages] = useState <(string | null)[]>(new Array(7).fill(null));
     const [boardTiles, setBoardTiles] = useState<{ [key:string]: string | null }>({});
+    const [isUserTurn, setUserTurn] = useState(true);
 
     // Function to get the tile class
     const getTileClass = (row: number, col: number) => {
@@ -137,11 +139,15 @@ const Gamestate: React.FC = () => {
     }
 
     const skipTurn = () => {
-        alert("Skip");
+        setUserTurn(!isUserTurn);
     }
 
     const commitWord = () => {
         alert("WordCommited");
+    }
+
+    const handleSurrender = () => {
+        alert("Surrendered!");
     }
 
     const setTileImageAt = (index: number, imagePath: string | null) => {
@@ -295,7 +301,53 @@ const Gamestate: React.FC = () => {
             </div>
             <div id="rest-container">
                 <div id="top">
+                    <div id="time-surrender">
+                        <div id="timer">
+                            45:00
+                        </div>
+                        <div id="surrender">
+                            <button 
+                            id="surrender-button" 
+                            className="nav_button"
+                            onClick={handleSurrender}>
+                                Give Up
+                            </button>
+                        </div>
+                    </div>
+                    <div id="turn-points">
+                        <div id="t-p-container">
+                            <div className="player-container" id="left-player">
+                                <div className="name-and-dot-container">
+                                    <div className="player-name">
+                                        {username}
+                                    </div>
+                                    <div className="dot-container">                                
+                                        <div className={`turn-dot ${isUserTurn ? 'active-dot' : ''}`}>
 
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="player-points">
+                                    100
+                                </div>
+                            </div>
+                            <div className="player-container">
+                                <div className="name-and-dot-container">
+                                    <div className="player-name">
+                                        Guest
+                                    </div>
+                                    <div className="dot-container">                                
+                                        <div className={`turn-dot ${!isUserTurn ? 'active-dot' : ''}`}>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="player-points">
+                                    0
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div id="bag-stuff">
                     <div id="bag-image">
