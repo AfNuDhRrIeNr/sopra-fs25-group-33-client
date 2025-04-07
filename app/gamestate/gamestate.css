@@ -248,6 +248,18 @@ div {
     height: 15vh;
 }
 
+#undo-button-image {
+    /* position: absolute; */
+    display: flex;
+    margin-left: 0;
+    margin-right: 2vh;
+    height: 4vh;
+    width: 4vh;
+    /* padding-right: 2vh; */
+    padding-left: -2vh;
+    cursor: pointer;
+}
+
 #tiles-storage {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
