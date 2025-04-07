@@ -58,7 +58,7 @@ reason).
 
 | **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
-| **Alumen-Eng** | 06.04.25  | [commit 6cb28af] (https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/6cb28af) | Gamestate design almost completed| A complete Gamestate design is necessary to play the game. |
+| **Alumen-Eng** | 06.04.25  | [commit 6cb28af](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/6cb28af) | Gamestate design almost completed| A complete Gamestate design is necessary to play the game. |
 |                    | 06.04.25   | [commit ccb6031](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/ccb6031) | Drag and Drop feature of playing tiles | Drag and Drop is how tiles are moved and ultimately moves are made. |
 |                    | 05.04.25   | [commit 17bba70](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/17bba70) [commit f06ec14](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/f06ec14)| Figure out how many tiles of a letter are left in play | This info can be used to strategize following moves |
 | **AfNuDhRrIeNr** |    |  |  | Joker Week |
