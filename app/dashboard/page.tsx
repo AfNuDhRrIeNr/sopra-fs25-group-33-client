@@ -1,8 +1,14 @@
 'use client';
+import { useRouter } from "next/navigation"; // use NextJS router for navigation
 import React, { useEffect, useState } from 'react';
 import './dashboard.css';
 import Image from "next/image";
 import { useApi } from "@/hooks/useApi";
+import useLocalStorage from "@/hooks/useLocalStorage";
+
+
+// import useLocalStorage from "@/hooks/useLocalStorage";
+
 
 interface Friend {
     id: number;
@@ -15,24 +21,45 @@ interface LeaderboardPlayer {
     name: string;
 }
 
+interface Game {
+    id: number;
+    host: string;
+    status: string;
+}
+
+interface User {
+    token: string;
+    id: number;
+    username: string;
+}
+
 const DashboardPage: React.FC = () => {
+    const router = useRouter();
+    const [token, setToken] = useState<string | null>(null);
+    const [username, setUsername] = useState<string | null>(null);
     const [friends, setFriends] = useState<Friend[]>([]);
     const [leaderboard, setLeaderboard] = useState<LeaderboardPlayer[]>([]);
     const [pendingRequests, setPendingRequests] = useState<Friend[]>([/*{
         id: 1,
         name: "Marco",
         avatar: "/User_Icon.jpg" 
-    },{
-        id: 2,
-        name: "Sebastiano",
-        avatar: "/User_Icon.jpg"
-    }*/]);
+        },{
+            id: 2,
+            name: "Sebastiano",
+            avatar: "/User_Icon.jpg"
+            }*/]);
     const [sentRequests, setSentRequests] = useState<Friend[]>([]);
     const [isSendFriendModalOpen, setIsSendFriendModalOpen] = useState(false);
     const [isPendingRequestsModalOpen, setIsPendingRequestsModalOpen] = useState(false);
     const [newFriendUsername, setNewFriendUsername] = useState<string>('');
-
+    
     const apiService = useApi();
+            
+    //fetch user info from localstorage
+    useEffect(()=> {
+        setToken(localStorage.getItem("token"));
+        setUsername(localStorage.getItem("username"));
+    }, []);
 
     // Fetch pending friend requests on component mount
     useEffect(() => {
@@ -83,9 +110,45 @@ const DashboardPage: React.FC = () => {
         setIsPendingRequestsModalOpen(true);
     };
 
-    const handleLogoutClick = () => {
-        alert("Logout clicked!")
+    const {
+        clear: clearToken
+      } = useLocalStorage<string>("token", "");
+      
+      const {
+        clear: clearId
+      } = useLocalStorage<string>("userId", "");
+      
+      const {
+        clear: clearUsername
+      } = useLocalStorage<string>("username", "");
+      
+
+    const handleLogoutClick = async () => {
+        try {
+            await apiService.put<User>("users/logout", token)          
+            clearToken(); // Clear the token
+            clearId();
+            clearUsername();
+            router.push("/login"); // Redirect to login
+        } catch (error) {
+            console.error("Error during logout:", error);
+        }
     }
+
+
+    const createGamestate = async () => {
+        try {
+              const response = await apiService.post<Game>("/games", token);
+        
+              if (response.id) {
+                router.push(`/lobby/${response.id}`);
+
+            }} catch (error) {
+                console.error("Error creating lobby:", error);
+                alert(`Could not create lobby: ${(error as Error).message}`);
+              }
+            };
+
 
     return (
         <div className="dashboard-page">
@@ -104,7 +167,7 @@ const DashboardPage: React.FC = () => {
             
                   <div className="userSnippet">
                     <span className="username">
-                      {"Guest"/* {username || "Guest"} */}
+                      {username}
                     </span>
                     <div className='user-icon'>
                     <Image
@@ -145,7 +208,7 @@ const DashboardPage: React.FC = () => {
                             <img src="/Board.jpg" alt="Scrabble Board" />
                         </div>
                     </div>
-                    <button className="create-game-button">Create Game</button>
+                    <button className="create-game-button" onClick = {createGamestate} >Create Game</button>
                 </div>
                 <div className="dashboard-section">
                     <h2>Leaderboard</h2>
