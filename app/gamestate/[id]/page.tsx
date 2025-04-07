@@ -99,7 +99,7 @@ const Gamestate: React.FC = () => {
     const [isTileOnBoard, setTileOnBoard] = useState(false);
     const [tileImages, setTileImages] = useState <(string | null)[]>(new Array(7).fill(null));
     const [boardTiles, setBoardTiles] = useState<{ [key:string]: string | null }>({});
-    const [messages, setMessages] = useState<string[]>([]);
+    // const [messages, setMessages] = useState<string[]>([]);
     const { gameId } = useParams();
     const stompClientRef = useRef<Client | null>(null);
 
@@ -123,7 +123,6 @@ const Gamestate: React.FC = () => {
                 // Subscribe to the game state topic dynamically using the gameId
                 stompClient.subscribe(`/topic/game_states/${gameId}`, (message) => {
                     console.log("Received message:", message.body);
-                    setMessages((prev) => [...prev, `📩 ${message.body}`]); // Display received messages
                 });
             };
 
@@ -187,7 +186,8 @@ const Gamestate: React.FC = () => {
     }
 
     const skipTurn = () => {
-        alert("Skip");
+        sendMessage("SKIP");
+        setUserTurn(!isUserTurn);
     }
 
     const commitWord = () => {
@@ -331,6 +331,7 @@ const Gamestate: React.FC = () => {
 
     useEffect(() => {
         console.log(boardTiles);
+        setTileOnBoard(!(Object.keys(boardTiles).length === 0));
     }, [boardTiles]);
 
 
