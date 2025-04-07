@@ -34,27 +34,32 @@ interface User {
 }
 
 const DashboardPage: React.FC = () => {
-    const token = localStorage.getItem("token");
-    const username = localStorage.getItem("username");
     const router = useRouter();
-    
+    const [token, setToken] = useState<string | null>(null);
+    const [username, setUsername] = useState<string | null>(null);
     const [friends, setFriends] = useState<Friend[]>([]);
     const [leaderboard, setLeaderboard] = useState<LeaderboardPlayer[]>([]);
     const [pendingRequests, setPendingRequests] = useState<Friend[]>([/*{
         id: 1,
         name: "Marco",
         avatar: "/User_Icon.jpg" 
-    },{
-        id: 2,
-        name: "Sebastiano",
-        avatar: "/User_Icon.jpg"
-    }*/]);
+        },{
+            id: 2,
+            name: "Sebastiano",
+            avatar: "/User_Icon.jpg"
+            }*/]);
     const [sentRequests, setSentRequests] = useState<Friend[]>([]);
     const [isSendFriendModalOpen, setIsSendFriendModalOpen] = useState(false);
     const [isPendingRequestsModalOpen, setIsPendingRequestsModalOpen] = useState(false);
     const [newFriendUsername, setNewFriendUsername] = useState<string>('');
-
+    
     const apiService = useApi();
+            
+    //fetch user info from localstorage
+    useEffect(()=> {
+        setToken(localStorage.getItem("token"));
+        setUsername(localStorage.getItem("username"));
+    }, []);
 
     // Fetch pending friend requests on component mount
     useEffect(() => {

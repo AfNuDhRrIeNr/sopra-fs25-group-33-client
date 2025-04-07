@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation"; // use NextJS router for navigation
 import { Button, Input, Modal } from "antd";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "@ant-design/v5-patch-for-react-19";
 //import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -17,8 +17,13 @@ const Login: React.FC = () => {
   const [isAlone, setIsAlone] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editValue, setEditValue] = useState("");
-  const username = localStorage.getItem("username");
+  const [username, setUsername] = useState<string | null>(null);
   const { id } = useParams();
+
+
+  useEffect(()=> {
+      setUsername(localStorage.getItem("username"));
+  }, []);
   // const apiService = useApi();
   // const [form] = Form.useForm();
   // useLocalStorage hook example use

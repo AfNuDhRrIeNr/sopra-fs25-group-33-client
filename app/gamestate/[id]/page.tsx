@@ -92,13 +92,17 @@ const Gamestate: React.FC = () => {
     const [number, setNumber] = useState<number | null>(null);
     const [submittedLetter, setSubmittedLetter] = useState("");
     const apiService = useApi();
-    const userId = localStorage.getItem("userId");
-    const username = localStorage.getItem("username");
+    const [userId, setUserId] = useState<string | null>(null);
+    const [username, setUsername] = useState<string | null>(null);
     const [tileImages, setTileImages] = useState <(string | null)[]>(new Array(7).fill(null));
     const [boardTiles, setBoardTiles] = useState<{ [key:string]: string | null }>({});
     const [isUserTurn, setUserTurn] = useState(true);
     const [isTileOnBoard, setTileOnBoard] = useState(false);
 
+    useEffect(()=> {
+            setUserId(localStorage.getItem("userId"));
+            setUsername(localStorage.getItem("username"));
+    }, []);    
     // Function to get the tile class
     const getTileClass = (row: number, col: number) => {
         const key = `${col}-${row}`;
@@ -146,7 +150,25 @@ const Gamestate: React.FC = () => {
     }
 
     const handleReturn = () => {
-        alert("Returnal!");
+        // Make copies so we can mutate them safely
+        const updatedHand = [...tileImages];
+        const updatedBoard = { ...boardTiles };
+
+        for (const key in boardTiles) {
+            const image = boardTiles[key];
+            const emptyIndex = updatedHand.findIndex(tile => tile === null);
+
+            if (emptyIndex !== -1 && image) {
+                updatedHand[emptyIndex] = image;
+                delete updatedBoard[key];
+            } else {
+                // Optional: alert or handle situation where hand is full
+                console.warn(`No space in hand to return tile from board position ${key}`);
+            }
+        }
+
+        setTileImages(updatedHand);
+        setBoardTiles(updatedBoard);
     }
 
     const setTileImageAt = (index: number, imagePath: string | null) => {
