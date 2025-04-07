@@ -2,11 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import "@ant-design/v5-patch-for-react-19";
-import { Button, Empty } from "antd"; 
+import { Button } from "antd"; 
 import Image from "next/image";
 import "../gamestate.css";
 import { useApi } from "@/hooks/useApi";
-import useLocalStorage from "@/hooks/useLocalStorage";
 
 import "../gamestate.css";
 
@@ -106,11 +105,6 @@ const Gamestate: React.FC = () => {
         return specialTiles[key];
     };
 
-    const handleTileClick = (row: number, col: number) => {
-        const tileClass = getTileClass(row, col);
-        alert(`Tile clicked at (${col}, ${row}) with class: ${tileClass}`);
-    };
-
     const handleCheck = async () => {
         if (letter.length !== 1 || !/[a-zA-Z]/.test(letter)) {
             alert("Please enter a single letter.");
@@ -173,10 +167,8 @@ const Gamestate: React.FC = () => {
             e.dataTransfer.setData("row", row.toString());
             e.dataTransfer.setData("imageSrc", boardTiles[`${col}-${row}`] || '');
         }
-        console.log(`${index}, ${e.dataTransfer.getData("imageSrc")}, ${col}, ${row}`)
-        console.log(`${tileImages}`)
         const target = e.target as HTMLImageElement; //set original e (e meaning event) (e.target) type as htmlimage
-        // target.style.opacity = '0'; //set opacity to 0 to fake moving the tile
+        target.style.opacity = '0'; //set opacity to 0 to fake moving the tile
         
         //keep the dragged Image visible since reference opacity is now 0
         const dragPreview = document.createElement("img");
@@ -220,9 +212,13 @@ const Gamestate: React.FC = () => {
         e.preventDefault();
         const draggedIndex = parseInt(e.dataTransfer.getData("index"));
         const draggedImage = e.dataTransfer.getData("imageSrc");
-        
+        const draggedCol = parseInt(e.dataTransfer.getData("col"));
+        const draggedRow = parseInt(e.dataTransfer.getData("row"));
+        const draggedImageFromBoard = e.dataTransfer.getData("imageSrc");
+
         // Handling dropping an image from the hand to the board
-        if (draggedIndex !== null) {
+        if (draggedIndex !== null && isNaN(draggedCol) && isNaN(draggedRow)) {
+            console.log("In if tree");
             const newTileImages = [...tileImages];
             newTileImages[draggedIndex] = null;
             setTileImages(newTileImages);
@@ -235,20 +231,21 @@ const Gamestate: React.FC = () => {
         }
         // Handling dropping an image from the board to another board tile
         else {
-            const draggedCol = parseInt(e.dataTransfer.getData("col"));
-            const draggedRow = parseInt(e.dataTransfer.getData("row"));
-            const draggedImageFromBoard = e.dataTransfer.getData("imageSrc");
-            
             const keyFrom = `${draggedCol}-${draggedRow}`;
             const keyTo = `${col}-${row}`;
             
             // Remove image from original board tile
-            setBoardTiles(prev => {
-                const updated = { ...prev };
-                delete updated[keyFrom];  // Clear the dragged tile from its original position
-                updated[keyTo] = draggedImageFromBoard;  // Place it on the new tile
-                return updated;
-            });
+            const updatedBoardTiles = { ...boardTiles };
+            if (updatedBoardTiles[keyTo]) {
+                alert("Space is not free!")
+            } else {
+                if (keyFrom !== keyTo) {
+                    delete updatedBoardTiles[keyFrom];
+                    updatedBoardTiles[keyTo] = draggedImageFromBoard;
+                }
+                
+                setBoardTiles(updatedBoardTiles);
+            }   
         }
     };
     

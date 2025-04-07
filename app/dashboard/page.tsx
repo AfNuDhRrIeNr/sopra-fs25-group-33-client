@@ -27,6 +27,12 @@ interface Game {
     status: string;
 }
 
+interface User {
+    token: string;
+    id: number;
+    username: string;
+}
+
 const DashboardPage: React.FC = () => {
     const token = localStorage.getItem("token");
     const username = localStorage.getItem("username");
@@ -113,7 +119,8 @@ const DashboardPage: React.FC = () => {
       
 
     const handleLogoutClick = async () => {
-        try {          
+        try {
+            await apiService.put<User>("users/logout", token)          
             clearToken(); // Clear the token
             clearId();
             clearUsername();
