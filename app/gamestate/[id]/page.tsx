@@ -1,17 +1,14 @@
 "use client"; // Required for using React hooks in Next.js
 
-import { useParams, useRouter } from "next/navigation"; // use NextJS router for navigation
+import { useParams } from "next/navigation"; // use NextJS router for navigation
 import React, { useState, useEffect, useRef } from "react";
 import "@ant-design/v5-patch-for-react-19";
 import { Button } from "antd"; 
 import Image from "next/image";
 import "../gamestate.css";
 import { useApi } from "@/hooks/useApi";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
-
-import "../gamestate.css";
 
 // Generate specialTiles outside the component to prevent re-execution
 const generateSpecialTiles = () => {
@@ -96,12 +93,20 @@ const Gamestate: React.FC = () => {
     const [number, setNumber] = useState<number | null>(null);
     const [submittedLetter, setSubmittedLetter] = useState("");
     const apiService = useApi();
-    const userId = localStorage.getItem("userId")
+    const [userId, setUserId] = useState<string | null>(null);
+    const [username, setUsername] = useState<string | null>(null);
+    const [isUserTurn, setUserTurn] = useState(true);
+    const [isTileOnBoard, setTileOnBoard] = useState(false);
     const [tileImages, setTileImages] = useState <(string | null)[]>(new Array(7).fill(null));
     const [boardTiles, setBoardTiles] = useState<{ [key:string]: string | null }>({});
     const [messages, setMessages] = useState<string[]>([]);
     const { gameId } = useParams();
     const stompClientRef = useRef<Client | null>(null);
+
+    useEffect(()=> {
+        setUserId(localStorage.getItem("userId"));
+        setUsername(localStorage.getItem("username"));
+    }, []); 
 
     useEffect(() => {
         const connectWebSocket = () => {
@@ -187,6 +192,32 @@ const Gamestate: React.FC = () => {
 
     const commitWord = () => {
         alert("WordCommited");
+    }
+
+    const handleSurrender = () => {
+        alert("Surrendered!");
+    }
+
+    const handleReturn = () => {
+        // Make copies so we can mutate them safely
+        const updatedHand = [...tileImages];
+        const updatedBoard = { ...boardTiles };
+
+        for (const key in boardTiles) {
+            const image = boardTiles[key];
+            const emptyIndex = updatedHand.findIndex(tile => tile === null);
+
+            if (emptyIndex !== -1 && image) {
+                updatedHand[emptyIndex] = image;
+                delete updatedBoard[key];
+            } else {
+                // Optional: alert or handle situation where hand is full
+                console.warn(`No space in hand to return tile from board position ${key}`);
+            }
+        }
+
+        setTileImages(updatedHand);
+        setBoardTiles(updatedBoard);
     }
 
     const setTileImageAt = (index: number, imagePath: string | null) => {
@@ -340,7 +371,53 @@ const Gamestate: React.FC = () => {
             </div>
             <div id="rest-container">
                 <div id="top">
+                    <div id="time-surrender">
+                        <div id="timer">
+                            45:00
+                        </div>
+                        <div id="surrender">
+                            <button 
+                            id="surrender-button" 
+                            className="nav_button"
+                            onClick={handleSurrender}>
+                                Give Up
+                            </button>
+                        </div>
+                    </div>
+                    <div id="turn-points">
+                        <div id="t-p-container">
+                            <div className="player-container" id="left-player">
+                                <div className="name-and-dot-container">
+                                    <div className="player-name">
+                                        {username}
+                                    </div>
+                                    <div className="dot-container">                                
+                                        <div className={`turn-dot ${isUserTurn ? 'active-dot' : ''}`}>
 
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="player-points">
+                                    100
+                                </div>
+                            </div>
+                            <div className="player-container">
+                                <div className="name-and-dot-container">
+                                    <div className="player-name">
+                                        Guest
+                                    </div>
+                                    <div className="dot-container">                                
+                                        <div className={`turn-dot ${!isUserTurn ? 'active-dot' : ''}`}>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="player-points">
+                                    0
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div id="bag-stuff">
                     <div id="bag-image">
@@ -372,6 +449,18 @@ const Gamestate: React.FC = () => {
                     </div>
                 </div>
                 <div id="tiles-storage-container">
+                <div id="undo-button">
+                {isTileOnBoard &&(
+                    <Image
+                    id="undo-button-image"
+                    width={100}
+                    height={100}
+                    src={"/undoArrow.png"}
+                    onClick={handleReturn}
+                    alt={"Undo Arrow"}
+                    />
+                )}
+                </div>
                 {tileImages.map((src, index) => (
                     <div 
                     key={index} 
