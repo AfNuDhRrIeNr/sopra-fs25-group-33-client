@@ -443,6 +443,7 @@ const Gamestate: React.FC = () => {
                     className="tile-placeholder"
                     onDragOver={handleDragOver}
                     onDrop={(e)=> handleHandDrop(e, index) }
+                    onClick={() => setTileSelected(true)}
                     >
                     {src && (
                         <Image 
