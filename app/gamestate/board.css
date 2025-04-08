@@ -1,0 +1,11 @@
+#game-board {
+    height: 95vh;
+    width: 95vh;
+    display: grid;
+    margin: auto;
+}
+
+#game-board div {
+    cursor: pointer;
+    border: 2px solid black;
+}

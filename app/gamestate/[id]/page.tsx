@@ -7,7 +7,14 @@ import Image from "next/image";
 import "../gamestate.css";
 import { useApi } from "@/hooks/useApi";
 
+import "../bag.css";
+import "../board.css";
+import "../boardTilesColor.css";
 import "../gamestate.css";
+import "../playerHand.css";
+import "../playingButtons.css";
+import "../top.css";
+
 
 // Generate specialTiles outside the component to prevent re-execution
 const generateSpecialTiles = () => {
