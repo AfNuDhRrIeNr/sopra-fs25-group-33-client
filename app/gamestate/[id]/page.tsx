@@ -94,7 +94,8 @@ const Gamestate: React.FC = () => {
     const apiService = useApi();
     const [userId, setUserId] = useState<string | null>(null);
     const [username, setUsername] = useState<string | null>(null);
-    const [tileImages, setTileImages] = useState <(string | null)[]>(new Array(7).fill(null));
+    const [tilesInHand, setTilesInHand] = useState <(string | null)[]>(new Array(7).fill(null));
+    const [selectedTiles, setSelectedTiles ] = useState<number[]>([]);
     const [boardTiles, setBoardTiles] = useState<{ [key:string]: string | null }>({});
     const [isUserTurn, setUserTurn] = useState(true);
     const [isTileOnBoard, setTileOnBoard] = useState(false);
@@ -136,8 +137,21 @@ const Gamestate: React.FC = () => {
         alert("WordVerify");
     }
 
+    const toggleTileSelection = (index: number) => {
+        setSelectedTiles((prevSelected) =>
+        prevSelected.includes(index)
+            ? prevSelected.filter((i) => i !== index)
+            : [...prevSelected, index]
+        );
+    };
+
     const exchangeTiles = () => {
-        alert("Exchange");
+        const tilesToExchange = selectedTiles.map((i) => tilesInHand[i]);
+        alert(`${tilesToExchange} were exchanged.`)
+
+        const newHand = tilesInHand.filter((_, index) => !selectedTiles.includes(index));
+        setTilesInHand(newHand);
+        setSelectedTiles([]);
     }
 
     const skipTurn = () => {
@@ -156,7 +170,7 @@ const Gamestate: React.FC = () => {
 
     const handleReturn = () => {
         // Make copies so we can mutate them safely
-        const updatedHand = [...tileImages];
+        const updatedHand = [...tilesInHand];
         const updatedBoard = { ...boardTiles };
 
         for (const key in boardTiles) {
@@ -172,12 +186,12 @@ const Gamestate: React.FC = () => {
             }
         }
 
-        setTileImages(updatedHand);
+        setTilesInHand(updatedHand);
         setBoardTiles(updatedBoard);
     }
 
     const setTileImageAt = (index: number, imagePath: string | null) => {
-        setTileImages(prev => {
+        setTilesInHand(prev => {
             const updated = [...prev];
             updated[index] = imagePath;
             return updated;
@@ -188,7 +202,7 @@ const Gamestate: React.FC = () => {
     const handleDragStart = (e: React.DragEvent, index: number | null, col: number | null, row: number | null) => {
         if (index !== null) {
             e.dataTransfer.setData("index", index.toString()); // Store the image index from inside the hand
-            e.dataTransfer.setData("imageSrc", tileImages[index] || ''); // Store the image source
+            e.dataTransfer.setData("imageSrc", tilesInHand[index] || ''); // Store the image source
         } else if (col !== null && row !== null) {
             e.dataTransfer.setData("col", col.toString());
             e.dataTransfer.setData("row", row.toString());
@@ -214,15 +228,15 @@ const Gamestate: React.FC = () => {
         const draggedImage = e.dataTransfer.getData("imageSrc");
         const draggedCol = parseInt(e.dataTransfer.getData("col"));
         const draggedRow = parseInt(e.dataTransfer.getData("row"));
-        if (tileImages[index] !== null) {
+        if (tilesInHand[index] !== null) {
             alert("Space is not free!")
         } else {
             // If the target is empty, swap the images
             if (draggedImage){
-                const newTileImages = [...tileImages];
-                newTileImages[index] = draggedImage;
-                newTileImages[parseInt(draggedIndex)] = null;
-                setTileImages(newTileImages);
+                const newTilesInHand = [...tilesInHand];
+                newTilesInHand[index] = draggedImage;
+                newTilesInHand[parseInt(draggedIndex)] = null;
+                setTilesInHand(newTilesInHand);
             }
             if (draggedCol && draggedRow) {
                 const keyFrom = `${draggedCol}-${draggedRow}`;
@@ -246,15 +260,18 @@ const Gamestate: React.FC = () => {
         // Handling dropping an image from the hand to the board
         if (draggedIndex !== null && isNaN(draggedCol) && isNaN(draggedRow)) {
             console.log("In if tree");
-            const newTileImages = [...tileImages];
-            newTileImages[draggedIndex] = null;
-            setTileImages(newTileImages);
+            const newTilesInHand = [...tilesInHand];
+            newTilesInHand[draggedIndex] = null;
+            setTilesInHand(newTilesInHand);
             
             const key = `${col}-${row}`;
             setBoardTiles(prev => ({
                 ...prev,
                 [key]: draggedImage
             }));
+            if (selectedTiles.includes(draggedIndex)) {
+                setSelectedTiles(prev => prev.filter(index => index !== draggedIndex));
+            }
         }
         // Handling dropping an image from the board to another board tile
         else {
@@ -295,7 +312,8 @@ const Gamestate: React.FC = () => {
         console.log(boardTiles);
         setTileOnBoard(!(Object.keys(boardTiles).length === 0));
         setMoveVerified(false);
-    }, [boardTiles]);
+        setTileSelected(selectedTiles.length > 0);
+    }, [boardTiles, selectedTiles]);
     
 
     return (
@@ -436,18 +454,18 @@ const Gamestate: React.FC = () => {
                     />
                 )}
                 </div>
-                {tileImages.map((src, index) => (
+                {tilesInHand.map((src, index) => (
                     <div 
                     key={index} 
                     id={index.toString()} 
                     className="tile-placeholder"
                     onDragOver={handleDragOver}
                     onDrop={(e)=> handleHandDrop(e, index) }
-                    onClick={() => setTileSelected(true)}
+                    onClick={() => toggleTileSelection(index)}
                     >
                     {src && (
                         <Image 
-                        className="tiles"
+                        className={`tile-${selectedTiles.includes(index) ? "selected" : ""}`}
                         src={src} 
                         alt={`Tile ${index}`} 
                         width={100}
