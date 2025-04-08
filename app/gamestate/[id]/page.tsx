@@ -269,6 +269,9 @@ const Gamestate: React.FC = () => {
                 ...prev,
                 [key]: draggedImage
             }));
+            if (selectedTiles.includes(draggedIndex)) {
+                setSelectedTiles(prev => prev.filter(index => index !== draggedIndex));
+            }
         }
         // Handling dropping an image from the board to another board tile
         else {
@@ -309,7 +312,8 @@ const Gamestate: React.FC = () => {
         console.log(boardTiles);
         setTileOnBoard(!(Object.keys(boardTiles).length === 0));
         setMoveVerified(false);
-    }, [boardTiles]);
+        setTileSelected(selectedTiles.length > 0);
+    }, [boardTiles, selectedTiles]);
     
 
     return (
@@ -457,11 +461,7 @@ const Gamestate: React.FC = () => {
                     className="tile-placeholder"
                     onDragOver={handleDragOver}
                     onDrop={(e)=> handleHandDrop(e, index) }
-<<<<<<< Updated upstream
-                    onClick={() => setTileSelected(true)}
-=======
-                    onClick = {() => toggleTileSelection(index)}
->>>>>>> Stashed changes
+                    onClick={() => toggleTileSelection(index)}
                     >
                     {src && (
                         <Image 
