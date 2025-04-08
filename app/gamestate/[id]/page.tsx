@@ -98,6 +98,8 @@ const Gamestate: React.FC = () => {
     const [boardTiles, setBoardTiles] = useState<{ [key:string]: string | null }>({});
     const [isUserTurn, setUserTurn] = useState(true);
     const [isTileOnBoard, setTileOnBoard] = useState(false);
+    const [isMoveVerified, setMoveVerified] = useState(false);
+    const [isTileSelected, setTileSelected] = useState(false);
 
     useEffect(()=> {
             setUserId(localStorage.getItem("userId"));
@@ -130,6 +132,7 @@ const Gamestate: React.FC = () => {
     };
 
     const verifyWord = () => {
+        setMoveVerified(true);
         alert("WordVerify");
     }
 
@@ -142,6 +145,8 @@ const Gamestate: React.FC = () => {
     }
 
     const commitWord = () => {
+        setMoveVerified(false);
+        handleReturn();
         alert("WordCommited");
     }
 
@@ -289,6 +294,7 @@ const Gamestate: React.FC = () => {
     useEffect(() => {
         console.log(boardTiles);
         setTileOnBoard(!(Object.keys(boardTiles).length === 0));
+        setMoveVerified(false);
     }, [boardTiles]);
     
 
@@ -397,7 +403,18 @@ const Gamestate: React.FC = () => {
                                 />
                             </div>
                             <div id="bag-button-container">
-                                <button id="bag-button" onClick={handleCheck}>Ask</button>
+                                <button 
+                                id="bag-button" 
+                                onClick={handleCheck}
+                                disabled = {!letter}
+                                style = {{ 
+                                    opacity: letter ? 1 : 0.9,
+                                    cursor: letter ? "pointer" : "not-allowed",
+                                }}
+                                title = { !letter ? "Type a letter to request the info" : ""}
+                                >
+                                    Ask
+                                </button>
                             </div>
                         </div>
                         <div id="tiles-info-container">
@@ -444,12 +461,22 @@ const Gamestate: React.FC = () => {
                 <div id="game-buttons">
                     <div id="upper-row-container">
                         <div id="verify-button-container">
-                            <Button onClick = {verifyWord} id="verify-button"  className="game-buttons">
+                            <Button onClick = {verifyWord} 
+                            id="verify-button"  
+                            className="game-buttons"
+                            disabled={!isTileOnBoard}
+                            style= {{ opacity: isTileOnBoard ? 1 : 0.9}}
+                            title={!isTileOnBoard ? "Place a tile on the board to verify a word" : ""}>
                                 Verify
                             </Button>
                         </div>
                         <div id="exchange-button-container">
-                            <Button onClick = {() => exchangeTiles()} id="exhange-button" className="game-buttons">
+                            <Button onClick = {() => exchangeTiles()} 
+                            id="exhange-button" 
+                            className="game-buttons"
+                            disabled = {!isTileSelected}
+                            style = {{ opacity: isTileSelected ? 1 : 0.9}}
+                            title = { !isTileSelected ? "Select a tile to exchange it" : ""}>
                                 Exchange
                             </Button>
                         </div>
@@ -461,7 +488,12 @@ const Gamestate: React.FC = () => {
                     </div>
                     <div id="lower-row-container">
                         <div id="commit-button-container">
-                            <Button onClick = {commitWord} id="commit-button" className="game-buttons">
+                            <Button onClick = {commitWord} 
+                            id="commit-button" 
+                            className="game-buttons"
+                            disabled = {!isMoveVerified}
+                            style = {{ opacity: isMoveVerified ? 1: 0.9}}
+                            title={!isMoveVerified ? "Verify a word before playing it" : ""}>
                                 Play Word
                             </Button>
                         </div>
