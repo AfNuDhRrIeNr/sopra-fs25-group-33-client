@@ -27,6 +27,12 @@ interface Game {
     status: string;
 }
 
+interface GameInvitation {
+    id: number;
+    sender: User;
+    status: string;
+}
+
 interface User {
     token: string;
     id: number;
@@ -39,7 +45,7 @@ const DashboardPage: React.FC = () => {
     const [username, setUsername] = useState<string | null>(null);
     const [friends, setFriends] = useState<Friend[]>([]);
     const [leaderboard, setLeaderboard] = useState<LeaderboardPlayer[]>([]);
-    const [pendingRequests, setPendingRequests] = useState<Friend[]>([/*{
+    const [pendingRequests, setPendingRequests] = useState<Friend[]>([{
         id: 1,
         name: "Marco",
         avatar: "/User_Icon.jpg" 
@@ -47,14 +53,24 @@ const DashboardPage: React.FC = () => {
             id: 2,
             name: "Sebastiano",
             avatar: "/User_Icon.jpg"
-            }*/]);
+            }]);
+    const [pendingInvitations, setPendingInvitations] = useState<GameInvitation[]>([{
+        id: 1,
+        sender: { token: "", id: 1, username: "Marco" },
+        status: "pending",
+        },{
+            id: 2,
+            sender: { token: "", id: 2, username: "Sebastiano" },
+            status: "pending",
+            }]);
     const [sentRequests, setSentRequests] = useState<Friend[]>([]);
+    const [invitations, setInvitations] = useState<GameInvitation[]>([]);
     const [isSendFriendModalOpen, setIsSendFriendModalOpen] = useState(false);
     const [isPendingRequestsModalOpen, setIsPendingRequestsModalOpen] = useState(false);
+    const [isInvitationsModalOpen, setIsInvitationsModalOpen] = useState(false);
     const [newFriendUsername, setNewFriendUsername] = useState<string>('');
     
     const apiService = useApi();
-            
     //fetch user info from localstorage
     useEffect(()=> {
         setToken(localStorage.getItem("token"));
@@ -150,6 +166,17 @@ const DashboardPage: React.FC = () => {
             };
 
 
+    const handleInvitation = (gameId: number, action: 'play' | 'decline') => {
+        if (action === 'play') {
+            // Navigate to the game lobby
+            router.push(`/lobby/${gameId}`);
+        } else if (action === 'decline') {
+            // Call API to decline the invitation
+            setInvitations(invitations.filter(invitation => invitation.id !== gameId));
+            alert('Invitation declined');
+        }
+    };
+
     return (
         <div className="dashboard-page">
             <header>
@@ -205,6 +232,7 @@ const DashboardPage: React.FC = () => {
                     <h2>ScrabbleNow!</h2>
                     <div className="scrabble-now">
                         <div className="scrabble-board">
+                            <button className="invitations-button" onClick={() => setIsInvitationsModalOpen(true)}>Invitations</button>
                             <img src="/Board.jpg" alt="Scrabble Board" />
                         </div>
                     </div>
@@ -288,6 +316,34 @@ const DashboardPage: React.FC = () => {
                                 <p>No pending friend requests.</p>
                             )}
                             <button className='modal-button-gold' onClick={() => setIsPendingRequestsModalOpen(false)}>Close</button>
+                       </div>
+                 </div>
+                )}
+                {/* Modal for Game Invitations */}
+                {isInvitationsModalOpen && (
+                  <div className="modal-overlay">
+                      <div className="modal">
+                          <h2>Invitations</h2>
+                          {pendingInvitations.length > 0 ? (
+                             <ul>
+                                 {pendingInvitations.map((invitation) => (
+                                     <li key={invitation.id} className='invitations-row'>
+                                         <span className='friend-username'>{invitation.sender.username}</span>
+                                         <div className='modal-buttons'>
+                                         <button className='modal-button-green' onClick={() => handleInvitation(invitation.id, 'play')}>
+                                             Play
+                                         </button>
+                                            <button className='modal-button-red' onClick={() => handleInvitation(invitation.id, 'decline')}>
+                                                Decline
+                                            </button>
+                                        </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <p>No pending Invitations.</p>
+                            )}
+                            <button className='modal-button-gold' onClick={() => setIsInvitationsModalOpen(false)}>Close</button>
                        </div>
                  </div>
                 )}
