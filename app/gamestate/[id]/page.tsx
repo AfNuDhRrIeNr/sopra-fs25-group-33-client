@@ -197,7 +197,7 @@ const Gamestate: React.FC = () => {
         setBoardTiles(updatedBoard);
     }
 
-    const setTileImageAt = (index: number, imagePath: string | null) => {
+    const setHandImageAt = (index: number, imagePath: string | null) => {
         setTilesInHand(prev => {
             const updated = [...prev];
             updated[index] = imagePath;
@@ -235,6 +235,7 @@ const Gamestate: React.FC = () => {
         const draggedImage = e.dataTransfer.getData("imageSrc");
         const draggedCol = parseInt(e.dataTransfer.getData("col"));
         const draggedRow = parseInt(e.dataTransfer.getData("row"));
+
         if (tilesInHand[index] !== null) {
             alert("Space is not free!")
         } else {
@@ -263,40 +264,40 @@ const Gamestate: React.FC = () => {
         const draggedCol = parseInt(e.dataTransfer.getData("col"));
         const draggedRow = parseInt(e.dataTransfer.getData("row"));
         const draggedImageFromBoard = e.dataTransfer.getData("imageSrc");
+        const keyTo = `${col}-${row}`;
 
-        // Handling dropping an image from the hand to the board
-        if (draggedIndex !== null && isNaN(draggedCol) && isNaN(draggedRow)) {
-            console.log("In if tree");
-            const newTilesInHand = [...tilesInHand];
-            newTilesInHand[draggedIndex] = null;
-            setTilesInHand(newTilesInHand);
-            
-            const key = `${col}-${row}`;
-            setBoardTiles(prev => ({
-                ...prev,
-                [key]: draggedImage
-            }));
-            if (selectedTiles.includes(draggedIndex)) {
-                setSelectedTiles(prev => prev.filter(index => index !== draggedIndex));
-            }
+        if (boardTiles[keyTo]) {
+            alert("Space is not free!");
         }
-        // Handling dropping an image from the board to another board tile
         else {
-            const keyFrom = `${draggedCol}-${draggedRow}`;
-            const keyTo = `${col}-${row}`;
-            
-            // Remove image from original board tile
-            const updatedBoardTiles = { ...boardTiles };
-            if (updatedBoardTiles[keyTo]) {
-                alert("Space is not free!")
-            } else {
+        // Handling dropping an image from the hand to the board
+            if (draggedIndex !== null && isNaN(draggedCol) && isNaN(draggedRow)) {
+                const newTilesInHand = [...tilesInHand];
+                newTilesInHand[draggedIndex] = null;
+                setTilesInHand(newTilesInHand);
+                
+                const key = `${col}-${row}`;
+                setBoardTiles(prev => ({
+                    ...prev,
+                    [key]: draggedImage
+                }));
+                if (selectedTiles.includes(draggedIndex)) {
+                    setSelectedTiles(prev => prev.filter(index => index !== draggedIndex));
+                }
+            }
+            // Handling dropping an image from the board to another board tile
+            else {
+                const keyFrom = `${draggedCol}-${draggedRow}`;
+                
+                // Remove image from original board tile
+                const updatedBoardTiles = { ...boardTiles };
                 if (keyFrom !== keyTo) {
                     delete updatedBoardTiles[keyFrom];
                     updatedBoardTiles[keyTo] = draggedImageFromBoard;
                 }
                 
                 setBoardTiles(updatedBoardTiles);
-            }   
+            }
         }
     };
     
@@ -304,15 +305,21 @@ const Gamestate: React.FC = () => {
     const handleDragOver = (e: React.DragEvent) => {
         e.preventDefault(); // Allow drop
     };
+
+    const handleDragEnd = (e: React.DragEvent) => {
+        // e.preventDefault();
+        const target = e.target as HTMLImageElement;
+        target.style.opacity = '1';
+    }
     
     useEffect(() => {
-        setTileImageAt(0, "/letters/A Tile 70.jpg");
-        setTileImageAt(1, "/letters/B Tile 70.jpg");
-        setTileImageAt(2, "/letters/S Tile 70.jpg");
-        setTileImageAt(3, "/letters/R Tile 70.jpg");
-        setTileImageAt(4, "/letters/T Tile 70.jpg");
-        setTileImageAt(5, "/letters/T Tile 70.jpg");
-        setTileImageAt(6, "/letters/H Tile 70.jpg");
+        setHandImageAt(0, "/letters/A Tile 70.jpg");
+        setHandImageAt(1, "/letters/B Tile 70.jpg");
+        setHandImageAt(2, "/letters/S Tile 70.jpg");
+        setHandImageAt(3, "/letters/R Tile 70.jpg");
+        setHandImageAt(4, "/letters/T Tile 70.jpg");
+        setHandImageAt(5, "/letters/T Tile 70.jpg");
+        setHandImageAt(6, "/letters/H Tile 70.jpg");
     }, []);
     
     useEffect(() => {
@@ -350,6 +357,7 @@ const Gamestate: React.FC = () => {
                                             height={100}
                                             draggable
                                             onDragStart={(e) => handleDragStart(e, null, col, row)} 
+                                            onDragEnd = {handleDragEnd}
                                         /> 
                                         )}
                                 </div>
@@ -479,6 +487,7 @@ const Gamestate: React.FC = () => {
                         height={100} 
                         draggable
                         onDragStart={(e)=>handleDragStart(e, index, null, null)}
+                        onDragEnd = {handleDragEnd}
                         />
                     )}
                     </div>
