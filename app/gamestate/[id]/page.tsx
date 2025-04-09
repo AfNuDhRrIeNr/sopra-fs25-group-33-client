@@ -216,7 +216,7 @@ const Gamestate: React.FC = () => {
             e.dataTransfer.setData("imageSrc", boardTiles[`${col}-${row}`] || '');
         }
         const target = e.target as HTMLImageElement; //set original e (e meaning event) (e.target) type as htmlimage
-        target.style.opacity = '0'; //set opacity to 0 to fake moving the tile
+        target.classList.add('dragging');
         
         //keep the dragged Image visible since reference opacity is now 0
         const dragPreview = document.createElement("img");
@@ -237,7 +237,21 @@ const Gamestate: React.FC = () => {
         const draggedRow = parseInt(e.dataTransfer.getData("row"));
 
         if (tilesInHand[index] !== null) {
-            alert("Space is not free!")
+            const newTilesInHand = [...tilesInHand]; //copy so useEffect registers a change
+            newTilesInHand[index] = draggedImage; //replace drop location src with original src
+            newTilesInHand[parseInt(draggedIndex)] = tilesInHand[index]; //replace original src with drop location src
+            setTilesInHand(newTilesInHand);
+            const indIncluded = selectedTiles.includes(index);
+            const draggedIncluded = selectedTiles.includes(parseInt(draggedIndex));
+            if ((indIncluded || draggedIncluded) && !(indIncluded && draggedIncluded)) { //XOR?
+                if (indIncluded) {
+                    setSelectedTiles(prev => prev.map(tile => tile === index ? parseInt(draggedIndex) : tile));
+                }
+                else {
+                    setSelectedTiles(prev => prev.map(tile => tile === parseInt(draggedIndex) ? index : tile));
+                }
+            }
+            
         } else {
             // If the target is empty, swap the images
             if (draggedImage){
@@ -307,9 +321,8 @@ const Gamestate: React.FC = () => {
     };
 
     const handleDragEnd = (e: React.DragEvent) => {
-        // e.preventDefault();
         const target = e.target as HTMLImageElement;
-        target.style.opacity = '1';
+        target.classList.remove('dragging');
     }
     
     useEffect(() => {
@@ -323,11 +336,11 @@ const Gamestate: React.FC = () => {
     }, []);
     
     useEffect(() => {
-        console.log(boardTiles);
         setTileOnBoard(!(Object.keys(boardTiles).length === 0));
         setMoveVerified(false);
         setTileSelected(selectedTiles.length > 0);
-    }, [boardTiles, selectedTiles]);
+        console.log(`SelectedTiles: ${selectedTiles}`);
+    }, [boardTiles, selectedTiles, tilesInHand]);
     
 
     return (
@@ -476,10 +489,10 @@ const Gamestate: React.FC = () => {
                     className="tile-placeholder"
                     onDragOver={handleDragOver}
                     onDrop={(e)=> handleHandDrop(e, index) }
-                    onClick={() => toggleTileSelection(index)}
                     >
                     {src && (
                         <Image 
+                        onClick={() => toggleTileSelection(index)}
                         className={`tile-${selectedTiles.includes(index) ? "selected" : ""}`}
                         src={src} 
                         alt={`Tile ${index}`} 
