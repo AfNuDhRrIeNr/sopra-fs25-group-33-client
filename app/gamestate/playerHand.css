@@ -14,6 +14,10 @@
     border-radius: 10px;
 }
 
+.tile-placeholder img.dragging {
+    opacity: 0;
+}
+
 .tile- {
     width: 100%;
     height: 100%;
