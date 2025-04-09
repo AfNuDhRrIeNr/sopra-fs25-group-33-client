@@ -8,7 +8,14 @@ import Image from "next/image";
 import "../gamestate.css";
 import { useApi } from "@/hooks/useApi";
 import { Client } from "@stomp/stompjs";
+import "../bag.css";
+import "../board.css";
+import "../boardTilesColor.css";
 import SockJS from "sockjs-client";
+import "../playerHand.css";
+import "../playingButtons.css";
+import "../top.css";
+
 
 // Generate specialTiles outside the component to prevent re-execution
 const generateSpecialTiles = () => {
@@ -95,10 +102,13 @@ const Gamestate: React.FC = () => {
     const apiService = useApi();
     const [userId, setUserId] = useState<string | null>(null);
     const [username, setUsername] = useState<string | null>(null);
+    const [tilesInHand, setTilesInHand] = useState <(string | null)[]>(new Array(7).fill(null));
+    const [selectedTiles, setSelectedTiles ] = useState<number[]>([]);
+    const [boardTiles, setBoardTiles] = useState<{ [key:string]: string | null }>({});
     const [isUserTurn, setUserTurn] = useState(true);
     const [isTileOnBoard, setTileOnBoard] = useState(false);
-    const [tileImages, setTileImages] = useState <(string | null)[]>(new Array(7).fill(null));
-    const [boardTiles, setBoardTiles] = useState<{ [key:string]: string | null }>({});
+    const [isMoveVerified, setMoveVerified] = useState(false);
+    const [isTileSelected, setTileSelected] = useState(false);
     // const [messages, setMessages] = useState<string[]>([]);
     const { gameId } = useParams();
     const stompClientRef = useRef<Client | null>(null);
@@ -178,11 +188,25 @@ const Gamestate: React.FC = () => {
     };
 
     const verifyWord = () => {
+        setMoveVerified(true);
         alert("WordVerify");
     }
 
+    const toggleTileSelection = (index: number) => {
+        setSelectedTiles((prevSelected) =>
+        prevSelected.includes(index)
+            ? prevSelected.filter((i) => i !== index)
+            : [...prevSelected, index]
+        );
+    };
+
     const exchangeTiles = () => {
-        alert("Exchange");
+        const tilesToExchange = selectedTiles.map((i) => tilesInHand[i]);
+        alert(`${tilesToExchange} were exchanged.`)
+
+        const newHand = tilesInHand.filter((_, index) => !selectedTiles.includes(index));
+        setTilesInHand(newHand);
+        setSelectedTiles([]);
     }
 
     const skipTurn = () => {
@@ -191,6 +215,8 @@ const Gamestate: React.FC = () => {
     }
 
     const commitWord = () => {
+        setMoveVerified(false);
+        handleReturn();
         alert("WordCommited");
     }
 
@@ -200,7 +226,7 @@ const Gamestate: React.FC = () => {
 
     const handleReturn = () => {
         // Make copies so we can mutate them safely
-        const updatedHand = [...tileImages];
+        const updatedHand = [...tilesInHand];
         const updatedBoard = { ...boardTiles };
 
         for (const key in boardTiles) {
@@ -216,12 +242,12 @@ const Gamestate: React.FC = () => {
             }
         }
 
-        setTileImages(updatedHand);
+        setTilesInHand(updatedHand);
         setBoardTiles(updatedBoard);
     }
 
     const setTileImageAt = (index: number, imagePath: string | null) => {
-        setTileImages(prev => {
+        setTilesInHand(prev => {
             const updated = [...prev];
             updated[index] = imagePath;
             return updated;
@@ -232,7 +258,7 @@ const Gamestate: React.FC = () => {
     const handleDragStart = (e: React.DragEvent, index: number | null, col: number | null, row: number | null) => {
         if (index !== null) {
             e.dataTransfer.setData("index", index.toString()); // Store the image index from inside the hand
-            e.dataTransfer.setData("imageSrc", tileImages[index] || ''); // Store the image source
+            e.dataTransfer.setData("imageSrc", tilesInHand[index] || ''); // Store the image source
         } else if (col !== null && row !== null) {
             e.dataTransfer.setData("col", col.toString());
             e.dataTransfer.setData("row", row.toString());
@@ -260,21 +286,24 @@ const Gamestate: React.FC = () => {
         const draggedImage = e.dataTransfer.getData("imageSrc");
         const draggedCol = parseInt(e.dataTransfer.getData("col"));
         const draggedRow = parseInt(e.dataTransfer.getData("row"));
-
-        // If the target is empty, swap the images
-        if (draggedImage && !tileImages[index]) {
-            const newTileImages = [...tileImages];
-            newTileImages[index] = draggedImage;
-            newTileImages[parseInt(draggedIndex)] = null;
-            setTileImages(newTileImages);
-        }
-        if (draggedCol && draggedRow) {
-            const keyFrom = `${draggedCol}-${draggedRow}`;
-            setBoardTiles(prev => {
-                const updated = { ...prev };
-                delete updated[keyFrom];  // Clear the dragged tile from its original position
-                return updated;
-            });
+        if (tilesInHand[index] !== null) {
+            alert("Space is not free!")
+        } else {
+            // If the target is empty, swap the images
+            if (draggedImage){
+                const newTilesInHand = [...tilesInHand];
+                newTilesInHand[index] = draggedImage;
+                newTilesInHand[parseInt(draggedIndex)] = null;
+                setTilesInHand(newTilesInHand);
+            }
+            if (draggedCol && draggedRow) {
+                const keyFrom = `${draggedCol}-${draggedRow}`;
+                setBoardTiles(prev => {
+                    const updated = { ...prev };
+                    delete updated[keyFrom];  // Clear the dragged tile from its original position
+                    return updated;
+                });
+            }
         }
     };
 
@@ -282,24 +311,28 @@ const Gamestate: React.FC = () => {
         e.preventDefault();
         const draggedIndex = parseInt(e.dataTransfer.getData("index"));
         const draggedImage = e.dataTransfer.getData("imageSrc");
+        const draggedCol = parseInt(e.dataTransfer.getData("col"));
+        const draggedRow = parseInt(e.dataTransfer.getData("row"));
+        const draggedImageFromBoard = e.dataTransfer.getData("imageSrc");
 
         // Handling dropping an image from the hand to the board
-        if (draggedIndex !== null) {
-            const newTileImages = [...tileImages];
-            newTileImages[draggedIndex] = null;
-            setTileImages(newTileImages);
-
+        if (draggedIndex !== null && isNaN(draggedCol) && isNaN(draggedRow)) {
+            console.log("In if tree");
+            const newTilesInHand = [...tilesInHand];
+            newTilesInHand[draggedIndex] = null;
+            setTilesInHand(newTilesInHand);
+            
             const key = `${col}-${row}`;
             setBoardTiles(prev => ({
                 ...prev,
                 [key]: draggedImage
             }));
+            if (selectedTiles.includes(draggedIndex)) {
+                setSelectedTiles(prev => prev.filter(index => index !== draggedIndex));
+            }
         }
         // Handling dropping an image from the board to another board tile
         else {
-            const draggedCol = parseInt(e.dataTransfer.getData("col"));
-            const draggedRow = parseInt(e.dataTransfer.getData("row"));
-            const draggedImageFromBoard = e.dataTransfer.getData("imageSrc");
 
             const keyFrom = `${draggedCol}-${draggedRow}`;
             const keyTo = `${col}-${row}`;
@@ -332,8 +365,10 @@ const Gamestate: React.FC = () => {
     useEffect(() => {
         console.log(boardTiles);
         setTileOnBoard(!(Object.keys(boardTiles).length === 0));
-    }, [boardTiles]);
-
+        setMoveVerified(false);
+        setTileSelected(selectedTiles.length > 0);
+    }, [boardTiles, selectedTiles]);
+    
 
     return (
         <div id="screen">
@@ -440,7 +475,18 @@ const Gamestate: React.FC = () => {
                                 />
                             </div>
                             <div id="bag-button-container">
-                                <button id="bag-button" onClick={handleCheck}>Ask</button>
+                                <button 
+                                id="bag-button" 
+                                onClick={handleCheck}
+                                disabled = {!letter}
+                                style = {{ 
+                                    opacity: letter ? 1 : 0.9,
+                                    cursor: letter ? "pointer" : "not-allowed",
+                                }}
+                                title = { !letter ? "Type a letter to request the info" : ""}
+                                >
+                                    Ask
+                                </button>
                             </div>
                         </div>
                         <div id="tiles-info-container">
@@ -462,17 +508,18 @@ const Gamestate: React.FC = () => {
                     />
                 )}
                 </div>
-                {tileImages.map((src, index) => (
+                {tilesInHand.map((src, index) => (
                     <div 
                     key={index} 
                     id={index.toString()} 
                     className="tile-placeholder"
                     onDragOver={handleDragOver}
                     onDrop={(e)=> handleHandDrop(e, index) }
+                    onClick={() => toggleTileSelection(index)}
                     >
                     {src && (
                         <Image 
-                        className="tiles"
+                        className={`tile-${selectedTiles.includes(index) ? "selected" : ""}`}
                         src={src} 
                         alt={`Tile ${index}`} 
                         width={100}
@@ -487,12 +534,22 @@ const Gamestate: React.FC = () => {
                 <div id="game-buttons">
                     <div id="upper-row-container">
                         <div id="verify-button-container">
-                            <Button onClick = {verifyWord} id="verify-button"  className="game-buttons">
+                            <Button onClick = {verifyWord} 
+                            id="verify-button"  
+                            className="game-buttons"
+                            disabled={!isTileOnBoard}
+                            style= {{ opacity: isTileOnBoard ? 1 : 0.9}}
+                            title={!isTileOnBoard ? "Place a tile on the board to verify a word" : ""}>
                                 Verify
                             </Button>
                         </div>
                         <div id="exchange-button-container">
-                            <Button onClick = {() => exchangeTiles()} id="exhange-button" className="game-buttons">
+                            <Button onClick = {() => exchangeTiles()} 
+                            id="exhange-button" 
+                            className="game-buttons"
+                            disabled = {!isTileSelected}
+                            style = {{ opacity: isTileSelected ? 1 : 0.9}}
+                            title = { !isTileSelected ? "Select a tile to exchange it" : ""}>
                                 Exchange
                             </Button>
                         </div>
@@ -504,7 +561,12 @@ const Gamestate: React.FC = () => {
                     </div>
                     <div id="lower-row-container">
                         <div id="commit-button-container">
-                            <Button onClick = {commitWord} id="commit-button" className="game-buttons">
+                            <Button onClick = {commitWord} 
+                            id="commit-button" 
+                            className="game-buttons"
+                            disabled = {!isMoveVerified}
+                            style = {{ opacity: isMoveVerified ? 1: 0.9}}
+                            title={!isMoveVerified ? "Verify a word before playing it" : ""}>
                                 Play Word
                             </Button>
                         </div>
