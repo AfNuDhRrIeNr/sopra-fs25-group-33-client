@@ -12,8 +12,8 @@ import useLocalStorage from "@/hooks/useLocalStorage";
 
 interface Friend {
     id: number;
-    name: string;
-    avatar: string; // URL for the avatar image
+    sender: User;
+    avatar: string; // Not provided by API, use a default image
 }
 
 interface LeaderboardPlayer {
@@ -47,11 +47,11 @@ const DashboardPage: React.FC = () => {
     const [leaderboard, setLeaderboard] = useState<LeaderboardPlayer[]>([]);
     const [pendingRequests, setPendingRequests] = useState<Friend[]>([{
         id: 1,
-        name: "Marco",
+        sender: {id: 1, token: "", username: "Marco"},
         avatar: "/User_Icon.jpg" 
         },{
             id: 2,
-            name: "Sebastiano",
+            sender: {id: 2, token: "", username: "Sebastiano"},
             avatar: "/User_Icon.jpg"
             }]);
     const [pendingInvitations, setPendingInvitations] = useState<GameInvitation[]>([{
@@ -69,6 +69,8 @@ const DashboardPage: React.FC = () => {
     const [isPendingRequestsModalOpen, setIsPendingRequestsModalOpen] = useState(false);
     const [isInvitationsModalOpen, setIsInvitationsModalOpen] = useState(false);
     const [newFriendUsername, setNewFriendUsername] = useState<string>('');
+
+    /* Const to setFriendRequests */
     
     const apiService = useApi();
     //fetch user info from localstorage
@@ -111,15 +113,13 @@ const DashboardPage: React.FC = () => {
     };
     // Function to accept or decline a friend request
     const handleFriendRequest = (requestId: number, action: 'accept' | 'decline') => {
-        apiService.put<Friend>(`/users/friendRequests/${requestId}`, { action })
-            .then((data) => {
-                alert(`Friend request ${action}`);
-                setPendingRequests(pendingRequests.filter((req) => req.id !== requestId));
-                if (action === 'accept') {
-                    setFriends([...friends, data]);
-                }
-            })
-            .catch((error) => console.error(`${action} failed:`, error));
+        if (action === 'accept') {
+            const acceptedRequest = pendingRequests.find((req) => req.id === requestId);
+            if (acceptedRequest) {
+                setFriends([...friends, acceptedRequest]); // Add to friends list
+            }
+        }
+        setPendingRequests(pendingRequests.filter((req) => req.id !== requestId)); // Remove from pending requests
     };
 
     const handleIconClick = () => {
@@ -166,14 +166,22 @@ const DashboardPage: React.FC = () => {
             };
 
 
-    const handleInvitation = (gameId: number, action: 'play' | 'decline') => {
-        if (action === 'play') {
-            // Navigate to the game lobby
-            router.push(`/lobby/${gameId}`);
-        } else if (action === 'decline') {
-            // Call API to decline the invitation
-            setInvitations(invitations.filter(invitation => invitation.id !== gameId));
-            alert('Invitation declined');
+    const handleInvitation = async (gameId: number, action: 'play' | 'decline') => {
+        try {
+            if (action === 'play') {
+                // Navigate to the game lobby
+                router.push(`/lobby/${gameId}`);
+                // TODO Call API to accept the invitation
+                // await apiService.put<GameInvitation>(`/games/invitations/${gameId}`, { action: 'accept' });
+            } else if (action === 'decline') {
+                // TODO Call API to decline the invitation
+                // await apiService.put<GameInvitation>(`/games/invitations/${gameId}`, { action: 'decline' });
+            }
+            // Update the invitations array to remove the handled invitation
+            setPendingInvitations(pendingInvitations.filter(invitation => invitation.id !== gameId));
+        } catch (error) {
+            console.error(`Error handling invitation (${action}):`, error);
+            alert(`Failed to ${action} the invitation.`);
         }
     };
 
@@ -220,8 +228,8 @@ const DashboardPage: React.FC = () => {
                         <ul>
                             {friends.map((friend) => (
                                 <li key={friend.id}>
-                                    <img src={friend.avatar} alt={`${friend.name}'s Avatar`} />
-                                    {friend.name}
+                                    <img src={friend.avatar} alt={`${friend.sender.username}'s Avatar`} />
+                                    {friend.sender.username}
                                 </li>
                             ))}
                         </ul>
@@ -232,7 +240,7 @@ const DashboardPage: React.FC = () => {
                     <h2>ScrabbleNow!</h2>
                     <div className="scrabble-now">
                         <div className="scrabble-board">
-                            <button className="invitations-button" onClick={() => setIsInvitationsModalOpen(true)}>Invitations</button>
+                        {pendingInvitations.length > 0 && (<button className="invitations-button" onClick={() => setIsInvitationsModalOpen(true)}>Invitations</button>)}
                             <img src="/Board.jpg" alt="Scrabble Board" />
                         </div>
                     </div>
@@ -297,10 +305,10 @@ const DashboardPage: React.FC = () => {
                                      <li key={request.id} className='friend-request-row'>
                                          <img 
                                          src={request.avatar} 
-                                         alt={`${request.name}'s Avatar`}
+                                         alt={`${request.sender.username}'s Avatar`}
                                          className='modal-avatar'
                                          />
-                                         <span className='friend-username'>{request.name}</span>
+                                         <span className='friend-username'>{request.sender.username}</span>
                                          <div className='modal-buttons'>
                                          <button className='modal-button-green' onClick={() => handleFriendRequest(request.id, 'accept')}>
                                              Accept
