@@ -102,6 +102,7 @@ const Gamestate: React.FC = () => {
     const apiService = useApi();
     const [userId, setUserId] = useState<string | null>(null);
     const [username, setUsername] = useState<string | null>(null);
+    const [token, setToken] = useState<string | null>(null);
     const [tilesInHand, setTilesInHand] = useState <(string | null)[]>(new Array(7).fill(null));
     const [selectedTiles, setSelectedTiles ] = useState<number[]>([]);
     const [boardTiles, setBoardTiles] = useState<{ [key:string]: string | null }>({});
@@ -110,12 +111,13 @@ const Gamestate: React.FC = () => {
     const [isMoveVerified, setMoveVerified] = useState(false);
     const [isTileSelected, setTileSelected] = useState(false);
     // const [messages, setMessages] = useState<string[]>([]);
-    const { gameId } = useParams();
+    const { id } = useParams();
     const stompClientRef = useRef<Client | null>(null);
 
     useEffect(()=> {
         setUserId(localStorage.getItem("userId"));
         setUsername(localStorage.getItem("username"));
+        setToken(localStorage.getItem("token"));
     }, []); 
 
     useEffect(() => {
@@ -131,7 +133,7 @@ const Gamestate: React.FC = () => {
                 console.log("Connected to WebSocket");
 
                 // Subscribe to the game state topic dynamically using the gameId
-                stompClient.subscribe(`/topic/game_states/${gameId}`, (message) => {
+                stompClient.subscribe(`/topic/game_states/${id}`, (message) => {
                     console.log("Received message:", message.body);
                 });
             };
@@ -149,24 +151,26 @@ const Gamestate: React.FC = () => {
                 stompClientRef.current.deactivate();
             }
         };
-    }, [gameId])
+    }, [id])
 
     const sendMessage = (messageBody: string) => {
         if (stompClientRef.current) {
             stompClientRef.current.publish({
-                destination: `ws/game_states/${gameId}`,
+                destination: `app/game_states/${id}`,
                 body: messageBody,
             });
+            console.log(`Message sent to ws/game_states/${id}:`, messageBody);
         }
-    };
 
+    };
+    
     // Function to get the tile class
     const getTileClass = (row: number, col: number) => {
         const key = `${col}-${row}`;
         return specialTiles[key];
     };
 
-
+    
     const handleCheck = async () => {
         if (letter.length !== 1 || !/[a-zA-Z]/.test(letter)) {
             alert("Please enter a single letter.");
@@ -175,7 +179,7 @@ const Gamestate: React.FC = () => {
         try 
         {
             const response = await apiService.get<Tile>(`/gamestate/users/${userId}/remaining/${letter}`);
-        
+            
             if (response != null) {
                 setNumber(response.remaining);
                 setSubmittedLetter(response.letter.toUpperCase());
@@ -186,27 +190,67 @@ const Gamestate: React.FC = () => {
             alert(`Retrieval failed: ${(error as Error).message}`);
         }
     };
-
+    
+    const constructMatrix = () => {
+        // Initialize the 15x15 matrix with null values (or empty string)
+        const matrix: (string | null)[][] = Array.from({ length: 15 }, () => Array(15).fill(null));
+        
+        // Iterate over the boardTiles and place each tile on the correct matrix position
+        Object.entries(boardTiles).forEach(([key, tileImage]) => {
+            const [col, row] = key.split('-').map(Number); // Split the key like "7-7" into [7, 7]
+            if (tileImage) {
+                matrix[row][col] = tileImage[9]; // Place the tile in the correct position in the matrix
+            }
+        });
+    
+        console.log(matrix);
+        return matrix;
+    };
+    
     const verifyWord = () => {
-        setMoveVerified(true);
-        alert("WordVerify");
+        const matrix = constructMatrix(); // Get the constructed matrix
+        const newTilesArray = tilesInHand.map(tile => tile ? tile[9] : null);
+        // Prepare the message body (you can adjust the structure as needed)
+        const messageBody = JSON.stringify({
+            id: id, // Add game id to the message body
+            board: matrix, // Include the constructed board matrix
+            type: null,
+            token: token,
+            userTiles: newTilesArray,
+            action: "VALIDATE",
+            playerId: userId,
+        });
+        
+        // Send the message over WebSocket
+        sendMessage(messageBody);
+        stompClientRef.current?.subscribe(`/topic/game_states/users/${userId}`, (message) => {
+            console.log("Received validation response:", message.body);
+            
+            // Assuming the backend sends something like { valid: true/false }
+            const response = JSON.parse(message.body);
+            if (response.status === "VALIDATION_SUCCESS") {
+                alert("Validation successful!");
+            } else {
+                alert("Validation failed.");
+            }
+        });
     }
-
+    
     const toggleTileSelection = (index: number) => {
         setSelectedTiles((prevSelected) =>
         prevSelected.includes(index)
-            ? prevSelected.filter((i) => i !== index)
-            : [...prevSelected, index]
-        );
-    };
+        ? prevSelected.filter((i) => i !== index)
+        : [...prevSelected, index]
+    );
+};
 
-    const exchangeTiles = () => {
-        const tilesToExchange = selectedTiles.map((i) => tilesInHand[i]);
-        alert(`${tilesToExchange} were exchanged.`)
-
-        const newHand = tilesInHand.filter((_, index) => !selectedTiles.includes(index));
-        setTilesInHand(newHand);
-        setSelectedTiles([]);
+const exchangeTiles = () => {
+    const tilesToExchange = selectedTiles.map((i) => tilesInHand[i]);
+    alert(`${tilesToExchange} were exchanged.`)
+    
+    const newHand = tilesInHand.filter((_, index) => !selectedTiles.includes(index));
+    setTilesInHand(newHand);
+    setSelectedTiles([]);
     }
 
     const skipTurn = () => {
@@ -264,8 +308,6 @@ const Gamestate: React.FC = () => {
             e.dataTransfer.setData("row", row.toString());
             e.dataTransfer.setData("imageSrc", boardTiles[`${col}-${row}`] || '');
         }
-        console.log(`${index}, ${e.dataTransfer.getData("imageSrc")}, ${col}, ${row}`)
-        console.log(`${tileImages}`)
         const target = e.target as HTMLImageElement; //set original e (e meaning event) (e.target) type as htmlimage
         target.style.opacity = '0'; //set opacity to 0 to fake moving the tile
         
@@ -317,7 +359,6 @@ const Gamestate: React.FC = () => {
 
         // Handling dropping an image from the hand to the board
         if (draggedIndex !== null && isNaN(draggedCol) && isNaN(draggedRow)) {
-            console.log("In if tree");
             const newTilesInHand = [...tilesInHand];
             newTilesInHand[draggedIndex] = null;
             setTilesInHand(newTilesInHand);
@@ -363,7 +404,6 @@ const Gamestate: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        console.log(boardTiles);
         setTileOnBoard(!(Object.keys(boardTiles).length === 0));
         setMoveVerified(false);
         setTileSelected(selectedTiles.length > 0);
