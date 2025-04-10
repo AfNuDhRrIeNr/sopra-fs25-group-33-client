@@ -44,7 +44,7 @@ const DashboardPage: React.FC = () => {
     const [username, setUsername] = useState<string | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
     const [friends, setFriends] = useState<FriendRequest[]>([]);
-    const [leaderboard, setLeaderboard] = useState<LeaderboardPlayer[]>([
+    const [leaderboard, _setLeaderboard] = useState<LeaderboardPlayer[]>([
         { rank: 1, name: 'Monica' },
         { rank: 2, name: 'Daniel' },
         { rank: 3, name: 'Marcel' },
@@ -132,7 +132,7 @@ const DashboardPage: React.FC = () => {
     const handleFriendRequest = (requestId: number, action: 'accept' | 'decline') => {
         try {     
             if (action === 'accept') {
-                apiService.put<String>(`/users/friendRequests/${requestId}`, { status: 'ACCEPTED' })
+                apiService.put<string>(`/users/friendRequests/${requestId}`, { status: 'ACCEPTED' })
                     .then(() => {
                         alert('Friend request accepted!');
                         const acceptedRequest = pendingRequests.find((req) => req.id === requestId);
@@ -142,7 +142,7 @@ const DashboardPage: React.FC = () => {
                         setPendingRequests(pendingRequests.filter((req) => req.id !== requestId)); // Remove from pending requests
                     })
             } else {
-                apiService.put<String>(`/users/friendRequests/${requestId}`, { status: 'DECLINED' })
+                apiService.put<string>(`/users/friendRequests/${requestId}`, { status: 'DECLINED' })
                     .then(() => {
                         alert('Friend request declined!');
                         setPendingRequests(pendingRequests.filter((req) => req.id !== requestId)); // Remove from pending requests
