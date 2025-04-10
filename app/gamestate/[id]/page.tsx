@@ -290,7 +290,7 @@ const exchangeTiles = () => {
         setBoardTiles(updatedBoard);
     }
 
-    const setTileImageAt = (index: number, imagePath: string | null) => {
+    const setHandImageAt = (index: number, imagePath: string | null) => {
         setTilesInHand(prev => {
             const updated = [...prev];
             updated[index] = imagePath;
@@ -309,7 +309,7 @@ const exchangeTiles = () => {
             e.dataTransfer.setData("imageSrc", boardTiles[`${col}-${row}`] || '');
         }
         const target = e.target as HTMLImageElement; //set original e (e meaning event) (e.target) type as htmlimage
-        target.style.opacity = '0'; //set opacity to 0 to fake moving the tile
+        target.classList.add('dragging');
         
         //keep the dragged Image visible since reference opacity is now 0
         const dragPreview = document.createElement("img");
@@ -328,8 +328,23 @@ const exchangeTiles = () => {
         const draggedImage = e.dataTransfer.getData("imageSrc");
         const draggedCol = parseInt(e.dataTransfer.getData("col"));
         const draggedRow = parseInt(e.dataTransfer.getData("row"));
+
         if (tilesInHand[index] !== null) {
-            alert("Space is not free!")
+            const newTilesInHand = [...tilesInHand]; //copy so useEffect registers a change
+            newTilesInHand[index] = draggedImage; //replace drop location src with original src
+            newTilesInHand[parseInt(draggedIndex)] = tilesInHand[index]; //replace original src with drop location src
+            setTilesInHand(newTilesInHand);
+            const indIncluded = selectedTiles.includes(index);
+            const draggedIncluded = selectedTiles.includes(parseInt(draggedIndex));
+            if ((indIncluded || draggedIncluded) && !(indIncluded && draggedIncluded)) { //XOR?
+                if (indIncluded) {
+                    setSelectedTiles(prev => prev.map(tile => tile === index ? parseInt(draggedIndex) : tile));
+                }
+                else {
+                    setSelectedTiles(prev => prev.map(tile => tile === parseInt(draggedIndex) ? index : tile));
+                }
+            }
+            
         } else {
             // If the target is empty, swap the images
             if (draggedImage){
@@ -356,7 +371,9 @@ const exchangeTiles = () => {
         const draggedCol = parseInt(e.dataTransfer.getData("col"));
         const draggedRow = parseInt(e.dataTransfer.getData("row"));
         const draggedImageFromBoard = e.dataTransfer.getData("imageSrc");
+        const keyTo = `${col}-${row}`;
 
+<<<<<<< HEAD
         // Handling dropping an image from the hand to the board
         if (draggedIndex !== null && isNaN(draggedCol) && isNaN(draggedRow)) {
             const newTilesInHand = [...tilesInHand];
@@ -371,9 +388,13 @@ const exchangeTiles = () => {
             if (selectedTiles.includes(draggedIndex)) {
                 setSelectedTiles(prev => prev.filter(index => index !== draggedIndex));
             }
+=======
+        if (boardTiles[keyTo]) {
+            alert("Space is not free!");
+>>>>>>> bd6bb30f6552fe2f3836b0b2bd09e05f692b3a03
         }
-        // Handling dropping an image from the board to another board tile
         else {
+<<<<<<< HEAD
 
             const keyFrom = `${draggedCol}-${draggedRow}`;
             const keyTo = `${col}-${row}`;
@@ -385,6 +406,36 @@ const exchangeTiles = () => {
                 updated[keyTo] = draggedImageFromBoard;  // Place it on the new tile
                 return updated;
             });
+=======
+        // Handling dropping an image from the hand to the board
+            if (draggedIndex !== null && isNaN(draggedCol) && isNaN(draggedRow)) {
+                const newTilesInHand = [...tilesInHand];
+                newTilesInHand[draggedIndex] = null;
+                setTilesInHand(newTilesInHand);
+                
+                const key = `${col}-${row}`;
+                setBoardTiles(prev => ({
+                    ...prev,
+                    [key]: draggedImage
+                }));
+                if (selectedTiles.includes(draggedIndex)) {
+                    setSelectedTiles(prev => prev.filter(index => index !== draggedIndex));
+                }
+            }
+            // Handling dropping an image from the board to another board tile
+            else {
+                const keyFrom = `${draggedCol}-${draggedRow}`;
+                
+                // Remove image from original board tile
+                const updatedBoardTiles = { ...boardTiles };
+                if (keyFrom !== keyTo) {
+                    delete updatedBoardTiles[keyFrom];
+                    updatedBoardTiles[keyTo] = draggedImageFromBoard;
+                }
+                
+                setBoardTiles(updatedBoardTiles);
+            }
+>>>>>>> bd6bb30f6552fe2f3836b0b2bd09e05f692b3a03
         }
     };
 
@@ -393,21 +444,30 @@ const exchangeTiles = () => {
         e.preventDefault(); // Allow drop
     };
 
+<<<<<<< HEAD
+=======
+    const handleDragEnd = (e: React.DragEvent) => {
+        const target = e.target as HTMLImageElement;
+        target.classList.remove('dragging');
+    }
+    
+>>>>>>> bd6bb30f6552fe2f3836b0b2bd09e05f692b3a03
     useEffect(() => {
-        setTileImageAt(0, "/letters/A Tile 70.jpg");
-        setTileImageAt(1, "/letters/B Tile 70.jpg");
-        setTileImageAt(2, "/letters/S Tile 70.jpg");
-        setTileImageAt(3, "/letters/R Tile 70.jpg");
-        setTileImageAt(4, "/letters/T Tile 70.jpg");
-        setTileImageAt(5, "/letters/T Tile 70.jpg");
-        setTileImageAt(6, "/letters/H Tile 70.jpg");
+        setHandImageAt(0, "/letters/A Tile 70.jpg");
+        setHandImageAt(1, "/letters/B Tile 70.jpg");
+        setHandImageAt(2, "/letters/S Tile 70.jpg");
+        setHandImageAt(3, "/letters/R Tile 70.jpg");
+        setHandImageAt(4, "/letters/T Tile 70.jpg");
+        setHandImageAt(5, "/letters/T Tile 70.jpg");
+        setHandImageAt(6, "/letters/H Tile 70.jpg");
     }, []);
 
     useEffect(() => {
         setTileOnBoard(!(Object.keys(boardTiles).length === 0));
         setMoveVerified(false);
         setTileSelected(selectedTiles.length > 0);
-    }, [boardTiles, selectedTiles]);
+        console.log(`SelectedTiles: ${selectedTiles}`);
+    }, [boardTiles, selectedTiles, tilesInHand]);
     
 
     return (
@@ -437,6 +497,7 @@ const exchangeTiles = () => {
                                             height={100}
                                             draggable
                                             onDragStart={(e) => handleDragStart(e, null, col, row)} 
+                                            onDragEnd = {handleDragEnd}
                                         /> 
                                         )}
                                 </div>
@@ -555,10 +616,10 @@ const exchangeTiles = () => {
                     className="tile-placeholder"
                     onDragOver={handleDragOver}
                     onDrop={(e)=> handleHandDrop(e, index) }
-                    onClick={() => toggleTileSelection(index)}
                     >
                     {src && (
                         <Image 
+                        onClick={() => toggleTileSelection(index)}
                         className={`tile-${selectedTiles.includes(index) ? "selected" : ""}`}
                         src={src} 
                         alt={`Tile ${index}`} 
@@ -566,6 +627,7 @@ const exchangeTiles = () => {
                         height={100} 
                         draggable
                         onDragStart={(e)=>handleDragStart(e, index, null, null)}
+                        onDragEnd = {handleDragEnd}
                         />
                     )}
                     </div>
