@@ -7,20 +7,13 @@ import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
 
 
-// TODO implement API calls and actual logic for friend requests, game invitations
-/*
-interface Friend {
-    id: number;
-    sender: User;
-    avatar: string; // Not provided by API, use a default image
-}*/
-
 interface FriendRequest {
     id: number;
     sender: User;
     avatar: string; // Not provided by API, use a default image
 }
 
+// TODO logic for Leaderboard (currently hardcoded)
 interface LeaderboardPlayer {
     rank: number;
     name: string;
@@ -137,21 +130,28 @@ const DashboardPage: React.FC = () => {
 
     // Function to accept or decline a friend request
     const handleFriendRequest = (requestId: number, action: 'accept' | 'decline') => {
-        if (action === 'accept') {
-            const acceptedRequest = pendingRequests.find((req) => req.id === requestId);
-            if (acceptedRequest) {
-                setFriends([...friends, acceptedRequest]); // Add to friends list
+        try {     
+            if (action === 'accept') {
+                apiService.put<String>(`/users/friendRequests/${requestId}`, { status: 'ACCEPTED' })
+                    .then(() => {
+                        alert('Friend request accepted!');
+                        const acceptedRequest = pendingRequests.find((req) => req.id === requestId);
+                        if (acceptedRequest) {
+                            setFriends([...friends, acceptedRequest]); // Add to friends list
+                        }
+                        setPendingRequests(pendingRequests.filter((req) => req.id !== requestId)); // Remove from pending requests
+                    })
+            } else {
+                apiService.put<String>(`/users/friendRequests/${requestId}`, { status: 'DECLINED' })
+                    .then(() => {
+                        alert('Friend request declined!');
+                        setPendingRequests(pendingRequests.filter((req) => req.id !== requestId)); // Remove from pending requests
+                    })
+                }
+            } catch (error) {
+                console.error(`Error handling friend request (${action}):`, error);
+                alert(`Failed to ${action} the friend request`);
             }
-            apiService.put<String>(`/users/friendRequests/${requestId}`, { status: 'ACCEPTED' })
-                .then(() => {
-                    alert('Friend request accepted!');
-                })
-                .catch((error) => {
-                    console.error('Error accepting friend request:', error);
-                    alert('Failed to accept the friend request');
-                });
-        }
-        setPendingRequests(pendingRequests.filter((req) => req.id !== requestId)); // Remove from pending requests
     };
 
     // Function to create a new game state
@@ -166,21 +166,17 @@ const DashboardPage: React.FC = () => {
                 console.error("Error creating lobby:", error);
                 alert(`Could not create lobby: ${(error as Error).message}`);
               }
-            };
+        };
 
     // Function to accept or decline game invitations
     const handleInvitation = async (gameId: number, action: 'play' | 'decline') => {
         try {
             if (action === 'play') {
-                // Navigate to the game lobby
-                router.push(`/lobby/${gameId}`);
-                // TODO Call API to accept the invitation
                 await apiService.put<GameInvitation>(`/games/invitations/${gameId}`, { status: 'ACCEPTED' });
-            } else if (action === 'decline') {
-                // TODO Call API to decline the invitation
+                router.push(`/lobby/${gameId}`);
+            } else {
                 await apiService.put<GameInvitation>(`/games/invitations/${gameId}`, { status: 'DECLINED' });
             }
-            // Update the invitations array to remove the handled invitation
             setPendingInvitations(pendingInvitations.filter(invitation => invitation.id !== gameId));
         } catch (error) {
             console.error(`Error handling invitation (${action}):`, error);
