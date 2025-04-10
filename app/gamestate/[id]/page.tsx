@@ -136,6 +136,17 @@ const Gamestate: React.FC = () => {
                 stompClient.subscribe(`/topic/game_states/${id}`, (message) => {
                     console.log("Received message:", message.body);
                 });
+                stompClient.subscribe(`/topic/game_states/users/${userId}`, (message) => {
+                    console.log("Received validation response:", message.body);
+                    
+                    // Assuming the backend sends something like { valid: true/false }
+                    const response = JSON.parse(message.body);
+                    if (response.status === "VALIDATION_SUCCESS") {
+                        alert("Validation successful!");
+                    } else {
+                        alert("Validation failed.");
+                    }
+                });
             };
 
             stompClient.activate();
@@ -156,7 +167,7 @@ const Gamestate: React.FC = () => {
     const sendMessage = (messageBody: string) => {
         if (stompClientRef.current) {
             stompClientRef.current.publish({
-                destination: `app/game_states/${id}`,
+                destination: `ws/game_states/${id}`,
                 body: messageBody,
             });
             console.log(`Message sent to ws/game_states/${id}:`, messageBody);
@@ -192,7 +203,7 @@ const Gamestate: React.FC = () => {
     
     const constructMatrix = () => {
         // Initialize the 15x15 matrix with null values (or empty string)
-        const matrix: (string | null)[][] = Array.from({ length: 15 }, () => Array(15).fill(null));
+        const matrix: (string)[][] = Array.from({ length: 15 }, () => Array(15).fill(""));
         
         // Iterate over the boardTiles and place each tile on the correct matrix position
         Object.entries(boardTiles).forEach(([key, tileImage]) => {
@@ -208,12 +219,11 @@ const Gamestate: React.FC = () => {
     
     const verifyWord = () => {
         const matrix = constructMatrix(); // Get the constructed matrix
-        const newTilesArray = tilesInHand.map(tile => tile ? tile[9] : null);
+        const newTilesArray = tilesInHand.map(tile => tile ? tile[9] : "");
         // Prepare the message body (you can adjust the structure as needed)
         const messageBody = JSON.stringify({
             id: id, // Add game id to the message body
             board: matrix, // Include the constructed board matrix
-            type: null,
             token: token,
             userTiles: newTilesArray,
             action: "VALIDATE",
@@ -222,17 +232,6 @@ const Gamestate: React.FC = () => {
         
         // Send the message over WebSocket
         sendMessage(messageBody);
-        stompClientRef.current?.subscribe(`/topic/game_states/users/${userId}`, (message) => {
-            console.log("Received validation response:", message.body);
-            
-            // Assuming the backend sends something like { valid: true/false }
-            const response = JSON.parse(message.body);
-            if (response.status === "VALIDATION_SUCCESS") {
-                alert("Validation successful!");
-            } else {
-                alert("Validation failed.");
-            }
-        });
     }
     
     const toggleTileSelection = (index: number) => {
@@ -362,7 +361,7 @@ const exchangeTiles = () => {
             }
         }
     };
-
+    
     const handleBoardDrop = (e: React.DragEvent, col: number, row: number) => {
         e.preventDefault();
         const draggedIndex = parseInt(e.dataTransfer.getData("index"));
@@ -406,7 +405,7 @@ const exchangeTiles = () => {
             }
         }
     };
-
+    
     // Handle drag over (to allow dropping)
     const handleDragOver = (e: React.DragEvent) => {
         e.preventDefault(); // Allow drop
@@ -426,7 +425,7 @@ const exchangeTiles = () => {
         setHandImageAt(5, "/letters/T Tile 70.jpg");
         setHandImageAt(6, "/letters/H Tile 70.jpg");
     }, []);
-
+    
     useEffect(() => {
         setTileOnBoard(!(Object.keys(boardTiles).length === 0));
         setMoveVerified(false);
