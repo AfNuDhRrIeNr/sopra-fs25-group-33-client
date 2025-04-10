@@ -170,7 +170,6 @@ const Gamestate: React.FC = () => {
         return specialTiles[key];
     };
 
-    
     const handleCheck = async () => {
         if (letter.length !== 1 || !/[a-zA-Z]/.test(letter)) {
             alert("Please enter a single letter.");
@@ -373,40 +372,10 @@ const exchangeTiles = () => {
         const draggedImageFromBoard = e.dataTransfer.getData("imageSrc");
         const keyTo = `${col}-${row}`;
 
-<<<<<<< HEAD
-        // Handling dropping an image from the hand to the board
-        if (draggedIndex !== null && isNaN(draggedCol) && isNaN(draggedRow)) {
-            const newTilesInHand = [...tilesInHand];
-            newTilesInHand[draggedIndex] = null;
-            setTilesInHand(newTilesInHand);
-            
-            const key = `${col}-${row}`;
-            setBoardTiles(prev => ({
-                ...prev,
-                [key]: draggedImage
-            }));
-            if (selectedTiles.includes(draggedIndex)) {
-                setSelectedTiles(prev => prev.filter(index => index !== draggedIndex));
-            }
-=======
         if (boardTiles[keyTo]) {
             alert("Space is not free!");
->>>>>>> bd6bb30f6552fe2f3836b0b2bd09e05f692b3a03
         }
         else {
-<<<<<<< HEAD
-
-            const keyFrom = `${draggedCol}-${draggedRow}`;
-            const keyTo = `${col}-${row}`;
-
-            // Remove image from original board tile
-            setBoardTiles(prev => {
-                const updated = { ...prev };
-                delete updated[keyFrom];  // Clear the dragged tile from its original position
-                updated[keyTo] = draggedImageFromBoard;  // Place it on the new tile
-                return updated;
-            });
-=======
         // Handling dropping an image from the hand to the board
             if (draggedIndex !== null && isNaN(draggedCol) && isNaN(draggedRow)) {
                 const newTilesInHand = [...tilesInHand];
@@ -435,7 +404,6 @@ const exchangeTiles = () => {
                 
                 setBoardTiles(updatedBoardTiles);
             }
->>>>>>> bd6bb30f6552fe2f3836b0b2bd09e05f692b3a03
         }
     };
 
@@ -444,14 +412,11 @@ const exchangeTiles = () => {
         e.preventDefault(); // Allow drop
     };
 
-<<<<<<< HEAD
-=======
     const handleDragEnd = (e: React.DragEvent) => {
         const target = e.target as HTMLImageElement;
         target.classList.remove('dragging');
     }
     
->>>>>>> bd6bb30f6552fe2f3836b0b2bd09e05f692b3a03
     useEffect(() => {
         setHandImageAt(0, "/letters/A Tile 70.jpg");
         setHandImageAt(1, "/letters/B Tile 70.jpg");
