@@ -44,7 +44,7 @@ const DashboardPage: React.FC = () => {
     const [username, setUsername] = useState<string | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
     const [friends, setFriends] = useState<FriendRequest[]>([]);
-    const [leaderboard, _setLeaderboard] = useState<LeaderboardPlayer[]>([
+    const [leaderboard] = useState<LeaderboardPlayer[]>([
         { rank: 1, name: 'Monica' },
         { rank: 2, name: 'Daniel' },
         { rank: 3, name: 'Marcel' },
