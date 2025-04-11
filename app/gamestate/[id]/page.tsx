@@ -15,7 +15,10 @@ import SockJS from "sockjs-client";
 import "../playerHand.css";
 import "../playingButtons.css";
 import "../top.css";
+import { format } from "path";
+import { Color } from "antd/es/color-picker";
 
+// TODO: Timer logic
 
 // Generate specialTiles outside the component to prevent re-execution
 const generateSpecialTiles = () => {
@@ -113,6 +116,9 @@ const Gamestate: React.FC = () => {
     // const [messages, setMessages] = useState<string[]>([]);
     const { id } = useParams();
     const stompClientRef = useRef<Client | null>(null);
+    // timer
+    const [remainingTime, setRemainingTime] = useState(45 * 60); // 45 minutes in seconds
+    const [isGameStarted, setIsGameStarted] = useState(false);
 
     useEffect(()=> {
         setUserId(localStorage.getItem("userId"));
@@ -240,15 +246,15 @@ const Gamestate: React.FC = () => {
         ? prevSelected.filter((i) => i !== index)
         : [...prevSelected, index]
     );
-};
+    };
 
-const exchangeTiles = () => {
-    const tilesToExchange = selectedTiles.map((i) => tilesInHand[i]);
-    alert(`${tilesToExchange} were exchanged.`)
-    
-    const newHand = tilesInHand.filter((_, index) => !selectedTiles.includes(index));
-    setTilesInHand(newHand);
-    setSelectedTiles([]);
+    const exchangeTiles = () => {
+        const tilesToExchange = selectedTiles.map((i) => tilesInHand[i]);
+        alert(`${tilesToExchange} were exchanged.`)
+        
+        const newHand = tilesInHand.filter((_, index) => !selectedTiles.includes(index));
+        setTilesInHand(newHand);
+        setSelectedTiles([]);
     }
 
     const skipTurn = () => {
@@ -433,6 +439,39 @@ const exchangeTiles = () => {
         console.log(`SelectedTiles: ${selectedTiles}`);
     }, [boardTiles, selectedTiles, tilesInHand]);
     
+    // Timer logic
+    const simulateGameStart = () => {
+        setIsGameStarted(true);
+        const startTime = Date.now(); // Simulate server start time
+        const endTime = startTime + 45 * 60 * 1000; // 45 minutes later
+        const timeLeft = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
+        setRemainingTime(timeLeft);
+    };
+
+    useEffect(() => {
+        let timer: NodeJS.Timeout | undefined;
+
+        if (isGameStarted && remainingTime > 0) {
+            timer = setInterval(() => {
+                setRemainingTime((prev) => Math.max(0, prev - 1));
+            }, 1000);
+        }
+
+        if (remainingTime === 0) {
+            if (timer) {
+                clearInterval(timer);
+            }
+            alert("Game Over!"); // Placeholder for game-over logic
+        }
+
+        return () => clearInterval(timer);
+    }, [isGameStarted, remainingTime]);
+
+    const formatTime = (seconds: number) => {
+        const minutes = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+    };
 
     return (
         <div id="screen">
@@ -474,8 +513,11 @@ const exchangeTiles = () => {
                 <div id="top">
                     <div id="time-surrender">
                         <div id="timer">
-                            45:00
+                            {formatTime(remainingTime)}
                         </div>
+                        <button onClick={simulateGameStart} disabled={isGameStarted} style={{backgroundColor: isGameStarted ? "gray" : "white", margin: "20px", padding: "10px", borderRadius: "10px", height: "50px", width: "100px"}}>
+                        Start Game
+                        </button>
                         <div id="surrender">
                             <button 
                             id="surrender-button" 
