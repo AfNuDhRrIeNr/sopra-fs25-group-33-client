@@ -15,8 +15,8 @@ import SockJS from "sockjs-client";
 import "../playerHand.css";
 import "../playingButtons.css";
 import "../top.css";
-import { format } from "path";
-import { Color } from "antd/es/color-picker";
+// import { format } from "path";
+// import { Color } from "antd/es/color-picker";
 import CustomModal from "../components/customModal";
 
 // TODO: Replace some alerts with customModal
