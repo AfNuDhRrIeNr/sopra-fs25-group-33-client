@@ -17,6 +17,7 @@ import "../playingButtons.css";
 import "../top.css";
 import { format } from "path";
 import { Color } from "antd/es/color-picker";
+import CustomModal from "../components/customModal";
 
 // TODO: Timer logic
 
@@ -116,9 +117,11 @@ const Gamestate: React.FC = () => {
     // const [messages, setMessages] = useState<string[]>([]);
     const { id } = useParams();
     const stompClientRef = useRef<Client | null>(null);
-    // timer
     const [remainingTime, setRemainingTime] = useState(45 * 60); // 45 minutes in seconds
     const [isGameStarted, setIsGameStarted] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [modalTitle, setModalTitle] = useState("");
+    const [modalMessage, setModalMessage] = useState("");
 
     useEffect(()=> {
         setUserId(localStorage.getItem("userId"));
@@ -170,6 +173,16 @@ const Gamestate: React.FC = () => {
         };
     }, [id])
 
+    const showModal = (title: string, message: string) => {
+        setModalTitle(title);
+        setModalMessage(message);
+        setModalVisible(true);
+      };
+    
+    const handleModalClose = () => {
+        setModalVisible(false);
+    };
+
     const sendMessage = (messageBody: string) => {
         if (stompClientRef.current) {
             stompClientRef.current.publish({
@@ -202,7 +215,7 @@ const Gamestate: React.FC = () => {
                 setLetter("");
             }
         } catch (error) {
-            console.error("Retrieval Error:", error);
+            console.error("Error:", error);
             alert(`Retrieval failed: ${(error as Error).message}`);
         }
     };
@@ -265,12 +278,18 @@ const Gamestate: React.FC = () => {
     const commitWord = () => {
         setMoveVerified(false);
         handleReturn();
-        alert("WordCommited");
+        showModal("Commit", "Word committed!");
     }
 
     const handleSurrender = () => {
-        alert("Surrendered!");
+        showModal("Surrender", "You have surrendered!");
+        setRemainingTime(0);
     }
+
+    const handleGameEnd = () => {
+        showModal("Game Over", "Game Over!");
+        // Handle game end logic here
+    };
 
     const handleReturn = () => {
         // Make copies so we can mutate them safely
@@ -378,7 +397,7 @@ const Gamestate: React.FC = () => {
         const keyTo = `${col}-${row}`;
 
         if (boardTiles[keyTo]) {
-            alert("Space is not free!");
+            showModal("Error", "Space is not free!");
         }
         else {
         // Handling dropping an image from the hand to the board
@@ -461,7 +480,7 @@ const Gamestate: React.FC = () => {
             if (timer) {
                 clearInterval(timer);
             }
-            alert("Game Over!"); // Placeholder for game-over logic
+            handleGameEnd();
         }
 
         return () => clearInterval(timer);
@@ -515,6 +534,7 @@ const Gamestate: React.FC = () => {
                         <div id="timer">
                             {formatTime(remainingTime)}
                         </div>
+                        {/*Temporary button to start timer*/}
                         <button onClick={simulateGameStart} disabled={isGameStarted} style={{backgroundColor: isGameStarted ? "gray" : "white", margin: "20px", padding: "10px", borderRadius: "10px", height: "50px", width: "100px"}}>
                         Start Game
                         </button>
@@ -679,6 +699,12 @@ const Gamestate: React.FC = () => {
                             </Button>
                         </div>
                     </div>
+                    <CustomModal
+                    visible={modalVisible}
+                    title={modalTitle}
+                    message={modalMessage}
+                    onClose={handleModalClose}
+                    />
                 </div>
             </div>
         </div>
