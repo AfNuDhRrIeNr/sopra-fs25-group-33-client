@@ -31,6 +31,11 @@
     font-size: 3vh;
 }
 
+#surrender-button:hover {
+    color: inherit;
+    background-color: #B74A4A;
+}
+
 #turn-points {
     height: 66.66%;
     width: 100%;

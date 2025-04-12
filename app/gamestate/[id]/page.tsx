@@ -19,7 +19,7 @@ import { format } from "path";
 import { Color } from "antd/es/color-picker";
 import CustomModal from "../components/customModal";
 
-// TODO: Timer logic
+// TODO: Replace some alerts with customModal
 
 // Generate specialTiles outside the component to prevent re-execution
 const generateSpecialTiles = () => {
@@ -173,6 +173,18 @@ const Gamestate: React.FC = () => {
         };
     }, [id])
 
+
+    const sendMessage = (messageBody: string) => {
+        if (stompClientRef.current) {
+            stompClientRef.current.publish({
+                destination: `ws/game_states/${id}`, /* ! endpoint should be: /gameStates/{gameId}*/
+                body: messageBody,
+            });
+            console.log(`Message sent to ws/game_states/${id}:`, messageBody);
+        }
+
+    };
+
     const showModal = (title: string, message: string) => {
         setModalTitle(title);
         setModalMessage(message);
@@ -181,17 +193,6 @@ const Gamestate: React.FC = () => {
     
     const handleModalClose = () => {
         setModalVisible(false);
-    };
-
-    const sendMessage = (messageBody: string) => {
-        if (stompClientRef.current) {
-            stompClientRef.current.publish({
-                destination: `ws/game_states/${id}`,
-                body: messageBody,
-            });
-            console.log(`Message sent to ws/game_states/${id}:`, messageBody);
-        }
-
     };
     
     // Function to get the tile class
@@ -207,7 +208,7 @@ const Gamestate: React.FC = () => {
         }
         try 
         {
-            const response = await apiService.get<Tile>(`/gamestate/users/${userId}/remaining/${letter}`);
+            const response = await apiService.get<Tile>(`/gamestate/users/${userId}/remaining/${letter}`); /* ! Endpoint not as in specifications */
             
             if (response != null) {
                 setNumber(response.remaining);
@@ -271,8 +272,8 @@ const Gamestate: React.FC = () => {
     }
 
     const skipTurn = () => {
+        setUserTurn(!isUserTurn); // first so that UI gets updated fast
         sendMessage("SKIP");
-        setUserTurn(!isUserTurn);
     }
 
     const commitWord = () => {
@@ -536,7 +537,7 @@ const Gamestate: React.FC = () => {
                         </div>
                         {/*Temporary button to start timer*/}
                         <button onClick={simulateGameStart} disabled={isGameStarted} style={{backgroundColor: isGameStarted ? "gray" : "white", margin: "20px", padding: "10px", borderRadius: "10px", height: "50px", width: "100px"}}>
-                        Start Game
+                            Start Game
                         </button>
                         <div id="surrender">
                             <button 
@@ -552,11 +553,10 @@ const Gamestate: React.FC = () => {
                             <div className="player-container" id="left-player">
                                 <div className="name-and-dot-container">
                                     <div className="player-name">
-                                        {username}
+                                        {username ? username : "Host"}
                                     </div>
                                     <div className="dot-container">                                
                                         <div className={`turn-dot ${isUserTurn ? 'active-dot' : ''}`}>
-
                                         </div>
                                     </div>
                                 </div>
@@ -623,17 +623,17 @@ const Gamestate: React.FC = () => {
                     </div>
                 </div>
                 <div id="tiles-storage-container">
-                <div id="undo-button">
-                {isTileOnBoard &&(
-                    <Image
-                    id="undo-button-image"
-                    width={100}
-                    height={100}
-                    src={"/undoArrow.png"}
-                    onClick={handleReturn}
-                    alt={"Undo Arrow"}
-                    />
-                )}
+                    <div id="undo-button">
+                    {isTileOnBoard &&(
+                        <Image
+                        id="undo-button-image"
+                        width={100}
+                        height={100}
+                        src={"/undoArrow.png"}
+                        onClick={handleReturn}
+                        alt={"Undo Arrow"}
+                        />
+                    )}
                 </div>
                 {tilesInHand.map((src, index) => (
                     <div 
