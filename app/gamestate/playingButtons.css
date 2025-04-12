@@ -61,7 +61,7 @@ button.game-buttons {
     background-color: #CE8D8D;
 }
 
-#skip-button:hover {
+#skip-button:not(:disabled):hover {
     color: inherit;
     background-color: #B37474;
 }

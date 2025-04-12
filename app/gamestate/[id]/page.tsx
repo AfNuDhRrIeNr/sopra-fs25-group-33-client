@@ -177,7 +177,7 @@ const Gamestate: React.FC = () => {
     const sendMessage = (messageBody: string) => {
         if (stompClientRef.current) {
             stompClientRef.current.publish({
-                destination: `ws/game_states/${id}`, /* ! endpoint should be: /gameStates/{gameId}*/
+                destination: `ws/game_states/${id}`, // ! endpoint should be: /gameStates/{gameId}*/
                 body: messageBody,
             });
             console.log(`Message sent to ws/game_states/${id}:`, messageBody);
@@ -202,13 +202,13 @@ const Gamestate: React.FC = () => {
     };
 
     const handleCheck = async () => {
-        if (letter.length !== 1 || !/[a-zA-Z]/.test(letter)) {
+        if (letter.length !== 1 || !/[a-zA-Z]/.test(letter)) { // ! Never reached since button is disabled
             alert("Please enter a single letter.");
             return;
         }
         try 
         {
-            const response = await apiService.get<Tile>(`/gamestate/users/${userId}/remaining/${letter}`); /* ! Endpoint not as in specifications */
+            const response = await apiService.get<Tile>(`/gamestate/users/${userId}/remaining/${letter}`); // ! Endpoint not as in specifications
             
             if (response != null) {
                 setNumber(response.remaining);
@@ -284,7 +284,7 @@ const Gamestate: React.FC = () => {
 
     const handleSurrender = () => {
         showModal("Surrender", "You have surrendered!");
-        setRemainingTime(0);
+        // Handle surrender logic here
     }
 
     const handleGameEnd = () => {
@@ -682,7 +682,12 @@ const Gamestate: React.FC = () => {
                             </Button>
                         </div>
                         <div id="skip-button-container">
-                            <Button onClick = {skipTurn} id="skip-button" className="game-buttons">
+                            <Button onClick = {skipTurn} 
+                            id="skip-button" 
+                            className="game-buttons"
+                            disabled = {!isUserTurn}
+                            style = {{ opacity: isUserTurn ? 1 : 0.9}}
+                            title = { !isUserTurn ? "Wait for your turn to skip" : ""}>
                                 Skip
                             </Button>
                         </div>
