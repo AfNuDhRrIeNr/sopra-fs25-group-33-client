@@ -83,13 +83,18 @@ const DashboardPage: React.FC = () => {
 
     // Fetch pending friend requests and game invitations regularly
     useEffect(() => {
+        if (!token) return; // Skip polling if token is not available
         const fetchUpdates = () => {
-            apiService.get<FriendRequest[]>(`/users/friendRequests`)
+            apiService.get<FriendRequest[]>(`/users/friendRequests`, {
+                headers: { Authorization: token || "" }
+            })
             .then((data) => setPendingRequests(data))
             .catch((error) => console.error('Error fetching friend requests:', error));
-
-            // TODO define query parameter to get the own User info
-            apiService.get<User>(`/users/${userId}`)
+            /*
+            TODO define query parameter to get the own User info
+            apiService.get<User>(`/users/${userId}`, {
+                headers: { Authorization: token || "" }
+            })
                 .then((data) => {
                     const friendsList = Array.from(data.friends).map((friend) => ({
                         id: friend.id,
@@ -99,17 +104,19 @@ const DashboardPage: React.FC = () => {
                     setFriends(friendsList);
                 })
                 .catch((error) => console.error('Error fetching friends:', error));
-
-            apiService.get<GameInvitation[]>(`/games/invitations/${userId}`)
+            */
+            apiService.get<GameInvitation[]>(`/games/invitations/${userId}`, {
+                headers: { Authorization: token || "" }
+            })
                 .then((data) => setPendingInvitations(data))
                 .catch((error) => console.error('Error fetching game invitations:', error));
         };
 
         fetchUpdates(); // Initial fetch
-        const intervalId = setInterval(fetchUpdates, 60000); // TODO set to shorter time period (Polls every minute)
+        const intervalId = setInterval(fetchUpdates, 5000);
 
         return () => clearInterval(intervalId); // Cleanup on unmount
-    }, [apiService, userId]);
+    }, [apiService, userId, token]);
 
     // Function to send a friend request
     const sendFriendRequest = () => {
@@ -120,7 +127,8 @@ const DashboardPage: React.FC = () => {
 
         apiService.post<FriendRequest>(
             '/users/friendRequests', 
-            { username: newFriendUsername }
+            { username: newFriendUsername },
+            { headers: { Authorization: token || "" } }
         )
             .then((data) => {
                 alert('Friend request sent!');
@@ -137,7 +145,8 @@ const DashboardPage: React.FC = () => {
         
         apiService.put<string>(
             `/users/friendRequests/${requestId}`,
-            { status }
+            { status },
+            { headers: { Authorization: token || "" } }
         )
             .then(() => {
                 alert(`Friend request ${status}!`);
@@ -158,16 +167,19 @@ const DashboardPage: React.FC = () => {
     // Function to create a new game state
     const createGamestate = async () => {
         try {
-            const response = await apiService.post<Game>("/games", {}); // Remove token since apiService already handles it, empty body
+            const response = await apiService.post<Game>(
+                "/games", 
+                { headers: { Authorization: token || "" } }
+            );
         
-              if (response.id) {
+            if (response.id) {
                 router.push(`/lobby/${response.id}`);
-
-            }} catch (error) {
-                console.error("Error creating lobby:", error);
-                alert(`Could not create lobby: ${(error as Error).message}`);
-              }
-        };
+            }
+        } catch (error) {
+            console.error("Error creating lobby:", error);
+            alert(`Could not create lobby: ${(error as Error).message}`);
+        }
+    };
 
     // Function to accept or decline game invitations
     const handleInvitation = async (gameId: number, action: 'play' | 'decline') => {
@@ -175,16 +187,17 @@ const DashboardPage: React.FC = () => {
         
         apiService.put<GameInvitation>(
             `/games/invitations/${gameId}`, 
-            { status }
+            { status },
+            { headers: { Authorization: token || "" } }
         )
-            .then (() => {
+            .then(() => {
                 alert(`Game invitation ${status}!`);
                 setPendingInvitations(pendingInvitations.filter((invitation) => invitation.id !== gameId)); // Remove from pending invitations
                 if (action === 'play') {
                     router.push(`/lobby/${gameId}`);
                 }
             })
-            .catch ((error) => {
+            .catch((error) => {
                 console.error(`Error handling game invitation (${action}):`, error);
                 alert(`Failed to ${action} the game invitation`);
             });
@@ -211,7 +224,10 @@ const DashboardPage: React.FC = () => {
     // Function to handle logout
     const handleLogoutClick = async () => {
         try {
-            await apiService.put<User>("users/logout", {}) // Remove token since apiService already handles it, empty body
+            await apiService.put<User>(
+                "/users/logout", 
+                { headers: { Authorization: token || "" } }
+            );
             clearToken(); // Clear the token
             clearId();
             clearUsername();
