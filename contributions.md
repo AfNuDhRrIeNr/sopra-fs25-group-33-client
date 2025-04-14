@@ -82,8 +82,8 @@ reason).
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
 | **[@githubUser1]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **[@githubUser2]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **AfNuDhRrIeNr** | 09.04.2025   | [Commit 8679316](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/8679316ca7ea2ecdf7b7c6d3e4f042f0b53d640a)| implement letterCount constant, implemented letterBag game entity | Keeping track of the letters left |
+|                    | 14.04.2025   | [Commit 7048d7a](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/7048d7a934656fa311dcbf6013c6af0e221df96d) | implementing exchangeTiles, assignTiles, getRemainingLetters endpoint & the corresponding logic | assigning tiles, exchanging tiles and ask for remaining letters |
 | **[@githubUser3]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **[@githubUser4]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |

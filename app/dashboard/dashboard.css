@@ -46,6 +46,32 @@
     margin-bottom: 10px;
     height: var(--Dashboard-box-height);
   }
+
+  .scrabble-board {
+    position: relative;
+    height: var(--Dashboard-box-height);
+  }
+
+  .scrabble-board img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+  }
+
+  .scrabble-board button {
+    position: absolute;
+    top: -10px; /* Distance from the top */
+    right: -10px; /* Distance from the right */
+    z-index: 10;
+    background-color: var(--Box-purple);
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    font-weight: bold;
+    border-radius: 10px;
+    padding: 5px 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
   
   .friends-list ul {
     display: flex;
@@ -96,10 +122,6 @@
   .leader img {
     height: 125px;
     margin-bottom: 10px; /* Space between image and text */
-  }
-  
-  .scrabble-board img {
-    height: 400px;
   }
   
   .add-friend-button, .create-game-button, .show-more-button {
@@ -242,7 +264,7 @@
 }
 
 /* Friend Request Row */
-.friend-request-row {
+.friend-request-row, .invitations-row {
   display: flex;
   align-items: center;
   justify-content: space-between; /* Spread items across the row */
