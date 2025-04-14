@@ -157,7 +157,11 @@ const DashboardPage: React.FC = () => {
     // Function to create a new game state
     const createGamestate = async () => {
         try {
-              const response = await apiService.post<Game>("/games", token);
+              const response = await apiService.post<Game>("/games", {
+                  headers: {
+                      Authorization: token
+                  }
+              });
         
               if (response.id) {
                 router.push(`/lobby/${response.id}`);
