@@ -16,7 +16,7 @@ export class ApiService {
   private getAuthHeaders(): HeadersInit {
     const token = localStorage.getItem("token");
     return token
-      ? { ...this.defaultHeaders, Authorization: `Bearer ${token}` }
+      ? { ...this.defaultHeaders, Authorization: token } // Ensure the header looks exactly like this
       : this.defaultHeaders;
   }
 
@@ -71,7 +71,7 @@ export class ApiService {
     const url = `${this.baseURL}${endpoint}`;
     const res = await fetch(url, {
       method: "GET",
-      headers: this.getAuthHeaders(),
+      headers: this.getAuthHeaders()
     });
     return this.processResponse<T>(
       res,
@@ -126,7 +126,7 @@ export class ApiService {
     const url = `${this.baseURL}${endpoint}`;
     const res = await fetch(url, {
       method: "DELETE",
-      headers: this.getAuthHeaders(),
+      headers: this.getAuthHeaders()
     });
     return this.processResponse<T>(
       res,

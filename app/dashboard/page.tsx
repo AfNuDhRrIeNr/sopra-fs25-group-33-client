@@ -84,12 +84,12 @@ const DashboardPage: React.FC = () => {
     // Fetch pending friend requests and game invitations regularly
     useEffect(() => {
         const fetchUpdates = () => {
-            apiService.get<FriendRequest[]>(`/users/friendRequests/${userId}`) // Fetch pending friend requests
+            apiService.get<FriendRequest[]>(`/users/friendRequests`)
             .then((data) => setPendingRequests(data))
             .catch((error) => console.error('Error fetching friend requests:', error));
 
             // TODO define query parameter to get the own User info
-            apiService.get<User>(`/users?user=${userId}`) // Fetch the user info to get friends
+            apiService.get<User>(`/users/${userId}`)
                 .then((data) => {
                     const friendsList = Array.from(data.friends).map((friend) => ({
                         id: friend.id,
@@ -106,7 +106,7 @@ const DashboardPage: React.FC = () => {
         };
 
         fetchUpdates(); // Initial fetch
-        const intervalId = setInterval(fetchUpdates, 5000); // Poll every 5 seconds
+        const intervalId = setInterval(fetchUpdates, 60000); // TODO set to shorter time period (Polls every minute)
 
         return () => clearInterval(intervalId); // Cleanup on unmount
     }, [apiService, userId]);
@@ -118,7 +118,10 @@ const DashboardPage: React.FC = () => {
             return;
         }
 
-        apiService.post<FriendRequest>('/users/friendRequests', { username: newFriendUsername })
+        apiService.post<FriendRequest>(
+            '/users/friendRequests', 
+            { username: newFriendUsername }
+        )
             .then((data) => {
                 alert('Friend request sent!');
                 setSentRequests([...sentRequests, data]);
@@ -130,34 +133,32 @@ const DashboardPage: React.FC = () => {
 
     // Function to accept or decline a friend request
     const handleFriendRequest = (requestId: number, action: 'accept' | 'decline') => {
-        try {     
-            if (action === 'accept') {
-                apiService.put<string>(`/users/friendRequests/${requestId}`, { status: 'ACCEPTED' })
-                    .then(() => {
-                        alert('Friend request accepted!');
-                        const acceptedRequest = pendingRequests.find((req) => req.id === requestId);
-                        if (acceptedRequest) {
-                            setFriends([...friends, acceptedRequest]); // Add to friends list
-                        }
-                        setPendingRequests(pendingRequests.filter((req) => req.id !== requestId)); // Remove from pending requests
-                    })
-            } else {
-                apiService.put<string>(`/users/friendRequests/${requestId}`, { status: 'DECLINED' })
-                    .then(() => {
-                        alert('Friend request declined!');
-                        setPendingRequests(pendingRequests.filter((req) => req.id !== requestId)); // Remove from pending requests
-                    })
+        const status = action === 'accept' ? 'ACCEPTED' : 'DECLINED';
+        
+        apiService.put<string>(
+            `/users/friendRequests/${requestId}`,
+            { status }
+        )
+            .then(() => {
+                alert(`Friend request ${status}!`);
+                if (action === 'accept') {
+                    const acceptedRequest = pendingRequests.find((req) => req.id === requestId);
+                    if (acceptedRequest) {
+                        setFriends([...friends, acceptedRequest]); // Add to friends list
+                    }
                 }
-            } catch (error) {
+                setPendingRequests(pendingRequests.filter((req) => req.id !== requestId)); // Remove from pending requests
+            })
+            .catch((error) => {
                 console.error(`Error handling friend request (${action}):`, error);
                 alert(`Failed to ${action} the friend request`);
-            }
+            });
     };
 
     // Function to create a new game state
     const createGamestate = async () => {
         try {
-              const response = await apiService.post<Game>("/games", token);
+            const response = await apiService.post<Game>("/games", {}); // Remove token since apiService already handles it, empty body
         
               if (response.id) {
                 router.push(`/lobby/${response.id}`);
@@ -170,18 +171,23 @@ const DashboardPage: React.FC = () => {
 
     // Function to accept or decline game invitations
     const handleInvitation = async (gameId: number, action: 'play' | 'decline') => {
-        try {
-            if (action === 'play') {
-                await apiService.put<GameInvitation>(`/games/invitations/${gameId}`, { status: 'ACCEPTED' });
-                router.push(`/lobby/${gameId}`);
-            } else {
-                await apiService.put<GameInvitation>(`/games/invitations/${gameId}`, { status: 'DECLINED' });
-            }
-            setPendingInvitations(pendingInvitations.filter(invitation => invitation.id !== gameId));
-        } catch (error) {
-            console.error(`Error handling invitation (${action}):`, error);
-            alert(`Failed to ${action} the invitation.`);
-        }
+        const status = action === 'play' ? 'ACCEPTED' : 'DECLINED';
+        
+        apiService.put<GameInvitation>(
+            `/games/invitations/${gameId}`, 
+            { status }
+        )
+            .then (() => {
+                alert(`Game invitation ${status}!`);
+                setPendingInvitations(pendingInvitations.filter((invitation) => invitation.id !== gameId)); // Remove from pending invitations
+                if (action === 'play') {
+                    router.push(`/lobby/${gameId}`);
+                }
+            })
+            .catch ((error) => {
+                console.error(`Error handling game invitation (${action}):`, error);
+                alert(`Failed to ${action} the game invitation`);
+            });
     };
 
     // Function to handle click on user icon
@@ -205,7 +211,7 @@ const DashboardPage: React.FC = () => {
     // Function to handle logout
     const handleLogoutClick = async () => {
         try {
-            await apiService.put<User>("users/logout", token)          
+            await apiService.put<User>("users/logout", {}) // Remove token since apiService already handles it, empty body
             clearToken(); // Clear the token
             clearId();
             clearUsername();
