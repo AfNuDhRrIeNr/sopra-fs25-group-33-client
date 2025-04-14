@@ -120,6 +120,7 @@ const Gamestate: React.FC = () => {
     useEffect(()=> {
         setToken(localStorage.getItem("token"));
         setUsername(localStorage.getItem("username"));
+        setUserId(localStorage.getItem("userId"));
     }, []); 
     
     useEffect(() => {
