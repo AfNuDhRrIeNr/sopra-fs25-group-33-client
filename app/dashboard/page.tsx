@@ -7,15 +7,13 @@ import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
 
 
-// import useLocalStorage from "@/hooks/useLocalStorage";
-
-
-interface Friend {
+interface FriendRequest {
     id: number;
-    name: string;
-    avatar: string; // URL for the avatar image
+    sender: User;
+    avatar: string; // Not provided by API, use a default image
 }
 
+// TODO logic for Leaderboard (currently hardcoded)
 interface LeaderboardPlayer {
     rank: number;
     name: string;
@@ -27,55 +25,91 @@ interface Game {
     status: string;
 }
 
+interface GameInvitation {
+    id: number;
+    sender: User;
+    status: string;
+}
+
 interface User {
     token: string;
     id: number;
     username: string;
+    friends: Set<User>;
 }
 
 const DashboardPage: React.FC = () => {
     const router = useRouter();
     const [token, setToken] = useState<string | null>(null);
     const [username, setUsername] = useState<string | null>(null);
-    const [friends, setFriends] = useState<Friend[]>([]);
-    const [leaderboard, setLeaderboard] = useState<LeaderboardPlayer[]>([]);
-    const [pendingRequests, setPendingRequests] = useState<Friend[]>([/*{
+    const [userId, setUserId] = useState<string | null>(null);
+    const [friends, setFriends] = useState<FriendRequest[]>([]);
+    const [leaderboard] = useState<LeaderboardPlayer[]>([
+        { rank: 1, name: 'Monica' },
+        { rank: 2, name: 'Daniel' },
+        { rank: 3, name: 'Marcel' },
+    ]);
+    const [pendingRequests, setPendingRequests] = useState<FriendRequest[]>([/*{
         id: 1,
-        name: "Marco",
+        sender: {id: 1, token: "", username: "Marco"},
         avatar: "/User_Icon.jpg" 
         },{
             id: 2,
-            name: "Sebastiano",
+            sender: {id: 2, token: "", username: "Sebastiano"},
             avatar: "/User_Icon.jpg"
             }*/]);
-    const [sentRequests, setSentRequests] = useState<Friend[]>([]);
-    const [isSendFriendModalOpen, setIsSendFriendModalOpen] = useState(false);
+    const [pendingInvitations, setPendingInvitations] = useState<GameInvitation[]>([/*{
+        id: 1,
+        sender: { token: "", id: 1, username: "Marco" },
+        status: "pending",
+        },{
+            id: 2,
+            sender: { token: "", id: 2, username: "Sebastiano" },
+            status: "pending",
+            }*/]);
+    const [sentRequests, setSentRequests] = useState<FriendRequest[]>([]);
+    const [isAddFriendModalOpen, setIsAddFriendModalOpen] = useState(false);
     const [isPendingRequestsModalOpen, setIsPendingRequestsModalOpen] = useState(false);
+    const [isInvitationsModalOpen, setIsInvitationsModalOpen] = useState(false);
     const [newFriendUsername, setNewFriendUsername] = useState<string>('');
-    
     const apiService = useApi();
-            
+
     //fetch user info from localstorage
     useEffect(()=> {
         setToken(localStorage.getItem("token"));
         setUsername(localStorage.getItem("username"));
+        setUserId(localStorage.getItem("userId"));
     }, []);
 
-    // Fetch pending friend requests on component mount
+    // Fetch pending friend requests and game invitations regularly
     useEffect(() => {
-        apiService.get<Friend[]>('/users/friendRequests')
+        const fetchUpdates = () => {
+            apiService.get<FriendRequest[]>(`/users/friendRequests/${userId}`) // Fetch pending friend requests
             .then((data) => setPendingRequests(data))
             .catch((error) => console.error('Error fetching friend requests:', error));
 
-        // Hardcoded leaderboard
-        const hardcodedLeaderboard: LeaderboardPlayer[] = [
-            { rank: 1, name: 'Monica' },
-            { rank: 2, name: 'Daniel' },
-            { rank: 3, name: 'Marcel' },
-        ];
-        setLeaderboard(hardcodedLeaderboard);
+            // TODO define query parameter to get the own User info
+            apiService.get<User>(`/users?user=${userId}`) // Fetch the user info to get friends
+                .then((data) => {
+                    const friendsList = Array.from(data.friends).map((friend) => ({
+                        id: friend.id,
+                        sender: friend,
+                        avatar: "/User_Icon.jpg", // Use a default avatar
+                    }));
+                    setFriends(friendsList);
+                })
+                .catch((error) => console.error('Error fetching friends:', error));
 
-    }, [apiService]);
+            apiService.get<GameInvitation[]>(`/games/invitations/${userId}`)
+                .then((data) => setPendingInvitations(data))
+                .catch((error) => console.error('Error fetching game invitations:', error));
+        };
+
+        fetchUpdates(); // Initial fetch
+        const intervalId = setInterval(fetchUpdates, 5000); // Poll every 5 seconds
+
+        return () => clearInterval(intervalId); // Cleanup on unmount
+    }, [apiService, userId]);
 
     // Function to send a friend request
     const sendFriendRequest = () => {
@@ -84,32 +118,82 @@ const DashboardPage: React.FC = () => {
             return;
         }
 
-        apiService.post<Friend>('/users/friendRequests', { username: newFriendUsername })
+        apiService.post<FriendRequest>('/users/friendRequests', { username: newFriendUsername })
             .then((data) => {
                 alert('Friend request sent!');
                 setSentRequests([...sentRequests, data]);
                 setNewFriendUsername(''); // Reset input
-                setIsSendFriendModalOpen(false); // Close modal
+                setIsAddFriendModalOpen(false); // Close modal
             })
             .catch((error) => console.error('Error sending friend request:', error));
     };
+
     // Function to accept or decline a friend request
     const handleFriendRequest = (requestId: number, action: 'accept' | 'decline') => {
-        apiService.put<Friend>(`/users/friendRequests/${requestId}`, { action })
-            .then((data) => {
-                alert(`Friend request ${action}`);
-                setPendingRequests(pendingRequests.filter((req) => req.id !== requestId));
-                if (action === 'accept') {
-                    setFriends([...friends, data]);
+        try {     
+            if (action === 'accept') {
+                apiService.put<string>(`/users/friendRequests/${requestId}`, { status: 'ACCEPTED' })
+                    .then(() => {
+                        alert('Friend request accepted!');
+                        const acceptedRequest = pendingRequests.find((req) => req.id === requestId);
+                        if (acceptedRequest) {
+                            setFriends([...friends, acceptedRequest]); // Add to friends list
+                        }
+                        setPendingRequests(pendingRequests.filter((req) => req.id !== requestId)); // Remove from pending requests
+                    })
+            } else {
+                apiService.put<string>(`/users/friendRequests/${requestId}`, { status: 'DECLINED' })
+                    .then(() => {
+                        alert('Friend request declined!');
+                        setPendingRequests(pendingRequests.filter((req) => req.id !== requestId)); // Remove from pending requests
+                    })
                 }
-            })
-            .catch((error) => console.error(`${action} failed:`, error));
+            } catch (error) {
+                console.error(`Error handling friend request (${action}):`, error);
+                alert(`Failed to ${action} the friend request`);
+            }
     };
 
+    // Function to create a new game state
+    const createGamestate = async () => {
+        try {
+              const response = await apiService.post<Game>("/games", {
+                  headers: {
+                      Authorization: token
+                  }
+              });
+        
+              if (response.id) {
+                router.push(`/lobby/${response.id}`);
+
+            }} catch (error) {
+                console.error("Error creating lobby:", error);
+                alert(`Could not create lobby: ${(error as Error).message}`);
+              }
+        };
+
+    // Function to accept or decline game invitations
+    const handleInvitation = async (gameId: number, action: 'play' | 'decline') => {
+        try {
+            if (action === 'play') {
+                await apiService.put<GameInvitation>(`/games/invitations/${gameId}`, { status: 'ACCEPTED' });
+                router.push(`/lobby/${gameId}`);
+            } else {
+                await apiService.put<GameInvitation>(`/games/invitations/${gameId}`, { status: 'DECLINED' });
+            }
+            setPendingInvitations(pendingInvitations.filter(invitation => invitation.id !== gameId));
+        } catch (error) {
+            console.error(`Error handling invitation (${action}):`, error);
+            alert(`Failed to ${action} the invitation.`);
+        }
+    };
+
+    // Function to handle click on user icon
     const handleIconClick = () => {
         setIsPendingRequestsModalOpen(true);
     };
 
+    // Constants to clear local storage
     const {
         clear: clearToken
       } = useLocalStorage<string>("token", "");
@@ -122,7 +206,7 @@ const DashboardPage: React.FC = () => {
         clear: clearUsername
       } = useLocalStorage<string>("username", "");
       
-
+    // Function to handle logout
     const handleLogoutClick = async () => {
         try {
             await apiService.put<User>("users/logout", token)          
@@ -132,8 +216,9 @@ const DashboardPage: React.FC = () => {
             router.push("/login"); // Redirect to login
         } catch (error) {
             console.error("Error during logout:", error);
-        }
-    }
+        };
+
+    };
 
 
     const createGamestate = async () => {
@@ -155,6 +240,8 @@ const DashboardPage: React.FC = () => {
               }
             };
 
+
+    };
 
     return (
         <div className="dashboard-page">
@@ -199,18 +286,19 @@ const DashboardPage: React.FC = () => {
                         <ul>
                             {friends.map((friend) => (
                                 <li key={friend.id}>
-                                    <img src={friend.avatar} alt={`${friend.name}'s Avatar`} />
-                                    {friend.name}
+                                    <img src={friend.avatar} alt={`${friend.sender.username}'s Avatar`} />
+                                    {friend.sender.username}
                                 </li>
                             ))}
                         </ul>
                     </div>
-                    <button className="add-friend-button" onClick={() => setIsSendFriendModalOpen(true)}>Add Friend</button>
+                    <button className="add-friend-button" onClick={() => setIsAddFriendModalOpen(true)}>Add Friend</button>
                 </div>
                 <div className="dashboard-section">
                     <h2>ScrabbleNow!</h2>
                     <div className="scrabble-now">
                         <div className="scrabble-board">
+                        {pendingInvitations.length > 0 && (<button className="invitations-button" onClick={() => setIsInvitationsModalOpen(true)}>Invitations</button>)}
                             <img src="/Board.jpg" alt="Scrabble Board" />
                         </div>
                     </div>
@@ -245,7 +333,7 @@ const DashboardPage: React.FC = () => {
                     <button className="show-more-button">Show more</button>
                 </div>
                 {/* Modal for Adding Friend */}
-                {isSendFriendModalOpen && (
+                {isAddFriendModalOpen && (
                     <div className="modal-overlay">
                         <div className="modal">
                             <h2>Add Friend</h2>
@@ -258,7 +346,7 @@ const DashboardPage: React.FC = () => {
                             />
                             <div className='modal-buttons'>
                             <button className='modal-button-green' onClick={sendFriendRequest}>Send Request</button>
-                            <button className='modal-button-red' onClick={() => setIsSendFriendModalOpen(false)}>Cancel</button>
+                            <button className='modal-button-red' onClick={() => setIsAddFriendModalOpen(false)}>Cancel</button>
                             </div>
                             </div>
                         </div>
@@ -275,10 +363,10 @@ const DashboardPage: React.FC = () => {
                                      <li key={request.id} className='friend-request-row'>
                                          <img 
                                          src={request.avatar} 
-                                         alt={`${request.name}'s Avatar`}
+                                         alt={`${request.sender.username}'s Avatar`}
                                          className='modal-avatar'
                                          />
-                                         <span className='friend-username'>{request.name}</span>
+                                         <span className='friend-username'>{request.sender.username}</span>
                                          <div className='modal-buttons'>
                                          <button className='modal-button-green' onClick={() => handleFriendRequest(request.id, 'accept')}>
                                              Accept
@@ -294,6 +382,34 @@ const DashboardPage: React.FC = () => {
                                 <p>No pending friend requests.</p>
                             )}
                             <button className='modal-button-gold' onClick={() => setIsPendingRequestsModalOpen(false)}>Close</button>
+                       </div>
+                 </div>
+                )}
+                {/* Modal for Game Invitations */}
+                {isInvitationsModalOpen && (
+                  <div className="modal-overlay">
+                      <div className="modal">
+                          <h2>Invitations</h2>
+                          {pendingInvitations.length > 0 ? (
+                             <ul>
+                                 {pendingInvitations.map((invitation) => (
+                                     <li key={invitation.id} className='invitations-row'>
+                                         <span className='friend-username'>{invitation.sender.username}</span>
+                                         <div className='modal-buttons'>
+                                         <button className='modal-button-green' onClick={() => handleInvitation(invitation.id, 'play')}>
+                                             Play
+                                         </button>
+                                            <button className='modal-button-red' onClick={() => handleInvitation(invitation.id, 'decline')}>
+                                                Decline
+                                            </button>
+                                        </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <p>No pending Invitations.</p>
+                            )}
+                            <button className='modal-button-gold' onClick={() => setIsInvitationsModalOpen(false)}>Close</button>
                        </div>
                  </div>
                 )}
