@@ -159,7 +159,7 @@ const DashboardPage: React.FC = () => {
         try {
               const response = await apiService.post<Game>("/games", {
                   headers: {
-                      Authorization: token
+                      Authorization: localStorage.getItem("token")
                   }
               });
         
@@ -216,8 +216,10 @@ const DashboardPage: React.FC = () => {
             router.push("/login"); // Redirect to login
         } catch (error) {
             console.error("Error during logout:", error);
-        }
+        };
+
     };
+
 
     return (
         <div className="dashboard-page">
