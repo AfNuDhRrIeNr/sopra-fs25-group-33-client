@@ -159,7 +159,7 @@ const DashboardPage: React.FC = () => {
         try {
               const response = await apiService.post<Game>("/games", {
                   headers: {
-                      Authorization: token
+                      Authorization: localStorage.getItem("token")
                   }
               });
         
@@ -220,28 +220,6 @@ const DashboardPage: React.FC = () => {
 
     };
 
-
-    const createGamestate = async () => {
-        try {
-                console.log(token);
-                console.log(localStorage.getItem("token"));
-                const response = await apiService.post<Game>("/games", {
-                    headers: {
-                        Authorization: token
-                    }
-                });
-        
-              if (response.id) {
-                router.push(`/lobby/${response.id}`);
-
-            }} catch (error) {
-                console.error("Error creating lobby:", error);
-                alert(`Could not create lobby: ${(error as Error).message}`);
-              }
-            };
-
-
-    };
 
     return (
         <div className="dashboard-page">
