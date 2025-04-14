@@ -15,6 +15,8 @@ import SockJS from "sockjs-client";
 import "../playerHand.css";
 import "../playingButtons.css";
 import "../top.css";
+import { getApiDomain } from "@/utils/domain";
+
 
 
 // Generate specialTiles outside the component to prevent re-execution
@@ -113,16 +115,16 @@ const Gamestate: React.FC = () => {
     // const [messages, setMessages] = useState<string[]>([]);
     const { id } = useParams();
     const stompClientRef = useRef<Client | null>(null);
+    const URL = getApiDomain();
 
     useEffect(()=> {
-        setUserId(localStorage.getItem("userId"));
-        setUsername(localStorage.getItem("username"));
         setToken(localStorage.getItem("token"));
+        setUsername(localStorage.getItem("username"));
     }, []); 
-
+    
     useEffect(() => {
         const connectWebSocket = () => {
-            const socket = new SockJS("http://localhost:8080/connections"); // Your WebSocket URL
+            const socket = new SockJS(URL + "/connections"); // Your WebSocket URL
             const stompClient = new Client({
                 webSocketFactory: () => socket,
                 reconnectDelay: 5000,
@@ -136,12 +138,14 @@ const Gamestate: React.FC = () => {
                 stompClient.subscribe(`/topic/game_states/${id}`, (message) => {
                     console.log("Received message:", message.body);
                 });
-                stompClient.subscribe(`/topic/game_states/users/${userId}`, (message) => {
+
+                stompClient.subscribe(`/topic/game_states/users/${localStorage.getItem("userId")}`, (message) => {
                     console.log("Received validation response:", message.body);
                     
                     // Assuming the backend sends something like { valid: true/false }
                     const response = JSON.parse(message.body);
-                    if (response.status === "VALIDATION_SUCCESS") {
+                    console.log(`parsed body: ${response.messageStatus.toString()}`);
+                    if (response.messageStatus.toString() === "VALIDATION_SUCCESS") {
                         alert("Validation successful!");
                     } else {
                         alert("Validation failed.");
@@ -167,10 +171,10 @@ const Gamestate: React.FC = () => {
     const sendMessage = (messageBody: string) => {
         if (stompClientRef.current) {
             stompClientRef.current.publish({
-                destination: `ws/game_states/${id}`,
+                destination: `/ws/game_states/${id}`,
                 body: messageBody,
             });
-            console.log(`Message sent to ws/game_states/${id}:`, messageBody);
+            console.log(`Message sent to /ws/game_states/${id}:`, messageBody);
         }
 
     };
@@ -213,7 +217,6 @@ const Gamestate: React.FC = () => {
             }
         });
     
-        console.log(matrix);
         return matrix;
     };
     
@@ -227,7 +230,7 @@ const Gamestate: React.FC = () => {
             token: token,
             userTiles: newTilesArray,
             action: "VALIDATE",
-            playerId: userId,
+            playerId: localStorage.getItem("userId"),
         });
         
         // Send the message over WebSocket
@@ -430,7 +433,6 @@ const exchangeTiles = () => {
         setTileOnBoard(!(Object.keys(boardTiles).length === 0));
         setMoveVerified(false);
         setTileSelected(selectedTiles.length > 0);
-        console.log(`SelectedTiles: ${selectedTiles}`);
     }, [boardTiles, selectedTiles, tilesInHand]);
     
 

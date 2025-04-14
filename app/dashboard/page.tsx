@@ -138,7 +138,13 @@ const DashboardPage: React.FC = () => {
 
     const createGamestate = async () => {
         try {
-              const response = await apiService.post<Game>("/games", token);
+                console.log(token);
+                console.log(localStorage.getItem("token"));
+                const response = await apiService.post<Game>("/games", {
+                    headers: {
+                        Authorization: token
+                    }
+                });
         
               if (response.id) {
                 router.push(`/lobby/${response.id}`);
