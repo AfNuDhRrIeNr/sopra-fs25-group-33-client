@@ -93,12 +93,6 @@ const generateSpecialTiles = () => {
 const specialTiles = generateSpecialTiles();
 
 
-interface Tile {
-    letter: string;
-    remaining: number;
-}
-
-
 interface GameState {
     id: string;
     board: string[][];
@@ -241,12 +235,12 @@ const Gamestate: React.FC = () => {
             return;
         }
         try 
-        {
-            const response = await apiService.get<Tile>(`/gamestate/users/${userId}/remaining/${letter}`); // ! Endpoint not as in specifications
+        {                               
+            const response = await apiService.get<number>(`/games/${id}/letters/${letter}`); // ! Endpoint not as in specifications
             
             if (response != null) {
-                setNumber(response.remaining);
-                setSubmittedLetter(response.letter.toUpperCase());
+                setNumber(response);
+                setSubmittedLetter(letter.toUpperCase());
                 setLetter("");
             }
         } catch (error) {
