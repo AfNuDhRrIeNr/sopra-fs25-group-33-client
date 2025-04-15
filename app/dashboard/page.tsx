@@ -148,9 +148,10 @@ const DashboardPage: React.FC = () => {
                         setPendingRequests(pendingRequests.filter((req) => req.id !== requestId)); // Remove from pending requests
                     })
                 }
-            } catch (error) {
-                console.error(`Error handling friend request (${action}):`, error);
-                alert(`Failed to ${action} the friend request`);
+                } catch (error) {
+                    console.error(`Error handling friend request (${action}):`, error);
+                    alert(`Failed to ${action} the friend request`);
+                }
             }
 
     // Function to create a new game state
