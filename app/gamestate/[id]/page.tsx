@@ -137,20 +137,40 @@ const Gamestate: React.FC = () => {
 
                 // Subscribe to the game state topic dynamically using the gameId
                 stompClient.subscribe(`/topic/game_states/${id}`, (message) => {
-                    console.log("Received message:", message.body);
+                    console.log("Received global message:", message.body);
+                    const response = JSON.parse(message.body);
+                    if (response.messageStatus.toString() === "SUCCESS")
+                    {
+                        setUserTurn(!isUserTurn);
+                    }
                 });
 
                 stompClient.subscribe(`/topic/game_states/users/${localStorage.getItem("userId")}`, (message) => {
-                    console.log("Received validation response:", message.body);
+                    console.log("Received personal response:", message.body);
                     
                     // Assuming the backend sends something like { valid: true/false }
                     const response = JSON.parse(message.body);
                     console.log(`parsed body: ${response.messageStatus.toString()}`);
+                    
+                    
+                    //verify
                     if (response.messageStatus.toString() === "VALIDATION_SUCCESS") {
                         alert("Validation successful!");
-                    } else {
+                        setMoveVerified(true);
+                    } 
+                    else if (response.messageStatus.toString() === "VALIDATION_ERROR") {
                         alert("Validation failed.");
-                    }
+                    } 
+                    
+                    //submit
+                    else if (response.messageStatus.toString() === "SUCCESS") {
+                        const newUserLetters = response.gameState.userTiles
+                        const newUserHand = newUserLetters.map((letter : string) => `/letters/${letter} Tile 70.jpg`)
+                        setTilesInHand(newUserHand);
+                        setTileOnBoard(false);
+                    } 
+                    
+
                 });
             };
 
@@ -262,8 +282,20 @@ const exchangeTiles = () => {
 
     const commitWord = () => {
         setMoveVerified(false);
-        handleReturn();
-        alert("WordCommited");
+        const matrix = constructMatrix(); // Get the constructed matrix
+        const newTilesArray = tilesInHand.map(tile => tile ? tile[9] : "");
+        // Prepare the message body (you can adjust the structure as needed)
+        const messageBody = JSON.stringify({
+            id: id, // Add game id to the message body
+            board: matrix, // Include the constructed board matrix
+            token: token,
+            userTiles: newTilesArray,
+            action: "SUBMIT",
+            playerId: localStorage.getItem("userId"),
+        });
+        
+        // Send the message over WebSocket
+        sendMessage(messageBody);
     }
 
     const handleSurrender = () => {
@@ -436,6 +468,9 @@ const exchangeTiles = () => {
         setTileSelected(selectedTiles.length > 0);
     }, [boardTiles, selectedTiles, tilesInHand]);
     
+    useEffect(() =>{
+        // console.log("updated user turn");
+    }, [isUserTurn, isTileOnBoard])
 
     return (
         <div id="screen">
@@ -633,9 +668,14 @@ const exchangeTiles = () => {
                             <Button onClick = {commitWord} 
                             id="commit-button" 
                             className="game-buttons"
-                            disabled = {!isMoveVerified}
+                            disabled = {!isMoveVerified || !isUserTurn}
                             style = {{ opacity: isMoveVerified ? 1: 0.9}}
-                            title={!isMoveVerified ? "Verify a word before playing it" : ""}>
+                            title={!isMoveVerified 
+                                    ? "Verify a word before playing it" 
+                                    : !isUserTurn
+                                    ? "It's not your turn"
+                                    : ""
+                                    }>
                                 Play Word
                             </Button>
                         </div>
