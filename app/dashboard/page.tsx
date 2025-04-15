@@ -85,16 +85,12 @@ const DashboardPage: React.FC = () => {
     useEffect(() => {
         if (!token) return; // Skip polling if token is not available
         const fetchUpdates = () => {
-            apiService.get<FriendRequest[]>(`/users/friendRequests`, {
-                headers: { Authorization: token || "" }
-            })
+            apiService.get<FriendRequest[]>(`/users/friendRequests`)
             .then((data) => setPendingRequests(data))
             .catch((error) => console.error('Error fetching friend requests:', error));
             /*
-            TODO define query parameter to get the own User info
-            apiService.get<User>(`/users/${userId}`, {
-                headers: { Authorization: token || "" }
-            })
+            TODO define query parameter to get the own friend list
+            apiService.get<User>(`/users/${userId}`)
                 .then((data) => {
                     const friendsList = Array.from(data.friends).map((friend) => ({
                         id: friend.id,
@@ -105,9 +101,7 @@ const DashboardPage: React.FC = () => {
                 })
                 .catch((error) => console.error('Error fetching friends:', error));
             */
-            apiService.get<GameInvitation[]>(`/games/invitations/${userId}`, {
-                headers: { Authorization: token || "" }
-            })
+            apiService.get<GameInvitation[]>(`/games/invitations/${userId}`)
                 .then((data) => setPendingInvitations(data))
                 .catch((error) => console.error('Error fetching game invitations:', error));
         };
@@ -127,8 +121,7 @@ const DashboardPage: React.FC = () => {
 
         apiService.post<FriendRequest>(
             '/users/friendRequests', 
-            { username: newFriendUsername },
-            { headers: { Authorization: token || "" } }
+            { username: newFriendUsername }
         )
             .then((data) => {
                 alert('Friend request sent!');
@@ -145,8 +138,7 @@ const DashboardPage: React.FC = () => {
         
         apiService.put<string>(
             `/users/friendRequests/${requestId}`,
-            { status },
-            { headers: { Authorization: token || "" } }
+            { status }
         )
             .then(() => {
                 alert(`Friend request ${status}!`);
@@ -168,8 +160,8 @@ const DashboardPage: React.FC = () => {
     const createGamestate = async () => {
         try {
             const response = await apiService.post<Game>(
-                "/games", 
-                { headers: { Authorization: token || "" } }
+                "/games",
+                {}
             );
         
             if (response.id) {
@@ -187,8 +179,7 @@ const DashboardPage: React.FC = () => {
         
         apiService.put<GameInvitation>(
             `/games/invitations/${gameId}`, 
-            { status },
-            { headers: { Authorization: token || "" } }
+            { status }
         )
             .then(() => {
                 alert(`Game invitation ${status}!`);
@@ -226,7 +217,7 @@ const DashboardPage: React.FC = () => {
         try {
             await apiService.put<User>(
                 "/users/logout", 
-                { headers: { Authorization: token || "" } }
+                {}
             );
             clearToken(); // Clear the token
             clearId();
