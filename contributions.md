@@ -90,7 +90,7 @@ reason).
 | **LucKer58** | 10.04.25   | [Commit c1fba12](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/c1fba128bc4535cf4c8005afd2b9d6e084cec7df) | implement LetterPoints constant and BoardStatus constant | For calculation of the points of a move |
 |                    | 12-13.04.25   | [Commit dea36b0](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/dea36b0050aef84b1e141e4be985fb7bbfdc6dbc) | Add MoveSubmitService to calculate points for a move and persist new GameBoard | needed to inform players on points |
 | **Mex7180** | 15.04.2025   | [Commit 8a52e6c](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/8a52e6cd1fee414e58e04f77e2e057bcce35ce24) | Implement FriendRequests GET, POST, PUT endpoint. Required updates to user entity (fix infinite self referencing) | Enables the whole invite friends and play with friends workflow. |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | 15.04.2024   | [Commit 6ac4a30](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/6ac4a308378bc619aedca17680ffabf604aee738) | Adjust GET users endpoint to allow for filtering and sorting of users] | For Leaderboard and frontend to detailed user information for one user only |
 | **[@githubUser5]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 
