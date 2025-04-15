@@ -281,20 +281,40 @@ const Gamestate: React.FC = () => {
         : [...prevSelected, index]
     );
 };
-
-const exchangeTiles = () => {
-    const tilesToExchange = selectedTiles.map((i) => tilesInHand[i]);
-    alert(`${tilesToExchange} were exchanged.`)
-    
-    const newHand = tilesInHand.filter((_, index) => !selectedTiles.includes(index));
-    setTilesInHand(newHand);
-    setSelectedTiles([]);
+    interface ExchangeResponse {
+        gameStatus: string | null;
+        newTiles: string[];
     }
+    const exchangeTiles = async () => {
+        const tilesToExchange = selectedTiles.map((i) => tilesInHand[i]);
+        const exchangeList = tilesToExchange.map(tile => (tile && tile.length > 9 ? tile[9] : ""));
+        alert(`${exchangeList} were exchanged.`);
+
+        console.log("Exchanging tiles:", exchangeList);
+        try {
+            const response = await apiService.put<ExchangeResponse>(
+                `/games/${userId}/exchange`,
+                exchangeList, // Body hier
+            );
+            console.log("API Response:", response);
+            if (response != null) {
+                const newUserLetters = response.newTiles;
+                const newUserHand = newUserLetters.map((letter: string) => `/letters/${letter} Tile 70.jpg`);
+                setTilesInHand(newUserHand);
+                setSelectedTiles([]); // Clear selected tiles after exchange
+                setUserTurn(false); // Toggle user turn after exchange
+            }
+        } catch (error) {
+            console.error("Exchange Error:", error);
+            alert(`Exchange failed: ${(error as Error).message}`);
+        }
+    };
 
     const skipTurn = () => {
-        sendMessage("SKIP");
-        setUserTurn(!isUserTurn);
-    }
+        // Logik für das Überspringen des Zuges
+        console.log("Turn skipped");
+        setUserTurn(false); // Beispiel: Den Benutzerzug beenden
+    };
 
     const commitWord = () => {
         setMoveVerified(false);
