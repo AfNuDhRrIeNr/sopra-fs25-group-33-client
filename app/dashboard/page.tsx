@@ -152,12 +152,15 @@ const DashboardPage: React.FC = () => {
                 console.error(`Error handling friend request (${action}):`, error);
                 alert(`Failed to ${action} the friend request`);
             }
-    };
 
     // Function to create a new game state
     const createGamestate = async () => {
         try {
-              const response = await apiService.post<Game>("/games", token);
+              const response = await apiService.post<Game>("/games", {
+                  headers: {
+                      Authorization: localStorage.getItem("token")
+                  }
+              });
         
               if (response.id) {
                 router.push(`/lobby/${response.id}`);
@@ -212,8 +215,10 @@ const DashboardPage: React.FC = () => {
             router.push("/login"); // Redirect to login
         } catch (error) {
             console.error("Error during logout:", error);
-        }
+        };
+
     };
+
 
     return (
         <div className="dashboard-page">

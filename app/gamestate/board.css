@@ -6,6 +6,6 @@
 }
 
 #game-board div {
-    cursor: pointer;
+    cursor: default;
     border: 2px solid black;
 }

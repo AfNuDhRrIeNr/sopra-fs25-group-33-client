@@ -36,6 +36,10 @@
     cursor: grab;
 }
 
+.immutable-tile {
+    cursor: default;
+}
+
 #undo-button-image {
     /* position: absolute; */
     display: flex;

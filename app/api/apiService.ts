@@ -16,7 +16,7 @@ export class ApiService {
   private getAuthHeaders(): HeadersInit {
     const token = localStorage.getItem("token");
     return token
-      ? { ...this.defaultHeaders, Authorization: `Bearer ${token}` }
+      ? { ...this.defaultHeaders, Authorization: `${token}` }
       : this.defaultHeaders;
   }
 
