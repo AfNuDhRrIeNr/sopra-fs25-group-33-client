@@ -13,7 +13,6 @@ button.game-buttons {
     font-weight: 700;
 }
 
-
 #upper-row-container {
     width: 100%;
     height: 45%;
@@ -31,6 +30,11 @@ button.game-buttons {
     background-color:#9A9CF5;
 }
 
+#verify-button:not(:disabled):hover {
+    color: inherit;
+    background-color: #7F81D9;
+}
+
 #exchange-button-container {
     height: 100%;
     width: 37%;
@@ -41,6 +45,12 @@ button.game-buttons {
     background-color: #9A9CF5;
 }
 
+
+#exhange-button:not(:disabled):hover {
+    color: inherit;
+    background-color: #7F81D9;
+}
+
 #skip-button-container {
     height: 100%;
     width: 22%;
@@ -49,6 +59,11 @@ button.game-buttons {
 
 #skip-button {
     background-color: #CE8D8D;
+}
+
+#skip-button:not(:disabled):hover {
+    color: inherit;
+    background-color: #B37474;
 }
 
 #lower-row-container {
@@ -64,4 +79,9 @@ button.game-buttons {
 
 #commit-button {
     background-color: #4AAC55;
+}
+
+#commit-button:not(:disabled):hover {
+    color: inherit;
+    background-color: #3A8C44;
 }
