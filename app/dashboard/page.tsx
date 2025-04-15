@@ -88,8 +88,8 @@ const DashboardPage: React.FC = () => {
             apiService.get<FriendRequest[]>(`/users/friendRequests`)
             .then((data) => setPendingRequests(data))
             .catch((error) => console.error('Error fetching friend requests:', error));
-            /*
-            TODO define query parameter to get the own friend list
+            
+            // TODO define query parameter to get the own friend list
             apiService.get<User>(`/users/${userId}`)
                 .then((data) => {
                     const friendsList = Array.from(data.friends).map((friend) => ({
@@ -100,7 +100,7 @@ const DashboardPage: React.FC = () => {
                     setFriends(friendsList);
                 })
                 .catch((error) => console.error('Error fetching friends:', error));
-            */
+            
             apiService.get<GameInvitation[]>(`/games/invitations/${userId}`)
                 .then((data) => setPendingInvitations(data))
                 .catch((error) => console.error('Error fetching game invitations:', error));
