@@ -282,13 +282,32 @@ const Gamestate: React.FC = () => {
     );
 };
 
-const exchangeTiles = () => {
-    const tilesToExchange = selectedTiles.map((i) => tilesInHand[i]);
-    alert(`${tilesToExchange} were exchanged.`)
-    
-    const newHand = tilesInHand.filter((_, index) => !selectedTiles.includes(index));
-    setTilesInHand(newHand);
-    setSelectedTiles([]);
+    const exchangeTiles = async () => {
+        const tilesToExchange = selectedTiles.map((i) => tilesInHand[i]);
+        const exchangeList = tilesToExchange.map(tile => tile ? tile[9] : "");
+        alert(`${exchangeList} were exchanged.`)
+
+        console.log("Exchanging tiles:", JSON.stringify(exchangeList));
+        try {
+            const response = await apiService.put<Array<Tile>>(`/games/${userId}/exchange`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `${localStorage.getItem("token")}`,
+                },
+                body: JSON.stringify(exchangeList),
+                
+            });
+                if (response != null) {
+                    const newUserLetters = response.map((tile) => tile.letter);
+                    const newUserHand = newUserLetters.map((letter: string) => `/letters/${letter} Tile 70.jpg`);
+                    setTilesInHand(newUserHand);
+                    setSelectedTiles([]); // Clear selected tiles after exchange
+        }}
+        catch (error) {
+            console.error("Exchange Error:", error);
+            alert(`Exchange failed: ${(error as Error).message}`);
+        }
+        setUserTurn(false); // Toggle user turn after exchange
     }
 
     const skipTurn = () => {
@@ -681,14 +700,24 @@ const exchangeTiles = () => {
                             <Button onClick = {() => exchangeTiles()} 
                             id="exhange-button" 
                             className="game-buttons"
-                            disabled = {!isTileSelected}
+                            disabled = {!isTileSelected || !isUserTurn}
                             style = {{ opacity: isTileSelected ? 1 : 0.9}}
-                            title = { !isTileSelected ? "Select a tile to exchange it" : ""}>
+                            title = { !isTileSelected 
+                                    ? "Select a tile to exchange it" 
+                                    : !isUserTurn
+                                    ? "It's not your turn"
+                                    : ""}>
                                 Exchange
                             </Button>
                         </div>
                         <div id="skip-button-container">
-                            <Button onClick = {skipTurn} id="skip-button" className="game-buttons">
+                            <Button onClick = {skipTurn} 
+                            id="skip-button" 
+                            className="game-buttons"
+                            disabled = {!isUserTurn}
+                            title = { !isUserTurn ? "It's not your turn" : ""}
+                            style = {{ opacity: isUserTurn ? 1 : 0.9}}
+                            >
                                 Skip
                             </Button>
                         </div>
