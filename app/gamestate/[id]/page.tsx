@@ -108,6 +108,7 @@ const Gamestate: React.FC = () => {
     const [tilesInHand, setTilesInHand] = useState <(string | null)[]>(new Array(7).fill(null));
     const [selectedTiles, setSelectedTiles ] = useState<number[]>([]);
     const [boardTiles, setBoardTiles] = useState<{ [key:string]: string | null }>({});
+    const [immutableBoardTiles, setImmutableBoardTiles] = useState<{ [key:string]: string | null }>({});
     const [isUserTurn, setUserTurn] = useState(true);
     const [isTileOnBoard, setTileOnBoard] = useState(false);
     const [isMoveVerified, setMoveVerified] = useState(false);
@@ -284,6 +285,8 @@ const exchangeTiles = () => {
         setMoveVerified(false);
         const matrix = constructMatrix(); // Get the constructed matrix
         const newTilesArray = tilesInHand.map(tile => tile ? tile[9] : "");
+
+        setImmutableBoardTiles(prev => ({ ...prev, ...boardTiles })); // Store the current board state
         // Prepare the message body (you can adjust the structure as needed)
         const messageBody = JSON.stringify({
             id: id, // Add game id to the message body
@@ -308,6 +311,9 @@ const exchangeTiles = () => {
         const updatedBoard = { ...boardTiles };
 
         for (const key in boardTiles) {
+            if (immutableBoardTiles[key]) continue; // Skip immutable tiles
+
+
             const image = boardTiles[key];
             const emptyIndex = updatedHand.findIndex(tile => tile === null);
 
@@ -400,14 +406,16 @@ const exchangeTiles = () => {
     
     const handleBoardDrop = (e: React.DragEvent, col: number, row: number) => {
         e.preventDefault();
+        const keyTo = `${col}-${row}`;
+
+        
         const draggedIndex = parseInt(e.dataTransfer.getData("index"));
         const draggedImage = e.dataTransfer.getData("imageSrc");
         const draggedCol = parseInt(e.dataTransfer.getData("col"));
         const draggedRow = parseInt(e.dataTransfer.getData("row"));
         const draggedImageFromBoard = e.dataTransfer.getData("imageSrc");
-        const keyTo = `${col}-${row}`;
 
-        if (boardTiles[keyTo]) {
+        if (boardTiles[keyTo] || immutableBoardTiles[keyTo]) {
             alert("Space is not free!");
         }
         else {
@@ -463,7 +471,8 @@ const exchangeTiles = () => {
     }, []);
     
     useEffect(() => {
-        setTileOnBoard(!(Object.keys(boardTiles).length === 0));
+        const mutableTiles = Object.keys(boardTiles).filter(key => !immutableBoardTiles[key]);
+        setTileOnBoard(mutableTiles.length > 0);
         setMoveVerified(false);
         setTileSelected(selectedTiles.length > 0);
     }, [boardTiles, selectedTiles, tilesInHand]);
@@ -497,7 +506,7 @@ const exchangeTiles = () => {
                                             className="board-tiles"
                                             width={100} 
                                             height={100}
-                                            draggable
+                                            draggable = {!immutableBoardTiles[`${col}-${row}`]} // Disable dragging for immutable tiles
                                             onDragStart={(e) => handleDragStart(e, null, col, row)} 
                                             onDragEnd = {handleDragEnd}
                                         /> 
