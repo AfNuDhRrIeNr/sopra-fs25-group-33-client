@@ -3,7 +3,7 @@ import { ApplicationError } from "@/types/error";
 
 export class ApiService {
   private baseURL: string;
-  private defaultHeaders: HeadersInit;
+  private defaultHeaders: Record<string, string>;
 
   constructor() {
     this.baseURL = getApiDomain();
@@ -13,14 +13,18 @@ export class ApiService {
     };
   }
 
-  private getAuthHeaders(): HeadersInit {
-    const token = localStorage.getItem("token");
-    const authHeader = token ? { Authorization: token } : undefined;
-    return {
-      ...this.defaultHeaders, // Include default headers
-      ...(authHeader || {}),  // Include Authorization header only if it exists
-    };
-  }
+  private getAuthHeaders(includeAuth: boolean = true): Headers {
+    const headers = new Headers(this.defaultHeaders); // Use a Headers object for consistency
+
+    if (includeAuth) {
+        const token = localStorage.getItem("token");
+        if (token) {
+            headers.append("Authorization", token); // Add Authorization header only if token exists
+        }
+    }
+
+    return headers;
+}
 
   /**
    * Helper function to check the response, parse JSON,
@@ -70,11 +74,11 @@ export class ApiService {
    * @param options - Optional fetch options (e.g., headers).
    * @returns JSON data of type T.
    */
-  public async get<T>(endpoint: string, options?: RequestInit): Promise<T> {
+  public async get<T>(endpoint: string, includeAuth: boolean = true): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
     const res = await fetch(url, {
       method: "GET",
-      headers: this.getAuthHeaders(),
+      headers: this.getAuthHeaders(includeAuth),
     });
     return this.processResponse<T>(
       res,
@@ -89,11 +93,11 @@ export class ApiService {
    * @param options - Optional fetch options (e.g., headers).
    * @returns JSON data of type T.
    */
-  public async post<T>(endpoint: string, data: unknown, options?: RequestInit): Promise<T> {
+  public async post<T>(endpoint: string, data: unknown, includeAuth: boolean = true): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
     const res = await fetch(url, {
       method: "POST",
-      headers: this.getAuthHeaders(),
+      headers: this.getAuthHeaders(includeAuth),
       body: JSON.stringify(data),
     });
     return this.processResponse<T>(
@@ -109,11 +113,11 @@ export class ApiService {
    * @param options - Optional fetch options (e.g., headers).
    * @returns JSON data of type T.
    */
-  public async put<T>(endpoint: string, data: unknown, options?: RequestInit): Promise<T> {
+  public async put<T>(endpoint: string, data: unknown, includeAuth: boolean = true): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
     const res = await fetch(url, {
       method: "PUT",
-      headers: this.getAuthHeaders(),
+      headers: this.getAuthHeaders(includeAuth),
       body: JSON.stringify(data),
     });
     return this.processResponse<T>(
@@ -128,11 +132,11 @@ export class ApiService {
    * @param options - Optional fetch options (e.g., headers).
    * @returns JSON data of type T.
    */
-  public async delete<T>(endpoint: string, options?: RequestInit): Promise<T> {
+  public async delete<T>(endpoint: string, includeAuth: boolean = true): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
     const res = await fetch(url, {
       method: "DELETE",
-      headers: this.getAuthHeaders(),
+      headers: this.getAuthHeaders(includeAuth),
     });
     return this.processResponse<T>(
       res,
