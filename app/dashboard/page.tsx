@@ -10,7 +10,12 @@ import useLocalStorage from "@/hooks/useLocalStorage";
 interface FriendRequest {
     id: number;
     sender: User;
-    avatar: string; // Not provided by API, use a default image
+    status: string; // PENDING, ACCEPTED, DECLINED
+}
+
+// TODO Add id to keep ordering inside FriendsList
+interface Friend {
+    name: string;
 }
 
 // TODO logic for Leaderboard (currently hardcoded)
@@ -28,14 +33,14 @@ interface Game {
 interface GameInvitation {
     id: number;
     sender: User;
-    status: string;
+    status: string; // PENDING, ACCEPTED, DECLINED
 }
 
 interface User {
     token: string;
     id: number;
     username: string;
-    friends: Set<User>;
+    friends: string[]; // List of usernames
 }
 
 const DashboardPage: React.FC = () => {
@@ -43,30 +48,14 @@ const DashboardPage: React.FC = () => {
     const [token, setToken] = useState<string | null>(null);
     const [username, setUsername] = useState<string | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
-    const [friends, setFriends] = useState<FriendRequest[]>([]);
+    const [friends, setFriends] = useState<Friend[]>([]);
     const [leaderboard] = useState<LeaderboardPlayer[]>([
         { rank: 1, name: 'Monica' },
         { rank: 2, name: 'Daniel' },
         { rank: 3, name: 'Marcel' },
     ]);
-    const [pendingRequests, setPendingRequests] = useState<FriendRequest[]>([/*{
-        id: 1,
-        sender: {id: 1, token: "", username: "Marco"},
-        avatar: "/User_Icon.jpg" 
-        },{
-            id: 2,
-            sender: {id: 2, token: "", username: "Sebastiano"},
-            avatar: "/User_Icon.jpg"
-            }*/]);
-    const [pendingInvitations, setPendingInvitations] = useState<GameInvitation[]>([/*{
-        id: 1,
-        sender: { token: "", id: 1, username: "Marco" },
-        status: "pending",
-        },{
-            id: 2,
-            sender: { token: "", id: 2, username: "Sebastiano" },
-            status: "pending",
-            }*/]);
+    const [pendingRequests, setPendingRequests] = useState<FriendRequest[]>([]);
+    const [pendingInvitations, setPendingInvitations] = useState<GameInvitation[]>([]);
     const [sentRequests, setSentRequests] = useState<FriendRequest[]>([]);
     const [isAddFriendModalOpen, setIsAddFriendModalOpen] = useState(false);
     const [isPendingRequestsModalOpen, setIsPendingRequestsModalOpen] = useState(false);
@@ -86,24 +75,29 @@ const DashboardPage: React.FC = () => {
         if (!token) return; // Skip polling if token is not available
         const fetchUpdates = () => {
             apiService.get<FriendRequest[]>(`/users/friendRequests`)
-            .then((data) => setPendingRequests(data))
-            .catch((error) => console.error('Error fetching friend requests:', error));
-            
-            // TODO define query parameter to get the own friend list
-            apiService.get<User>(`/users/${userId}`)
                 .then((data) => {
-                    const friendsList = Array.from(data.friends).map((friend) => ({
-                        id: friend.id,
-                        sender: friend,
-                        avatar: "/User_Icon.jpg", // Use a default avatar
+                    // Filter only PENDING friend requests
+                    const pending = data.filter((request) => request.status === "PENDING");
+                    setPendingRequests(pending);
+                })
+                .catch((error) => console.error('Error fetching friend requests:', error));
+            
+            apiService.get<User[]>(`/users?userId=${userId}`)
+                .then((data) => {
+                    const user = data[0];
+                    const friendsList = (user.friends || []).map((username) => ({
+                        name: username, // Map the username to the Friend interface
                     }));
-                    setFriends(friendsList);
+                    setFriends(friendsList); // Update the friends state
                 })
                 .catch((error) => console.error('Error fetching friends:', error));
             
             apiService.get<GameInvitation[]>(`/games/invitations/${userId}`)
-                .then((data) => setPendingInvitations(data))
-                .catch((error) => console.error('Error fetching game invitations:', error));
+            .then((data) => {
+                const pending = data.filter((invitation) => invitation.status === "PENDING");
+                setPendingInvitations(pending);
+            })
+            .catch((error) => console.error('Error fetching game invitations:', error));
         };
 
         fetchUpdates(); // Initial fetch
@@ -121,7 +115,9 @@ const DashboardPage: React.FC = () => {
 
         apiService.post<FriendRequest>(
             '/users/friendRequests', 
-            { username: newFriendUsername }
+            { targetUsername: newFriendUsername,
+              message: "Hello, I would like to be your friend!" // Not displayed in the UI jet
+             }
         )
             .then((data) => {
                 alert('Friend request sent!');
@@ -136,6 +132,10 @@ const DashboardPage: React.FC = () => {
     const handleFriendRequest = (requestId: number, action: 'accept' | 'decline') => {
         const status = action === 'accept' ? 'ACCEPTED' : 'DECLINED';
         
+        // Optimistically update the UI by removing the request from the pending list
+        const updatedPendingRequests = pendingRequests.filter((req) => req.id !== requestId);
+        setPendingRequests(updatedPendingRequests);
+
         apiService.put<string>(
             `/users/friendRequests/${requestId}`,
             { status }
@@ -145,14 +145,15 @@ const DashboardPage: React.FC = () => {
                 if (action === 'accept') {
                     const acceptedRequest = pendingRequests.find((req) => req.id === requestId);
                     if (acceptedRequest) {
-                        setFriends([...friends, acceptedRequest]); // Add to friends list
+                        setFriends([...friends, { name: acceptedRequest?.sender.username }]); // Add to friends list
                     }
                 }
-                setPendingRequests(pendingRequests.filter((req) => req.id !== requestId)); // Remove from pending requests
             })
             .catch((error) => {
                 console.error(`Error handling friend request (${action}):`, error);
                 alert(`Failed to ${action} the friend request`);
+                // Revert optimistic update in case of an error
+                setPendingRequests([...pendingRequests, pendingRequests.find((req) => req.id === requestId)!]);
             });
     };
 
@@ -177,13 +178,16 @@ const DashboardPage: React.FC = () => {
     const handleInvitation = async (gameId: number, action: 'play' | 'decline') => {
         const status = action === 'play' ? 'ACCEPTED' : 'DECLINED';
         
+        // Optimistically update the UI by removing the invitation from the pending list
+        const updatedPendingInvitations = pendingInvitations.filter((invitation) => invitation.id !== gameId);
+        setPendingInvitations(updatedPendingInvitations);
+
         apiService.put<GameInvitation>(
             `/games/invitations/${gameId}`, 
             { status }
         )
             .then(() => {
                 alert(`Game invitation ${status}!`);
-                setPendingInvitations(pendingInvitations.filter((invitation) => invitation.id !== gameId)); // Remove from pending invitations
                 if (action === 'play') {
                     router.push(`/lobby/${gameId}`);
                 }
@@ -191,6 +195,7 @@ const DashboardPage: React.FC = () => {
             .catch((error) => {
                 console.error(`Error handling game invitation (${action}):`, error);
                 alert(`Failed to ${action} the game invitation`);
+                setPendingInvitations([...updatedPendingInvitations, pendingInvitations.find((invitation) => invitation.id === gameId)!]);
             });
     };
 
@@ -270,9 +275,9 @@ const DashboardPage: React.FC = () => {
                     <div className="friends-list">
                         <ul>
                             {friends.map((friend) => (
-                                <li key={friend.id}>
-                                    <img src={friend.avatar} alt={`${friend.sender.username}'s Avatar`} />
-                                    {friend.sender.username}
+                                <li key={friend.name}>
+                                    <img src="/User_Icon.jpg" alt="User Icon" />
+                                    {friend.name} {/* Display the friend's name */}
                                 </li>
                             ))}
                         </ul>
@@ -347,8 +352,8 @@ const DashboardPage: React.FC = () => {
                                  {pendingRequests.map((request) => (
                                      <li key={request.id} className='friend-request-row'>
                                          <img 
-                                         src={request.avatar} 
-                                         alt={`${request.sender.username}'s Avatar`}
+                                         src="/User_Icon.jpg" 
+                                         alt="User Icon"
                                          className='modal-avatar'
                                          />
                                          <span className='friend-username'>{request.sender.username}</span>
