@@ -80,8 +80,10 @@ reason).
 
 | **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
-| **[@githubUser1]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **Alumen-Eng** | 15.04.2025   | [Commit bb8691d](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/6bb8691d) | Websocket connection working | Websocket is important to keep gamestate update to date for multiple users |
+|                    | 16.04.2025   | [Commit 2425b1a](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/2425b1a) | Refilling hand using tiles from backend after commit | a player always needs to have 7 tiles in their hand |
+|                    | 16.04.2025   | [Commit f644b55](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/f644b55) | Comitted tiles are immutable | Tiles on the board should not be moveable anymore |
+|                    | 16.04.2025   | [Commit a8e35bd](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/a8e35bd) | Exchanging tiles for new ones | To refill hand with possibly more useful tiles |
 | **AfNuDhRrIeNr** | 09.04.2025   | [Commit 8679316](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/8679316ca7ea2ecdf7b7c6d3e4f042f0b53d640a)| implement letterCount constant, implemented letterBag game entity | Keeping track of the letters left |
 |                    | 14.04.2025   | [Commit 7048d7a](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/7048d7a934656fa311dcbf6013c6af0e221df96d) | implementing exchangeTiles, assignTiles, getRemainingLetters endpoint & the corresponding logic | assigning tiles, exchanging tiles and ask for remaining letters |
 |                    | 15.04.2025   | [Commit 774e004](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/774e0041ae1c39242b8cc699f8e34b847950fd5b) | Bugfix exchange tiles & bugfix lobby creation | player wants to exchange tiles & player want to create lobby |
