@@ -24,7 +24,7 @@ const generateSpecialTiles = () => {
     const specialTiles: { [key: string]: string } = {};
     for (let row = 0; row < 15; row++) {
         for (let col = 0; col < 15; col++) {
-            // Triple Word (TW)
+            // Triple Word (Triple-Word-Score)
             if (
                 (row === 14 && (col === 7 || col === 14)) ||
                 (row === 7 && col === 14) || 
@@ -33,11 +33,11 @@ const generateSpecialTiles = () => {
                 (col === 0 && row % 7 === 0)
               ) {
                 const key = `${col}-${row}`;
-                specialTiles[key] = 'TW';
-                continue;  // Assign 'TW' class for triple word tiles
+                specialTiles[key] = 'Triple-Word-Score';
+                continue;  // Assign 'Triple-Word-Score' class for triple word tiles
             }
 
-            // Double Letter (DL)
+            // Double Letter (Double-Letter-Score)
             if (
                 ((col === 3 || col === 11) && [0, 7, 14].includes(row)) ||
                 ((col === 6 || col === 8) && [2, 6, 8, 12].includes(row)) ||
@@ -47,28 +47,28 @@ const generateSpecialTiles = () => {
 
             ) {
                 const key = `${col}-${row}`;
-                specialTiles[key] = 'DL';
+                specialTiles[key] = 'Double-Letter-Score';
                 continue; 
             }
 
-            // Double Word (DW)
+            // Double Word (Double-Word-Score)
             if (
                 (col === row && [1, 2, 3, 4, 10, 11, 12, 13].includes(row)) ||
                 (col + row === 14 && [1, 2, 3, 4, 10, 11, 12, 13].includes(row))
             ) {
                 const key = `${col}-${row}`;
-                specialTiles[key] = 'DW';
+                specialTiles[key] = 'Double-Word-Score';
                 continue; 
             }
 
-            // Triple Letter (TL)
+            // Triple Letter (Triple-Letter-Score)
             if (
                 ((col === 1 || col === 13) && [5, 9].includes(row)) ||
                 ((col === 5 || col === 9) && [1, 5, 9, 13].includes(row))
 
             ) {
                 const key = `${col}-${row}`;
-                specialTiles[key] = 'TL';
+                specialTiles[key] = 'Triple-Letter-Score';
                 continue; 
             }
 
@@ -97,6 +97,16 @@ interface Tile {
     remaining: number;
 }
 
+
+interface GameState {
+    id: string;
+    board: string[][];
+    token: string;
+    userTiles: string[];
+    action: string;
+    playerId: string;
+}
+
 const Gamestate: React.FC = () => {
     const [letter, setLetter] = useState("");
     const [number, setNumber] = useState<number | null>(null);
@@ -108,6 +118,7 @@ const Gamestate: React.FC = () => {
     const [tilesInHand, setTilesInHand] = useState <(string | null)[]>(new Array(7).fill(null));
     const [selectedTiles, setSelectedTiles ] = useState<number[]>([]);
     const [boardTiles, setBoardTiles] = useState<{ [key:string]: string | null }>({});
+    const [immutableBoardTiles, setImmutableBoardTiles] = useState<{ [key:string]: string | null }>({});
     const [isUserTurn, setUserTurn] = useState(true);
     const [isTileOnBoard, setTileOnBoard] = useState(false);
     const [isMoveVerified, setMoveVerified] = useState(false);
@@ -137,20 +148,40 @@ const Gamestate: React.FC = () => {
 
                 // Subscribe to the game state topic dynamically using the gameId
                 stompClient.subscribe(`/topic/game_states/${id}`, (message) => {
-                    console.log("Received message:", message.body);
+                    console.log("Received global message:", message.body);
+                    const response = JSON.parse(message.body);
+                    if (response.messageStatus.toString() === "SUCCESS")
+                    {
+                        setUserTurn(!isUserTurn);
+                    }
                 });
 
                 stompClient.subscribe(`/topic/game_states/users/${localStorage.getItem("userId")}`, (message) => {
-                    console.log("Received validation response:", message.body);
+                    console.log("Received personal response:", message.body);
                     
                     // Assuming the backend sends something like { valid: true/false }
                     const response = JSON.parse(message.body);
                     console.log(`parsed body: ${response.messageStatus.toString()}`);
+                    
+                    
+                    //verify
                     if (response.messageStatus.toString() === "VALIDATION_SUCCESS") {
                         alert("Validation successful!");
-                    } else {
+                        setMoveVerified(true);
+                    } 
+                    else if (response.messageStatus.toString() === "VALIDATION_ERROR") {
                         alert("Validation failed.");
-                    }
+                    } 
+                    
+                    //submit
+                    else if (response.messageStatus.toString() === "SUCCESS") {
+                        const newUserLetters = response.gameState.userTiles
+                        const newUserHand = newUserLetters.map((letter : string) => `/letters/${letter} Tile 70.jpg`)
+                        setTilesInHand(newUserHand);
+                        setTileOnBoard(false);
+                    } 
+                    
+
                 });
             };
 
@@ -224,19 +255,24 @@ const Gamestate: React.FC = () => {
     const verifyWord = () => {
         const matrix = constructMatrix(); // Get the constructed matrix
         const newTilesArray = tilesInHand.map(tile => tile ? tile[9] : "");
-        // Prepare the message body (you can adjust the structure as needed)
-        const messageBody = JSON.stringify({
-            id: id, // Add game id to the message body
-            board: matrix, // Include the constructed board matrix
-            token: token,
+        
+        if (!id) {
+            console.error("Game ID is null or undefined.");
+            return;
+        }
+        // Create the message body using the GameState interface
+        const messageBody: GameState = {
+            id: id.toString(),
+            board: matrix,
+            token: token!,
             userTiles: newTilesArray,
             action: "VALIDATE",
-            playerId: localStorage.getItem("userId"),
-        });
-        
-        // Send the message over WebSocket
-        sendMessage(messageBody);
-    }
+            playerId: localStorage.getItem("userId")!,
+        };
+    
+        // Convert the object to a JSON string before sending
+        sendMessage(JSON.stringify(messageBody));
+    };
     
     const toggleTileSelection = (index: number) => {
         setSelectedTiles((prevSelected) =>
@@ -262,9 +298,28 @@ const exchangeTiles = () => {
 
     const commitWord = () => {
         setMoveVerified(false);
-        handleReturn();
-        alert("WordCommited");
-    }
+        const matrix = constructMatrix(); // Get the constructed matrix
+        const newTilesArray = tilesInHand.map(tile => tile ? tile[9] : "");
+    
+        setImmutableBoardTiles(prev => ({ ...prev, ...boardTiles })); // Store the current board state
+        
+        if (!id) {
+            console.error("Game ID is null or undefined.");
+            return;
+        }
+        // Create the message body using the GameState interface
+        const messageBody: GameState = {
+            id: id.toString(),
+            board: matrix,
+            token: token!,
+            userTiles: newTilesArray,
+            action: "SUBMIT",
+            playerId: localStorage.getItem("userId")!,
+        };
+    
+        // Convert the object to a JSON string before sending
+        sendMessage(JSON.stringify(messageBody));
+    };
 
     const handleSurrender = () => {
         alert("Surrendered!");
@@ -276,6 +331,9 @@ const exchangeTiles = () => {
         const updatedBoard = { ...boardTiles };
 
         for (const key in boardTiles) {
+            if (immutableBoardTiles[key]) continue; // Skip immutable tiles
+
+
             const image = boardTiles[key];
             const emptyIndex = updatedHand.findIndex(tile => tile === null);
 
@@ -368,14 +426,16 @@ const exchangeTiles = () => {
     
     const handleBoardDrop = (e: React.DragEvent, col: number, row: number) => {
         e.preventDefault();
+        const keyTo = `${col}-${row}`;
+
+
         const draggedIndex = parseInt(e.dataTransfer.getData("index"));
         const draggedImage = e.dataTransfer.getData("imageSrc");
         const draggedCol = parseInt(e.dataTransfer.getData("col"));
         const draggedRow = parseInt(e.dataTransfer.getData("row"));
         const draggedImageFromBoard = e.dataTransfer.getData("imageSrc");
-        const keyTo = `${col}-${row}`;
 
-        if (boardTiles[keyTo]) {
+        if (boardTiles[keyTo] || immutableBoardTiles[keyTo]) {
             alert("Space is not free!");
         }
         else {
@@ -431,11 +491,15 @@ const exchangeTiles = () => {
     }, []);
     
     useEffect(() => {
-        setTileOnBoard(!(Object.keys(boardTiles).length === 0));
+        const mutableTiles = Object.keys(boardTiles).filter(key => !immutableBoardTiles[key]);
+        setTileOnBoard(mutableTiles.length > 0);
         setMoveVerified(false);
         setTileSelected(selectedTiles.length > 0);
     }, [boardTiles, selectedTiles, tilesInHand]);
     
+    useEffect(() =>{
+        // console.log("updated user turn");
+    }, [isUserTurn, isTileOnBoard])
 
     return (
         <div id="screen">
@@ -453,16 +517,17 @@ const exchangeTiles = () => {
                                     data-coordinates={`(${col},${row})`} 
                                     className={tileClass}
                                     onDragOver={handleDragOver}
+                                    title = {tileClass}
                                     onDrop={(e) => handleBoardDrop(e, col, row)}
                                     >
                                        {boardTiles[`${col}-${row}`] && (
                                         <Image 
                                             src={boardTiles[`${col}-${row}`] || "/letters/empty tile 70.jpg"} 
                                             alt={`Tile at ${col}-${row}`} 
-                                            className="board-tiles"
+                                            className={`board-tiles ${immutableBoardTiles[`${col}-${row}`] ? 'immutable-tile' : ''}`}
                                             width={100} 
                                             height={100}
-                                            draggable
+                                            draggable = {!immutableBoardTiles[`${col}-${row}`]} // Disable dragging for immutable tiles
                                             onDragStart={(e) => handleDragStart(e, null, col, row)} 
                                             onDragEnd = {handleDragEnd}
                                         /> 
@@ -633,9 +698,14 @@ const exchangeTiles = () => {
                             <Button onClick = {commitWord} 
                             id="commit-button" 
                             className="game-buttons"
-                            disabled = {!isMoveVerified}
+                            disabled = {!isMoveVerified || !isUserTurn}
                             style = {{ opacity: isMoveVerified ? 1: 0.9}}
-                            title={!isMoveVerified ? "Verify a word before playing it" : ""}>
+                            title={!isMoveVerified 
+                                    ? "Verify a word before playing it" 
+                                    : !isUserTurn
+                                    ? "It's not your turn"
+                                    : ""
+                                    }>
                                 Play Word
                             </Button>
                         </div>
