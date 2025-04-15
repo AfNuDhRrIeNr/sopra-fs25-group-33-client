@@ -282,32 +282,38 @@ const Gamestate: React.FC = () => {
     );
 };
 
+    interface ExchangeResponse {
+        gameStatus: string | null;
+        newTiles: string[];
+    }
+
     const exchangeTiles = async () => {
         const tilesToExchange = selectedTiles.map((i) => tilesInHand[i]);
         const exchangeList = tilesToExchange.map(tile => tile ? tile[9] : "");
         alert(`${exchangeList} were exchanged.`)
 
-        console.log("Exchanging tiles:", JSON.stringify(exchangeList));
         try {
-            const response = await apiService.put<Array<Tile>>(`/games/${userId}/exchange`, {
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `${localStorage.getItem("token")}`,
-                },
-                body: JSON.stringify(exchangeList),
-                
-            });
-                if (response != null) {
-                    const newUserLetters = response.map((tile) => tile.letter);
-                    const newUserHand = newUserLetters.map((letter: string) => `/letters/${letter} Tile 70.jpg`);
-                    setTilesInHand(newUserHand);
-                    setSelectedTiles([]); // Clear selected tiles after exchange
-        }}
+            const response = await apiService.put<ExchangeResponse>(
+                `/games/${userId}/exchange`,
+                exchangeList,
+            );
+            if (response != null) {
+                const newUserLetters = response.newTiles;        
+                const newUserHand = newUserLetters.map((letter: string) => `/letters/${letter} Tile 70.jpg`);
+                const updatedHand = [...tilesInHand];
+                selectedTiles.forEach((index, i) => {
+                    if (newUserHand[i])
+                        updatedHand[index] = newUserHand[i]; // Set exchanged tiles to null
+                });
+                setTilesInHand(updatedHand);
+                setSelectedTiles([]); // Clear selected tiles after exchange
+                setUserTurn(false); // Toggle user turn after exchange
+            }
+        }
         catch (error) {
             console.error("Exchange Error:", error);
             alert(`Exchange failed: ${(error as Error).message}`);
         }
-        setUserTurn(false); // Toggle user turn after exchange
     }
 
     const skipTurn = () => {
