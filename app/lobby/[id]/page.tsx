@@ -30,6 +30,7 @@ const Lobby: React.FC = () => {
   interface Game {
     gameId: number;
     users: User[];
+    host: User;
     status: string; // CREATED, ONGOING, TERMINATED
   }
 
@@ -61,7 +62,11 @@ const Lobby: React.FC = () => {
                     // User is in the game, update state accordingly
                     setIsAlone(false);
                     setnewPlayerUsername(guest.username);
+                } else {
+                    // User is not in the game, set state to alone
+                    setIsAlone(true);
                 }
+                
             })
             .catch((error) => console.error("Error polling game invitation status:", error));
     };
@@ -75,8 +80,35 @@ const Lobby: React.FC = () => {
   // useLocalStorage hook example use
   // The hook returns an object with the value and two functions
   // Simply choose what you need from the hook:
-  const handleButtonClick = () => {
-    router.push("/dashboard");
+  const handleLeave = async () => {
+    try{
+      const game = await apiService.get<Game>(`/games/${id}`);
+      if (game.host.token === token) {
+        try {  
+          const response = await apiService.delete(`/games/${id}`);
+          if (!response) {
+            alert("Failed to leave the game. Please try again.");
+            return;
+          }
+          router.push("/dashboard");
+        } catch (error) {
+          console.error("Error during Lobby deletion:", error);
+        };
+      } else {
+        try {
+          await apiService.put<User>(
+            `/users/leave/${id}`, 
+            {token: token}
+          );
+          router.push("/dashboard");
+        } catch (error) {
+          console.error("Error during Lobby leave:", error);
+      };}
+    }
+    catch (error) {
+      console.error("Error fetching game data:", error);
+      return;
+    }
   };
 
   const handleIconClick = () => {
@@ -137,7 +169,7 @@ return (
     <header>
       <button 
       className = "nav_button"
-      onClick={handleButtonClick}
+      onClick={handleLeave}
       style = {{ backgroundColor: '#D04949', left: 0, marginLeft: '1vw'}}
       >
         Leave

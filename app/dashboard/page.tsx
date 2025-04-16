@@ -223,7 +223,7 @@ const DashboardPage: React.FC = () => {
         try {
             await apiService.put<User>(
                 "/users/logout", 
-                {}
+                {token: token}
             );
             clearToken(); // Clear the token
             clearId();
