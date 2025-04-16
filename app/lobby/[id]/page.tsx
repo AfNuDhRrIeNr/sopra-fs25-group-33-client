@@ -23,7 +23,7 @@ const Login: React.FC = () => {
   
   const [username, setUsername] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
+  // const [userId, setUserId] = useState<string | null>(null);
   const { id } = useParams();
   const apiService = useApi();
   
@@ -47,7 +47,7 @@ const Login: React.FC = () => {
   useEffect(()=> {
       setUsername(localStorage.getItem("username"));
       setToken(localStorage.getItem("token"));
-      setUserId(localStorage.getItem("userId"));
+      // setUserId(localStorage.getItem("userId"));
   }, []);
 
   useEffect(() => {

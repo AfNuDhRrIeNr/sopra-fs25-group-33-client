@@ -181,7 +181,7 @@ const DashboardPage: React.FC = () => {
         const updatedPendingInvitations = pendingInvitations.filter((invitation) => invitation.id !== gameId);
         setPendingInvitations(updatedPendingInvitations);
 
-        apiService.put<GameInvitation>(
+        await apiService.put<GameInvitation>(
             `/games/invitations/${gameId}`, 
             { "status": status }
         )
