@@ -190,26 +190,7 @@ const DashboardPage: React.FC = () => {
         )
             .then(() => {
                 if (action === 'play') {
-<<<<<<< HEAD
                     router.push(`/lobby/${gameId}`);
-=======
-                    /*
-                    apiService.get<Game>(`/games/${gameId}`)
-                        .then((game) => {
-                            
-                            const isFull = game.users.length > 1;
-                            if (!isFull) {*/
-                                router.push(`/lobby/${gameId}`);
-                            /*
-                            }
-                            else {
-                                alert("The lobby is already full. You sadly cannot join.");
-                                return;
-                            }
-                            */
-                        })
-                        .catch((error) => console.error("Error polling game invitation status:", error));
->>>>>>> 148d4a173ee71f309019962d0e798e0669a3e96d
                 }
             })
             .catch((error) => {
