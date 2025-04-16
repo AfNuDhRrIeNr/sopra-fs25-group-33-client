@@ -27,11 +27,17 @@ const Login: React.FC = () => {
   const { id } = useParams();
   const apiService = useApi();
   
-  interface GameInvitation {
+  interface Game {
     gameId: number;
-    status: string; // "PENDING", "ACCEPTED", "DECLINED"
-    senderUsername: string;
+    users: User[];
+    status: string; // CREATED, ONGOING, TERMINATED
   }
+
+  interface User {
+    token: string;
+    id: number;
+    username: string;
+}
 
   interface SentInvitation {
     gameId: number;
@@ -45,21 +51,22 @@ const Login: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!token || sentInvitations.length === 0) return; // Skip polling if no token or no invitations
-    // TODO: Poll the server for the status of the game invitation
-    const pollInvitationStatus = () => {
-        apiService.get<GameInvitation[]>(`/games/invitations/${userId}`)
-            .then((data) => {
-              const lastinvitation = data[0];
-                if (lastinvitation.status === "DECLINED") {
-                    alert("Your game invitation was declined. Redirecting to the dashboard...");
-                    router.push("/dashboard"); // Redirect to the dashboard
+    if (!token) return;
+
+    const pollGame = () => {
+        apiService.get<Game>(`/games/${id}`)
+            .then((game) => {
+                const guest = game.users.length > 1 ? game.users.find((user) => user.token !== token) : null;
+                if (guest) {
+                    // User is in the game, update state accordingly
+                    setIsAlone(false);
+                    setnewPlayerUsername(guest.username);
                 }
             })
             .catch((error) => console.error("Error polling game invitation status:", error));
     };
-
-    const intervalId = setInterval(pollInvitationStatus, 5000); // Poll every 5 seconds
+    
+    const intervalId = setInterval(pollGame, 5000); // Poll every 5 seconds
 
     return () => clearInterval(intervalId); // Cleanup on unmount
   }, [token, sentInvitations, apiService, router]);
@@ -82,17 +89,23 @@ const Login: React.FC = () => {
   }
 
   const startGame = () => {
-    router.push(`/gamestate/${id}`)
+    // PUT /games/{id}
+    apiService.put<Game>(`/games/${id}`, {
+      status: "ONGOING",
+    })
+      .then((data) => {
+        console.log("Game started successfully:", data);
+        router.push(`/gamestate/${id}`);
+      })
+      .catch((error) => {
+        console.error("Error starting game:", error);
+        alert("Failed to start the game. Please try again.");
+      });
   }
 
   const handleInvite = () => {
     if (!newPlayerUsername.trim()) {
         alert("Please enter a valid username.");
-        return;
-    }
-
-    if (!token) {
-        alert("You are not authorized. Please log in.");
         return;
     }
 
@@ -106,9 +119,7 @@ const Login: React.FC = () => {
         .then((data) => {
             alert(`Invitation sent to ${newPlayerUsername.trim()}!`);
             setIsModalVisible(false); // Close the modal
-            setnewPlayerUsername(""); // Clear the input field
             setSentInvitations((prev) => [...prev, data]); // Update the state with the new invitation
-            setIsAlone(false); // Update the UI to reflect that the user is no longer alone
         })
         .catch((error) => {
             console.error("Error sending game invitation:", error);

@@ -84,7 +84,7 @@ const DashboardPage: React.FC = () => {
             
             apiService.get<User[]>(`/users?userId=${userId}`)
                 .then((data) => {
-                    const user = data[0];
+                    const user = (data[0] || {}) as User; // TODO Assuming the first user is the logged-in user
                     const friendsList = (user.friends || []).map((username) => ({
                         name: username, // Map the username to the Friend interface
                     }));
@@ -138,7 +138,7 @@ const DashboardPage: React.FC = () => {
 
         apiService.put<string>(
             `/users/friendRequests/${requestId}`,
-            { status }
+            { "status": status }
         )
             .then(() => {
                 if (action === 'accept') {
@@ -183,7 +183,7 @@ const DashboardPage: React.FC = () => {
 
         apiService.put<GameInvitation>(
             `/games/invitations/${gameId}`, 
-            { status }
+            { "status": status }
         )
             .then(() => {
                 alert(`Game invitation ${status}!`);
