@@ -80,20 +80,25 @@ reason).
 
 | **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
-| **[@githubUser1]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **[@githubUser2]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **[@githubUser3]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **[@githubUser4]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **[@githubUser5]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **Alumen-Eng** | 15.04.2025   | [Commit bb8691d](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/6bb8691d) | Websocket connection working | Websocket is important to keep gamestate update to date for multiple users |
+|                    | 16.04.2025   | [Commit 2425b1a](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/2425b1a) | Refilling hand using tiles from backend after commit | a player always needs to have 7 tiles in their hand |
+|                    | 16.04.2025   | [Commit f644b55](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/f644b55) | Comitted tiles are immutable | Tiles on the board should not be moveable anymore |
+|                    | 16.04.2025   | [Commit a8e35bd](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/a8e35bd) | Exchanging tiles for new ones | To refill hand with possibly more useful tiles |
+| **AfNuDhRrIeNr** | 09.04.2025   | [Commit 8679316](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/8679316ca7ea2ecdf7b7c6d3e4f042f0b53d640a)| implement letterCount constant, implemented letterBag game entity | Keeping track of the letters left |
+|                    | 14.04.2025   | [Commit 7048d7a](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/7048d7a934656fa311dcbf6013c6af0e221df96d) | implementing exchangeTiles, assignTiles, getRemainingLetters endpoint & the corresponding logic | assigning tiles, exchanging tiles and ask for remaining letters |
+|                    | 15.04.2025   | [Commit 774e004](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/774e0041ae1c39242b8cc699f8e34b847950fd5b) | Bugfix exchange tiles & bugfix lobby creation | player wants to exchange tiles & player want to create lobby |
+| **LucKer58** | 10.04.25   | [Commit c1fba12](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/c1fba128bc4535cf4c8005afd2b9d6e084cec7df) | implement LetterPoints constant and BoardStatus constant | For calculation of the points of a move |
+|                    | 12-13.04.25   | [Commit dea36b0](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/dea36b0050aef84b1e141e4be985fb7bbfdc6dbc) | Add MoveSubmitService to calculate points for a move and persist new GameBoard | needed to inform players on points |
+| **Mex7180** | 15.04.2025   | [Commit 8a52e6c](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/8a52e6cd1fee414e58e04f77e2e057bcce35ce24) | Implement FriendRequests GET, POST, PUT endpoint. Required updates to user entity (fix infinite self referencing) | Enables the whole invite friends and play with friends workflow. |
+|                    | 15.04.2024   | [Commit 6ac4a30](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/6ac4a308378bc619aedca17680ffabf604aee738) | Adjust GET users endpoint to allow for filtering and sorting of users] | For Leaderboard and frontend to detailed user information for one user only |
+| **SilvanKasper**  | 10.04.25   | [Commit f8afb93](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/f8afb933bc081ab7d8e66a78838b90ae99153270) [Commit c1a09c5](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/c1a09c5dd55bc3dbb59e84827cef1db8ba163aa0) | Implement Logic for GameInvitations and FriendRequests | Both must work before two players can play against eachother |
+|                    | 12.04.25   | [Commit 789b68f](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/789b68fd857dc3b6a11a79131028c67187e28109) [Commit 5a9c9a1](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/5a9c9a1ea7465544c07858f4091c412ffa7e86bf)| GameState: Add Timer, Custom Modals and adapt Button hovering | Those are important parts of our GameState page, relevant to play |
+|                    | 14.04.25   | [Commit bc69a1b](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/bc69a1b84eea788f1ea1fb0e5712f56156325227) [Commit 5ae926a](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/5ae926a96e762f20b9f3173996d7fc96123c896e)| Handle Authorization for all API Requests and complete their implementation | Authorization is used all over our API and thus very important |
+|                    | 15.04.25   | [Commit 0f0d461](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/0f0d4619f866f603cac0982fc1c9b58a3d2293d7) | Polling for FriendRequests, FriendList and GameInvitations | Needed for two player version of ScrabbleNow |
 
 ---
 
-## Contributions Week 4 - [Begin Date] to [End Date]
+## Contributions Week 4 - [16.04.25] to [30.04.25]
 
 
 | **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |

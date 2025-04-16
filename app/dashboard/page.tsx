@@ -156,6 +156,7 @@ const DashboardPage: React.FC = () => {
             });
     };
 
+
     // Function to create a new game state
     const createGamestate = async () => {
         try {
@@ -229,8 +230,10 @@ const DashboardPage: React.FC = () => {
             router.push("/login"); // Redirect to login
         } catch (error) {
             console.error("Error during logout:", error);
-        }
+        };
+
     };
+
 
     return (
         <div className="dashboard-page">
