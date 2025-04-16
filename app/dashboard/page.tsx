@@ -32,6 +32,7 @@ interface Game {
 interface GameInvitation {
     id: number;
     sender: User;
+    game: Game;
     status: string; // PENDING, ACCEPTED, DECLINED
 }
 
@@ -174,26 +175,26 @@ const DashboardPage: React.FC = () => {
     };
 
     // Function to accept or decline game invitations
-    const handleInvitation = async (gameId: number, action: 'play' | 'decline') => {
+    const handleInvitation = async (invitationId: number, action: 'play' | 'decline') => {
         const status = action === 'play' ? 'ACCEPTED' : 'DECLINED';
         
         // Optimistically update the UI by removing the invitation from the pending list
-        const updatedPendingInvitations = pendingInvitations.filter((invitation) => invitation.id !== gameId);
+        const updatedPendingInvitations = pendingInvitations.filter((invitation) => invitation.id !== invitationId);
         setPendingInvitations(updatedPendingInvitations);
 
         try {
             const response = await apiService.put<GameInvitation>(
-                `/games/invitations/${gameId}`, 
+                `/games/invitations/${invitationId}`, 
                 { "status": status }
             );
-            if (action === 'play' && response.id) {
+            if (action === 'play' && response.game.id) {
                 // Redirect to the correct lobby
-                router.push(`/lobby/${response.id}`);
+                router.push(`/lobby/${response.game.id}`);
             }
         } catch (error) {
             console.error(`Error handling game invitation (${action}):`, error);
             alert(`Failed to ${action} the game invitation`);
-            setPendingInvitations([...updatedPendingInvitations, pendingInvitations.find((invitation) => invitation.id === gameId)!]);
+            setPendingInvitations([...updatedPendingInvitations, pendingInvitations.find((invitation) => invitation.id === invitationId)!]);
         };
     };
 
