@@ -7,6 +7,8 @@ import "@ant-design/v5-patch-for-react-19";
 //import { useRouter } from "next/navigation";
 import Image from "next/image";
 import "../lobby.css";
+import { useApi } from "@/hooks/useApi";
+
 // Optionally, you can import a CSS module or file for additional styling:
 // import styles from "@/styles/page.module.css";
 
@@ -16,15 +18,59 @@ const Lobby: React.FC = () => {
   const router = useRouter();
   const [isAlone, setIsAlone] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editValue, setEditValue] = useState("");
+  const [newPlayerUsername, setnewPlayerUsername] = useState("");
+  const [sentInvitations, setSentInvitations] = useState<SentInvitation[]>([]);
+  
   const [username, setUsername] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  // const [userId, setUserId] = useState<string | null>(null);
   const { id } = useParams();
+  const apiService = useApi();
+  
+  interface Game {
+    gameId: number;
+    users: User[];
+    status: string; // CREATED, ONGOING, TERMINATED
+  }
 
+  interface User {
+    token: string;
+    id: number;
+    username: string;
+}
+
+  interface SentInvitation {
+    gameId: number;
+    targetUsername: string;
+}
 
   useEffect(()=> {
       setUsername(localStorage.getItem("username"));
+      setToken(localStorage.getItem("token"));
+      // setUserId(localStorage.getItem("userId"));
   }, []);
-  // const apiService = useApi();
+
+  useEffect(() => {
+    if (!token) return;
+
+    const pollGame = () => {
+        apiService.get<Game>(`/games/${id}`)
+            .then((game) => {
+                const guest = game.users.length > 1 ? game.users.find((user) => user.token !== token) : null;
+                if (guest) {
+                    // User is in the game, update state accordingly
+                    setIsAlone(false);
+                    setnewPlayerUsername(guest.username);
+                }
+            })
+            .catch((error) => console.error("Error polling game invitation status:", error));
+    };
+    
+    const intervalId = setInterval(pollGame, 5000); // Poll every 5 seconds
+
+    return () => clearInterval(intervalId); // Cleanup on unmount
+  }, [token, sentInvitations, apiService, router]);
+
   // const [form] = Form.useForm();
   // useLocalStorage hook example use
   // The hook returns an object with the value and two functions
@@ -43,14 +89,43 @@ const Lobby: React.FC = () => {
   }
 
   const startGame = () => {
-    router.push(`/gamestate/${id}`)
+    // PUT /games/{id}
+    apiService.put<Game>(`/games/${id}`, {
+      status: "ONGOING",
+    })
+      .then((data) => {
+        console.log("Game started successfully:", data);
+        router.push(`/gamestate/${id}`);
+      })
+      .catch((error) => {
+        console.error("Error starting game:", error);
+        alert("Failed to start the game. Please try again.");
+      });
   }
 
   const handleInvite = () => {
-    alert(`Invite to ${editValue} was sent!`);
-    setIsAlone(false);
-    setIsModalVisible(false);
-  }
+    if (!newPlayerUsername.trim()) {
+        alert("Please enter a valid username.");
+        return;
+    }
+
+    apiService.post<SentInvitation>(
+        "/games/invitations",
+        {
+            gameId: id, // Use the game ID from the URL
+            targetUsername: newPlayerUsername.trim(), // The username entered in the modal
+        }
+      )
+        .then((data) => {
+            alert(`Invitation sent to ${newPlayerUsername.trim()}!`);
+            setIsModalVisible(false); // Close the modal
+            setSentInvitations((prev) => [...prev, data]); // Update the state with the new invitation
+        })
+        .catch((error) => {
+            console.error("Error sending game invitation:", error);
+            alert("Failed to send the invitation. Please try again.");
+        });
+};
 
 
 return (
@@ -124,7 +199,7 @@ return (
             priority
           />
           <div>
-            {isAlone ? "?" : editValue}
+            {isAlone ? "?" : newPlayerUsername}
           </div>
         </div>
       </div>
@@ -167,8 +242,8 @@ return (
       >
         <Input
         type="string"
-        value = {editValue}
-        onChange = {(e) => setEditValue(e.target.value)}
+        value = {newPlayerUsername}
+        onChange = {(e) => setnewPlayerUsername(e.target.value)}
         placeholder="Enter username"
         >
         </Input>

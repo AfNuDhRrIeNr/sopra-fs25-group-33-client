@@ -16,7 +16,7 @@ const Login: React.FC = () => {
 
   const handleRegister = async (values: { username: string; password: string }) => {
     try {
-      const response = await apiService.post<User>("/users/register", values);
+      const response = await apiService.post<User>("/users/register", values, false);
       if (response.token && response.id && response.username) {
         setToken(response.token);  // Remove any extra quotes
         setUserId(response.id);
@@ -31,7 +31,7 @@ const Login: React.FC = () => {
 
   const handleLogin = async (values: { username: string; password: string }) => {
     try {
-      const response = await apiService.post<User>("/users/login", values);
+      const response = await apiService.post<User>("/users/login", values, false);
 
       if (response.token && response.id && response.username) {
         setToken(response.token);
