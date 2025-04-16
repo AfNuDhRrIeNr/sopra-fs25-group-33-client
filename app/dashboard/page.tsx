@@ -13,7 +13,6 @@ interface FriendRequest {
     status: string; // PENDING, ACCEPTED, DECLINED
 }
 
-// TODO Add id to keep ordering inside FriendsList
 interface Friend {
     name: string;
 }
@@ -33,6 +32,7 @@ interface Game {
 interface GameInvitation {
     id: number;
     sender: User;
+    game: Game;
     status: string; // PENDING, ACCEPTED, DECLINED
 }
 
@@ -84,7 +84,7 @@ const DashboardPage: React.FC = () => {
             
             apiService.get<User[]>(`/users?userId=${userId}`)
                 .then((data) => {
-                    const user = (data[0] || {}) as User; // TODO Assuming the first user is the logged-in user
+                    const user = (data[0] || {}) as User;
                     const friendsList = (user.friends || []).map((username) => ({
                         name: username, // Map the username to the Friend interface
                     }));
@@ -177,27 +177,28 @@ const DashboardPage: React.FC = () => {
     };
 
     // Function to accept or decline game invitations
-    const handleInvitation = async (gameId: number, action: 'play' | 'decline') => {
+    const handleInvitation = async (invitationId: number, action: 'play' | 'decline') => {
         const status = action === 'play' ? 'ACCEPTED' : 'DECLINED';
         
         // Optimistically update the UI by removing the invitation from the pending list
-        const updatedPendingInvitations = pendingInvitations.filter((invitation) => invitation.id !== gameId);
+        const updatedPendingInvitations = pendingInvitations.filter((invitation) => invitation.id !== invitationId);
         setPendingInvitations(updatedPendingInvitations);
 
-        await apiService.put<GameInvitation>(
-            `/games/invitations/${gameId}`, 
-            { "status": status }
-        )
-            .then(() => {
-                if (action === 'play') {
-                    router.push(`/lobby/${gameId}`);
-                }
-            })
-            .catch((error) => {
-                console.error(`Error handling game invitation (${action}):`, error);
-                alert(`Failed to ${action} the game invitation`);
-                setPendingInvitations([...updatedPendingInvitations, pendingInvitations.find((invitation) => invitation.id === gameId)!]);
-            });
+        try {
+            const response = await apiService.put<GameInvitation>(
+                `/games/invitations/${invitationId}`, 
+                { "status": status }
+            );
+            if (action === 'play' && response.game.id) {
+                // Redirect to the correct lobby
+                router.push(`/lobby/${response.game.id}`);
+            }
+        } catch (error) {
+            console.error(`Error handling game invitation (${action}):`, error);
+            alert(`Failed to ${action} the game invitation`);
+            setPendingInvitations([...updatedPendingInvitations, pendingInvitations.find((invitation) => invitation.id === invitationId)!]);
+        };
+
     };
 
     // Function to handle click on user icon
