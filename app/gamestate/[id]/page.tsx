@@ -135,6 +135,19 @@ const Gamestate: React.FC = () => {
         setUserId(localStorage.getItem("userId"));
     }, []); 
     
+    const dictifyMatrix = (matrix: string[][]) => {
+        const dict: { [key: string]: string | null } = {};
+        for (let row = 0; row < matrix.length; row++) {
+            for (let col = 0; col < matrix[row].length; col++) {
+                if (matrix[row][col] !== "") {
+                    const key = `${col}-${row}`;
+                    dict[key] = `/letters/${matrix[row][col]} Tile 70.jpg`;
+                }
+            }
+        }
+        return dict;
+    }
+
     useEffect(() => {
         const connectWebSocket = () => {
             const socket = new SockJS(URL + "/connections"); // Your WebSocket URL
@@ -153,6 +166,10 @@ const Gamestate: React.FC = () => {
                     const response = JSON.parse(message.body);
                     if (response.messageStatus.toString() === "SUCCESS")
                     {
+                        const newBoardTiles = response.gameState.board;
+                        const parsedBoardTiles = dictifyMatrix(newBoardTiles);
+                        setBoardTiles(parsedBoardTiles);
+                        setImmutableBoardTiles(prev => ({ ...prev, ...parsedBoardTiles })); // Store immutable tiles
                         setUserTurn(!isUserTurn);
                     }
                 });
@@ -539,6 +556,7 @@ const Gamestate: React.FC = () => {
         setTileOnBoard(mutableTiles.length > 0);
         setMoveVerified(false);
         setTileSelected(selectedTiles.length > 0);
+        console.log(boardTiles);
     }, [boardTiles, selectedTiles, tilesInHand]);
     
     // Timer logic
