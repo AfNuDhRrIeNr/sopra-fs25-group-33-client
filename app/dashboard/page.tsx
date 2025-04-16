@@ -141,7 +141,6 @@ const DashboardPage: React.FC = () => {
             { status }
         )
             .then(() => {
-                alert(`Friend request ${status}!`);
                 if (action === 'accept') {
                     const acceptedRequest = pendingRequests.find((req) => req.id === requestId);
                     if (acceptedRequest) {
