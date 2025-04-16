@@ -117,7 +117,6 @@ const Lobby: React.FC = () => {
         }
       )
         .then((data) => {
-            alert(`Invitation sent to ${newPlayerUsername.trim()}!`);
             setIsModalVisible(false); // Close the modal
             setSentInvitations((prev) => [...prev, data]); // Update the state with the new invitation
         })

@@ -236,8 +236,8 @@
 /* Red notification dot */
 .notification-dot {
   position: absolute;
-  top: 5;
-  right: 5;
+  top: 5px;
+  right: 5px;
   width: 15px;
   height: 15px;
   background-color: var(--Button-red);

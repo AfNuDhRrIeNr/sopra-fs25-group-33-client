@@ -120,7 +120,6 @@ const DashboardPage: React.FC = () => {
              }
         )
             .then((data) => {
-                alert('Friend request sent!');
                 setSentRequests([...sentRequests, data]);
                 setNewFriendUsername(''); // Reset input
                 setIsAddFriendModalOpen(false); // Close modal
@@ -187,7 +186,6 @@ const DashboardPage: React.FC = () => {
             { "status": status }
         )
             .then(() => {
-                alert(`Game invitation ${status}!`);
                 if (action === 'play') {
                     router.push(`/lobby/${gameId}`);
                 }
