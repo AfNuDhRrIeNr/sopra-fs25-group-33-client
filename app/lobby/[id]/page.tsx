@@ -109,6 +109,10 @@ const Lobby: React.FC = () => {
         alert("Please enter a valid username.");
         return;
     }
+    else if (newPlayerUsername.trim() === username) {
+        alert("You cannot invite yourself.");
+        return;
+    }
 
     apiService.post<SentInvitation>(
         "/games/invitations",
@@ -118,7 +122,6 @@ const Lobby: React.FC = () => {
         }
       )
         .then((data) => {
-            alert(`Invitation sent to ${newPlayerUsername.trim()}!`);
             setIsModalVisible(false); // Close the modal
             setSentInvitations((prev) => [...prev, data]); // Update the state with the new invitation
         })

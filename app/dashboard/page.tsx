@@ -111,7 +111,10 @@ const DashboardPage: React.FC = () => {
         if (!newFriendUsername.trim()) {
             alert('Please enter a valid username.');
             return;
-        }
+        } else if (newFriendUsername.trim() === username) {
+            alert('You cannot send a friend request to yourself.');
+            return;
+        };
 
         apiService.post<FriendRequest>(
             '/users/friendRequests', 
@@ -120,7 +123,6 @@ const DashboardPage: React.FC = () => {
              }
         )
             .then((data) => {
-                alert('Friend request sent!');
                 setSentRequests([...sentRequests, data]);
                 setNewFriendUsername(''); // Reset input
                 setIsAddFriendModalOpen(false); // Close modal
@@ -196,6 +198,7 @@ const DashboardPage: React.FC = () => {
             alert(`Failed to ${action} the game invitation`);
             setPendingInvitations([...updatedPendingInvitations, pendingInvitations.find((invitation) => invitation.id === invitationId)!]);
         };
+
     };
 
     // Function to handle click on user icon
