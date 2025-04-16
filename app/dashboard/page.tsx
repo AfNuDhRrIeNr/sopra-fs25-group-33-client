@@ -28,7 +28,6 @@ interface Game {
     id: number;
     host: string;
     status: string;
-    users: User[]; // List of users in the game
 }
 
 interface GameInvitation {
@@ -191,18 +190,7 @@ const DashboardPage: React.FC = () => {
         )
             .then(() => {
                 if (action === 'play') {
-                    apiService.get<Game>(`/games/${gameId}`)
-                        .then((game) => {
-                            const isFull = game.users.length > 1;
-                            if (!isFull) {
-                                router.push(`/lobby/${gameId}`);
-                            }
-                            else {
-                                alert("The lobby is already full. You sadly cannot join.");
-                                return;
-                            }
-                        })
-                        .catch((error) => console.error("Error polling game invitation status:", error));
+                    router.push(`/lobby/${gameId}`);
                 }
             })
             .catch((error) => {
