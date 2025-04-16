@@ -108,6 +108,10 @@ const Lobby: React.FC = () => {
         alert("Please enter a valid username.");
         return;
     }
+    else if (newPlayerUsername.trim() === username) {
+        alert("You cannot invite yourself.");
+        return;
+    }
 
     apiService.post<SentInvitation>(
         "/games/invitations",
