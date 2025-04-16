@@ -11,6 +11,7 @@ import { useApi } from "@/hooks/useApi";
 
 // Optionally, you can import a CSS module or file for additional styling:
 // import styles from "@/styles/page.module.css";
+// TODO send both players into the same lobby in every case
 
 const Lobby: React.FC = () => {
   const games = 0;
