@@ -15,7 +15,7 @@ import SockJS from "sockjs-client";
 import "../playerHand.css";
 import "../playingButtons.css";
 import "../top.css";
-import CustomModal from "../components/customModal";
+import { CustomAlertModal } from "@/components/customModal"; // Import CustomAlertModal
 import { getApiDomain } from "@/utils/domain";
 
 // TODO: Replace some alerts with customModal
@@ -815,7 +815,7 @@ const Gamestate: React.FC = () => {
                             </Button>
                         </div>
                     </div>
-                    <CustomModal
+                    <CustomAlertModal
                     visible={modalVisible}
                     title={modalTitle}
                     message={modalMessage}
