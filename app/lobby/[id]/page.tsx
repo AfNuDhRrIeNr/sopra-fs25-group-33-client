@@ -8,10 +8,8 @@ import "@ant-design/v5-patch-for-react-19";
 import Image from "next/image";
 import "../lobby.css";
 import { useApi } from "@/hooks/useApi";
+import { CustomInputModal } from "@/components/customModal";
 
-// Optionally, you can import a CSS module or file for additional styling:
-// import styles from "@/styles/page.module.css";
-// TODO send both players into the same lobby in every case
 
 const Lobby: React.FC = () => {
   const games = 0;
@@ -25,13 +23,15 @@ const Lobby: React.FC = () => {
   const [username, setUsername] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
   // const [userId, setUserId] = useState<string | null>(null);
+  const [isHost, setIsHost] = useState(false);
   const { id } = useParams();
   const apiService = useApi();
   
   interface Game {
     gameId: number;
     users: User[];
-    status: string; // CREATED, ONGOING, TERMINATED
+    host: User;
+    gameStatus: string; // CREATED, ONGOING, TERMINATED
   }
 
   interface User {
@@ -48,7 +48,6 @@ const Lobby: React.FC = () => {
   useEffect(()=> {
       setUsername(localStorage.getItem("username"));
       setToken(localStorage.getItem("token"));
-      // setUserId(localStorage.getItem("userId"));
   }, []);
 
   useEffect(() => {
@@ -63,8 +62,14 @@ const Lobby: React.FC = () => {
                     setIsAlone(false);
                     setnewPlayerUsername(guest.username);
                 }
+                if (!isHost) {
+                setIsHost(game.host.token === token); // Check if the current user is the host
+                }
+                if (game.gameStatus === "ONGOING") {
+                  router.push(`/gamestate/${id}`); // Redirect if the game has started
+                }
             })
-            .catch((error) => console.error("Error polling game invitation status:", error));
+            .catch((error) => console.error("Error polling game status:", error));
     };
     
     const intervalId = setInterval(pollGame, 5000); // Poll every 5 seconds
@@ -72,10 +77,6 @@ const Lobby: React.FC = () => {
     return () => clearInterval(intervalId); // Cleanup on unmount
   }, [token, sentInvitations, apiService, router]);
 
-  // const [form] = Form.useForm();
-  // useLocalStorage hook example use
-  // The hook returns an object with the value and two functions
-  // Simply choose what you need from the hook:
   const handleButtonClick = () => {
     router.push("/dashboard");
   };
@@ -92,7 +93,7 @@ const Lobby: React.FC = () => {
   const startGame = () => {
     // PUT /games/{id}
     apiService.put<Game>(`/games/${id}`, {
-      status: "ONGOING",
+      gameStatus: "ONGOING",
     })
       .then((data) => {
         console.log("Game started successfully:", data);
@@ -208,12 +209,16 @@ return (
         </div>
       </div>
       <div id = "lowerScreen">
-        <button className = "nav_button" 
-        id = "invitePlayer"
-        onClick = {isAlone ? openEditModal : startGame}
-        style = {{background: "#4AAC55"}}>
-          {isAlone ? "Invite Player" : "Start Game"}
-        </button>
+        {(isAlone || isHost) && (
+          <button
+            className="nav_button"
+            id="invitePlayer"
+            onClick={isAlone ? openEditModal : startGame}
+            style={{ background: "#4AAC55" }}
+          >
+            {isAlone ? "Invite Player" : "Start Game"}
+          </button>
+        )}
         <div id= "settings">          
           <span>Game Information:</span>
           <span>Players: <span>2</span></span>
@@ -231,27 +236,15 @@ return (
             />
         </div>
       </div>
-      <Modal
-      title = {`Send lobby invite`}
-      open = {isModalVisible}
-      onCancel = {() => setIsModalVisible(false)}
-      footer = {[
-        <Button key = "cancel" onClick = {() => setIsModalVisible(false)}>
-          Cancel
-        </Button>,
-        <Button key = "Send" type="primary" onClick = {handleInvite}>
-          Send
-        </Button>
-      ]}
-      >
-        <Input
-        type="string"
-        value = {newPlayerUsername}
-        onChange = {(e) => setnewPlayerUsername(e.target.value)}
-        placeholder="Enter username"
-        >
-        </Input>
-      </Modal>
+      <CustomInputModal
+      visible={isModalVisible}
+      title="Send Game Invitation"
+      placeholder="Enter username"
+      onSubmit={handleInvite}
+      onCancel={() => setIsModalVisible(false)}
+      inputValue={newPlayerUsername}
+      onInputChange={(e) => setnewPlayerUsername(e.target.value)}
+      />
     </main>
 
   </div>
