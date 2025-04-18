@@ -102,13 +102,38 @@ interface GameState {
     playerId: string;
 }
 
+interface Game {
+    gameId: number;
+    users: User[];
+    status: string; // CREATED, ONGOING, TERMINATED
+    hostTurn: boolean;
+    host: User;
+    playerPoints: { [userId: string]: number }; // Dictionary with user IDs as keys and points as values
+}
+
+interface User {
+    token: string;
+    id: number;
+    username: string;
+}
+
+const defaultUser: User = {
+    token: "",
+    id: 0,
+    username: "Unkown",
+}
+
+interface GamePutDTO {
+    gameStatus: string | null;
+    newTiles: string[];
+}
+
 const Gamestate: React.FC = () => {
     const [letter, setLetter] = useState("");
     const [number, setNumber] = useState<number | null>(null);
     const [submittedLetter, setSubmittedLetter] = useState("");
     const apiService = useApi();
     const [userId, setUserId] = useState<string | null>(null);
-    const [username, setUsername] = useState<string | null>(null);
     const [token, setToken] = useState<string | null>(null);
     const [tilesInHand, setTilesInHand] = useState <(string | null)[]>(new Array(7).fill(null));
     const [selectedTiles, setSelectedTiles ] = useState<number[]>([]);
@@ -127,12 +152,37 @@ const Gamestate: React.FC = () => {
     const [modalTitle, setModalTitle] = useState("");
     const [modalMessage, setModalMessage] = useState("");
     const URL = getApiDomain();
+    const [playerPoints, setPlayerPoints] = useState< {[key:string]: number | null}>({}); // initialize with 0 points each
+    const [playerHands, setPlayerHands] = useState<{ [key: string]: string[] }>({});
+    const [gameHost, setGameHost] = useState<User>(defaultUser);
+    const [gameGuest, setGameGuest] = useState<User>(defaultUser);
 
 
     useEffect(()=> {
         setToken(localStorage.getItem("token"));
-        setUsername(localStorage.getItem("username"));
         setUserId(localStorage.getItem("userId"));
+        
+        apiService.get<Game>(`/games/${id}`)
+            .then((game) => {
+                setGameHost(game.host);
+                setGameGuest(game.users[1]);
+
+                setPlayerPoints({
+                    [game.host.id]: 0,
+                    [game.users[1].id]: 0,
+                });
+
+
+                if (game.host.token === localStorage.getItem("token")) {
+                    setUserTurn(game.hostTurn);
+                } else {
+                    setUserTurn(!game.hostTurn);
+                }
+
+            })
+            .catch((error) => console.error("Error retrieving game information:", error));
+        assignTilesToPlayer(gameHost.id, 7);
+        assignTilesToPlayer(gameGuest.id, 7);
     }, []); 
     
     const dictifyMatrix = (matrix: string[][]) => {
@@ -170,7 +220,8 @@ const Gamestate: React.FC = () => {
                         const parsedBoardTiles = dictifyMatrix(newBoardTiles);
                         setBoardTiles(parsedBoardTiles);
                         setImmutableBoardTiles(prev => ({ ...prev, ...parsedBoardTiles })); // Store immutable tiles
-                        setUserTurn(!isUserTurn);
+                        setUserTurn(userId !== response.gameState.playerId);
+                        // setPlayerPoints(response.gameState.playerPoints[])
                     }
                 });
 
@@ -253,7 +304,7 @@ const Gamestate: React.FC = () => {
         }
         try 
         {                               
-            const response = await apiService.get<number>(`/games/${id}/letters/${letter}`); // ! Endpoint not as in specifications
+            const response = await apiService.get<number>(`/games/${id}/letters/${letter}`); 
             
             if (response != null) {
                 setNumber(response);
@@ -410,13 +461,13 @@ const Gamestate: React.FC = () => {
         setBoardTiles(updatedBoard);
     }
 
-    const setHandImageAt = (index: number, imagePath: string | null) => {
-        setTilesInHand(prev => {
-            const updated = [...prev];
-            updated[index] = imagePath;
-            return updated;
-        })
-    }
+    // const setHandImageAt = (index: number, imagePath: string | null) => {
+    //     setTilesInHand(prev => {
+    //         const updated = [...prev];
+    //         updated[index] = imagePath;
+    //         return updated;
+    //     })
+    // }
 
       // Handle drag start
     const handleDragStart = (e: React.DragEvent, index: number | null, col: number | null, row: number | null) => {
@@ -542,13 +593,13 @@ const Gamestate: React.FC = () => {
     }
     
     useEffect(() => {
-        setHandImageAt(0, "/letters/A Tile 70.jpg");
-        setHandImageAt(1, "/letters/B Tile 70.jpg");
-        setHandImageAt(2, "/letters/S Tile 70.jpg");
-        setHandImageAt(3, "/letters/R Tile 70.jpg");
-        setHandImageAt(4, "/letters/T Tile 70.jpg");
-        setHandImageAt(5, "/letters/T Tile 70.jpg");
-        setHandImageAt(6, "/letters/H Tile 70.jpg");
+        // setHandImageAt(0, "/letters/A Tile 70.jpg");
+        // setHandImageAt(1, "/letters/B Tile 70.jpg");
+        // setHandImageAt(2, "/letters/S Tile 70.jpg");
+        // setHandImageAt(3, "/letters/R Tile 70.jpg");
+        // setHandImageAt(4, "/letters/T Tile 70.jpg");
+        // setHandImageAt(5, "/letters/T Tile 70.jpg");
+        // setHandImageAt(6, "/letters/H Tile 70.jpg");
     }, []);
     
     useEffect(() => {
@@ -557,7 +608,7 @@ const Gamestate: React.FC = () => {
         setMoveVerified(false);
         setTileSelected(selectedTiles.length > 0);
         console.log(boardTiles);
-    }, [boardTiles, selectedTiles, tilesInHand]);
+    }, [boardTiles, selectedTiles, tilesInHand, playerPoints, immutableBoardTiles, playerHands]);
     
     // Timer logic
     const simulateGameStart = () => {
@@ -593,6 +644,29 @@ const Gamestate: React.FC = () => {
         return `${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
     };
 
+    const assignTilesToPlayer = async (userId: number, count: number) => {
+        try {
+            const response = await apiService.put<GamePutDTO>(
+                `/games/${id}/assign?count=${count}`,
+                {}
+            );
+    
+            if (response && response.newTiles) {
+                const newTiles = response.newTiles.map(
+                    (letter: string) => `/letters/${letter} Tile 70.jpg`
+                );
+    
+                // Update the tiles for the specific user
+                setPlayerHands((prev) => ({
+                    ...prev,
+                    [userId.toString()]: newTiles,
+                }));
+            }
+        } catch (error) {
+            console.error("Error assigning tiles:", error);
+            alert(`Failed to assign tiles: ${(error as Error).message}`);
+        }
+    };
 
     return (
         <div id="screen">
@@ -655,7 +729,7 @@ const Gamestate: React.FC = () => {
                             <div className="player-container" id="left-player">
                                 <div className="name-and-dot-container">
                                     <div className="player-name">
-                                        {username ? username : "Host"}
+                                        {gameHost.username ? gameHost.username : "Host"}
                                     </div>
                                     <div className="dot-container">                                
                                         <div className={`turn-dot ${isUserTurn ? 'active-dot' : ''}`}>
@@ -663,13 +737,13 @@ const Gamestate: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className="player-points">
-                                    100
+                                    {playerPoints[gameHost.id]}
                                 </div>
                             </div>
                             <div className="player-container">
                                 <div className="name-and-dot-container">
                                     <div className="player-name">
-                                        Guest
+                                        {gameGuest.username ? gameGuest.username : "Guest"}
                                     </div>
                                     <div className="dot-container">                                
                                         <div className={`turn-dot ${!isUserTurn ? 'active-dot' : ''}`}>
@@ -678,7 +752,7 @@ const Gamestate: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className="player-points">
-                                    0
+                                    {playerPoints[gameGuest.id]}
                                 </div>
                             </div>
                         </div>

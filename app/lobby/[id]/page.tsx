@@ -31,7 +31,7 @@ const Lobby: React.FC = () => {
   interface Game {
     gameId: number;
     users: User[];
-    status: string; // CREATED, ONGOING, TERMINATED
+    gameStatus: string; // CREATED, ONGOING, TERMINATED
   }
 
   interface User {
@@ -63,6 +63,11 @@ const Lobby: React.FC = () => {
                     setIsAlone(false);
                     setnewPlayerUsername(guest.username);
                 }
+                const isGameOngoing = game.gameStatus === "ONGOING";
+                if (isGameOngoing) {
+                    // Redirect to the game state page if the game is ongoing
+                    router.push(`/gamestate/${id}`);
+                }
             })
             .catch((error) => console.error("Error polling game invitation status:", error));
     };
@@ -70,7 +75,7 @@ const Lobby: React.FC = () => {
     const intervalId = setInterval(pollGame, 5000); // Poll every 5 seconds
 
     return () => clearInterval(intervalId); // Cleanup on unmount
-  }, [token, sentInvitations, apiService, router]);
+  }, [token, sentInvitations, apiService, router, id]);
 
   // const [form] = Form.useForm();
   // useLocalStorage hook example use
@@ -92,7 +97,7 @@ const Lobby: React.FC = () => {
   const startGame = () => {
     // PUT /games/{id}
     apiService.put<Game>(`/games/${id}`, {
-      status: "ONGOING",
+      gameStatus: "ONGOING",
     })
       .then((data) => {
         console.log("Game started successfully:", data);
