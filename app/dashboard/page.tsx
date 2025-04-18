@@ -5,6 +5,7 @@ import './dashboard.css';
 import Image from "next/image";
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { CustomInputModal } from "@/components/customModal"; // Import CustomInputModal
 
 
 interface FriendRequest {
@@ -288,6 +289,16 @@ const DashboardPage: React.FC = () => {
                     </div>
                     <button className="add-friend-button" onClick={() => setIsAddFriendModalOpen(true)}>Add Friend</button>
                 </div>
+                {/* CustomInputModal for Adding Friend */}
+                <CustomInputModal
+                    visible={isAddFriendModalOpen}
+                    title="New Friend Request"
+                    placeholder="Enter Friend's Username"
+                    inputValue={newFriendUsername}
+                    onInputChange={(e) => setNewFriendUsername(e.target.value)}
+                    onSubmit={sendFriendRequest}
+                    onCancel={() => setIsAddFriendModalOpen(false)}
+                />
                 <div className="dashboard-section">
                     <h2>ScrabbleNow!</h2>
                     <div className="scrabble-now">
@@ -326,26 +337,6 @@ const DashboardPage: React.FC = () => {
                     </div>
                     <button className="show-more-button">Show more</button>
                 </div>
-                {/* Modal for Adding Friend */}
-                {isAddFriendModalOpen && (
-                    <div className="modal-overlay">
-                        <div className="modal">
-                            <h2>Add Friend</h2>
-                            <div className="modal-input-container">
-                            <input
-                                type="text"
-                                placeholder="Enter Friend's Username"
-                                value={newFriendUsername}
-                                onChange={(e) => setNewFriendUsername(e.target.value)}
-                            />
-                            <div className='modal-buttons'>
-                            <button className='modal-button-green' onClick={sendFriendRequest}>Send Request</button>
-                            <button className='modal-button-red' onClick={() => setIsAddFriendModalOpen(false)}>Cancel</button>
-                            </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
                 {/* Modal for Pending Friend Requests */}
                 {isPendingRequestsModalOpen && (
                   <div className="modal-overlay">
