@@ -1,8 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
 import "./customModal.css"; // Import centralized modal styles
-import { on } from "events";
 
 interface CustomAlertModalProps {
   visible: boolean;
@@ -41,7 +39,7 @@ interface CustomInputModalProps {
   onSubmit: (inputValue: string) => void;
   onCancel: () => void;
   inputValue: string; // Added inputValue property
-  onInputChange: (e: any) => void;
+  onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export const CustomInputModal: React.FC<CustomInputModalProps> = ({
