@@ -74,7 +74,7 @@ const Lobby: React.FC = () => {
     const intervalId = setInterval(pollGame, 5000); // Poll every 5 seconds
 
     return () => clearInterval(intervalId); // Cleanup on unmount
-  }, [token, sentInvitations, apiService, router]);
+  }, [token, sentInvitations, apiService, router, id]);
 
   const handleButtonClick = () => {
     router.push("/dashboard");
