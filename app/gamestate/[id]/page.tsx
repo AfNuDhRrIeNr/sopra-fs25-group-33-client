@@ -120,7 +120,7 @@ interface User {
 const defaultUser: User = {
     token: "",
     id: 0,
-    username: "Unkmown",
+    username: "Unknown",
 }
 
 interface GamePutDTO {
@@ -154,14 +154,15 @@ const Gamestate: React.FC = () => {
     const [modalMessage, setModalMessage] = useState("");
     const URL = getApiDomain();
     const [playerPoints, setPlayerPoints] = useState< {[key:string]: number | null}>({}); // initialize with 0 points each
-    const [playerHands, setPlayerHands] = useState<{ [key: string]: string[] }>({});
     const [gameHost, setGameHost] = useState<User>(defaultUser);
     const [gameGuest, setGameGuest] = useState<User>(defaultUser);
-
+    const [isInitialized, setIsInitialized] = useState(false);
+    const tilesInHandRef = useRef<(string | null)[]>(tilesInHand); // Create a ref to store the tiles in hand
 
     useEffect(()=> {
         setToken(localStorage.getItem("token"));
         setUserId(localStorage.getItem("userId"));
+        assignTilesToPlayer(7);
         
         apiService.get<Game>(`/games/${id}`)
             .then((game) => {
@@ -173,12 +174,11 @@ const Gamestate: React.FC = () => {
                     [game.users[1].id]: 0,
                 });
 
-                assignTilesToPlayer(game.host.id, 7);
-                assignTilesToPlayer(game.users[1].id, 7);
                 setPlayerAtTurn(game.host);
+                setIsInitialized(true); // Set initialized to true after fetching game data
             })
             .catch((error) => console.error("Error retrieving game information:", error));
-    }, []); 
+    }, [id]); 
 
     
     const dictifyMatrix = (matrix: string[][]) => {
@@ -195,6 +195,9 @@ const Gamestate: React.FC = () => {
     }
     
     useEffect(() => {
+        if (!isInitialized) return; // Wait until the game data is fetched
+
+
         const connectWebSocket = () => {
             const socket = new SockJS(URL + "/connections"); // Your WebSocket URL
             const stompClient = new Client({
@@ -210,21 +213,21 @@ const Gamestate: React.FC = () => {
                 stompClient.subscribe(`/topic/game_states/${id}`, (message) => {
                     console.log("Received global message:", message.body);
                     const response = JSON.parse(message.body);
-                    if (response.messageStatus.toString() === "SUCCESS")
-                        {
-                            const newBoardTiles = response.gameState.board;
-                            const parsedBoardTiles = dictifyMatrix(newBoardTiles);
-                            setBoardTiles(parsedBoardTiles);
+                    const action = response.gameState.action.toString();
+                    const responseStatus = response.messageStatus.toString();
+                    if (action === "SUBMIT" && responseStatus === "SUCCESS") {
+                        const newBoardTiles = response.gameState.board;
+                        const parsedBoardTiles = dictifyMatrix(newBoardTiles);
+                        setBoardTiles(parsedBoardTiles);
                         setImmutableBoardTiles(prev => ({ ...prev, ...parsedBoardTiles })); // Store immutable tiles
-                        // setUserTurn(userId !== response.gameState.playerId);
                         setPlayerAtTurn(prev => prev.id === gameHost.id ? gameGuest : gameHost); // Toggle player at turn
                         console.log(`Player at turn: ${playerAtTurn.username}`);
-                        
                         setPlayerPoints((prev) => ({
                             ...prev,
                             ...response.gameState.playerScores, // Merge new scores into the existing playerPoints
                         }));
-                    } else if (response.messageBody.toString() === "Move skipped") {
+                    } else if ((action === "SKIP" || 
+                                action === "EXCHANGE") && responseStatus === "SUCCESS") {
                         setPlayerAtTurn(prev => prev.id === gameHost.id ? gameGuest : gameHost); // Toggle player at turn
                     }
                 });
@@ -234,8 +237,12 @@ const Gamestate: React.FC = () => {
                     
                     // Assuming the backend sends something like { valid: true/false }
                     const response = JSON.parse(message.body);
-                    console.log(`parsed body: ${response.messageStatus.toString()}`);
+                    const action = response.gameState.action.toString();
+                    const responseStatus = response.messageStatus.toString();
+                    // console.log(`parsed body: ${response.messageStatus.toString()}`);
                     
+                    // console.log("messageStatus:", response.messageStatus.toString());
+                    // console.log("MessageStatus === SUCCESS:", response.messageStatus.toString() === "SUCCESS");
                     
                     //verify
                     if (response.messageStatus.toString() === "VALIDATION_SUCCESS") {
@@ -243,24 +250,29 @@ const Gamestate: React.FC = () => {
                         setMoveVerified(true);
                     } 
                     else if (response.messageStatus.toString() === "VALIDATION_ERROR") {
-                        alert("Validation failed.");
+                        alert(`${response.message.toString()}`);
                     } 
-                    
                     //submit
-                    else if (response.messageStatus.toString() === "SUCCESS") {
+                    else if (responseStatus === "SUCCESS" && action === "SUBMIT") {
                         const newUserLetters = response.gameState.userTiles
-                        const currentHand = playerHands[localStorage.getItem("userId")!] || []; // Get the current hand
+                        const currentHand = tilesInHandRef.current; // Get the current hand
+                        console.log("New user letters:", newUserLetters);
+                        console.log("Current hand:", currentHand);
                         
-                        
-                        const updatedHand = currentHand.map((tile) =>
-                            tile === "" && newUserLetters.length > 0
-                                ? `/letters/${newUserLetters.shift()} Tile 70.jpg`
-                                : tile
-                            );
-                            setPlayerHands((prev) => ({
-                                ...prev,
-                                [localStorage.getItem("userId")!.toString()]: updatedHand,
-                        }));
+                        let letterIndex = 0; // Track the index of the next letter to use
+                        console.log(newUserLetters.length);
+                        const updatedHand = currentHand.map((tile) => {
+                            if ((tile === "" || tile === null) && letterIndex < newUserLetters.length) {
+                                const newLetter = newUserLetters[letterIndex]; // Get the letter at the current index
+                                console.log("Tile is empty, assigning new letter:", newLetter);
+                                letterIndex++; // Increment the index for the next letter
+                                return `/letters/${newLetter} Tile 70.jpg`;
+                            }
+                            return tile; // Keep the existing tile if it's not empty
+                        });
+
+                        console.log("Updated hand:", updatedHand);
+                        setTilesInHand(updatedHand);
                         setTileOnBoard(false);
                     } 
                     
@@ -271,18 +283,30 @@ const Gamestate: React.FC = () => {
             stompClient.activate();
             stompClientRef.current = stompClient;
         };
-        
+
+        if (tilesInHand) {
+            console.log("Tiles in hand:", tilesInHand);
+        }
         // Call the function to connect the WebSocket
-        connectWebSocket();
-        
+        if (gameHost.id && gameGuest.id && playerAtTurn.id && id && tilesInHand) {
+            connectWebSocket();
+        }
         // Cleanup WebSocket connection when the component unmounts
         return () => {
             if (stompClientRef.current) {
+                console.log("Disconnecting from WebSocket, self made log.");
                 stompClientRef.current.deactivate();
             }
         };
-    }, [gameHost, gameGuest, playerHands, playerAtTurn, id]); // Add dependencies to useEffect
+    }, [isInitialized]); // Add dependencies to useEffect
     
+    // const disconnectWebSocket = () => {
+    //     if (stompClientRef.current) {
+    //         console.log("Manually disconnecting from WebSocket.");
+    //         stompClientRef.current.deactivate();
+    //     }
+    // };
+
     const sendMessage = (messageBody: string) => {
         if (stompClientRef.current) {
             stompClientRef.current.publish({
@@ -407,6 +431,22 @@ const Gamestate: React.FC = () => {
             console.error("Exchange Error:", error);
             alert(`Exchange failed: ${(error as Error).message}`);
         }
+        if (!id) {
+            console.error("Game ID is null or undefined.");
+            return;
+        }
+        // Create the message body using the GameState interface
+        const messageBody: GameState = {
+            id: id.toString(),
+            board: Array(15).fill(Array(15).fill("")),
+            token: token!,
+            userTiles: Array(7).fill(""),
+            action: "EXCHANGE",
+            playerId: localStorage.getItem("userId")!,
+        };
+    
+        // Convert the object to a JSON string before sending
+        sendMessage(JSON.stringify(messageBody));
     }
 
     const skipTurn = () => {
@@ -433,7 +473,8 @@ const Gamestate: React.FC = () => {
         setMoveVerified(false);
         const matrix = constructMatrix(); // Get the constructed matrix
         const newTilesArray = tilesInHand.map(tile => tile ? tile[9] : "");
-    
+        const updatedTilesArray = tilesInHand.map(tile => tile ? tile : "");
+        setTilesInHand(updatedTilesArray); // Update the tiles in hand
         setImmutableBoardTiles(prev => ({ ...prev, ...boardTiles })); // Store the current board state
         
         if (!id) {
@@ -453,6 +494,10 @@ const Gamestate: React.FC = () => {
         // Convert the object to a JSON string before sending
         sendMessage(JSON.stringify(messageBody));
     };
+
+    useEffect (() => {
+        tilesInHandRef.current = tilesInHand; // Update the ref whenever tilesInHand changes
+    }, [tilesInHand])
 
     const handleSurrender = () => {
         showModal("Surrender", "You have surrendered!");
@@ -621,29 +666,18 @@ const Gamestate: React.FC = () => {
     }
     
     useEffect(() => {
-        // setHandImageAt(0, "/letters/A Tile 70.jpg");
-        // setHandImageAt(1, "/letters/B Tile 70.jpg");
-        // setHandImageAt(2, "/letters/S Tile 70.jpg");
-        // setHandImageAt(3, "/letters/R Tile 70.jpg");
-        // setHandImageAt(4, "/letters/T Tile 70.jpg");
-        // setHandImageAt(5, "/letters/T Tile 70.jpg");
-        // setHandImageAt(6, "/letters/H Tile 70.jpg");
-    }, []);
-    
-    useEffect(() => {
         const mutableTiles = Object.keys(boardTiles).filter(key => !immutableBoardTiles[key]);
         setTileOnBoard(mutableTiles.length > 0);
         setMoveVerified(false);
         setTileSelected(selectedTiles.length > 0);
-        console.log(boardTiles);
-        setUserTurn(userId == playerAtTurn.id.toString()); // Update user turn based on the current player at turn
-        // console.log(`User turn: ${userId} == ${playerAtTurn.id.toString()}`);
-    }, [boardTiles, selectedTiles, tilesInHand, playerPoints, immutableBoardTiles, playerHands, playerAtTurn]);
-    
+        // console.log(boardTiles);
+    }, [boardTiles, selectedTiles, tilesInHand, playerPoints, immutableBoardTiles]);
+
     useEffect(() => {
-        console.log("Player hands updated:", playerHands);
-        setTilesInHand(playerHands[localStorage.getItem("userId")!] || new Array(7).fill(null)); // Update tiles in hand based on player hands
-    }, [playerHands])
+        setUserTurn(userId === playerAtTurn.id.toString()); // Update user turn based on the current player at turn
+        console.log("User turn:", isUserTurn);
+        console.log("Player at turn:", playerAtTurn.username);
+    }, [playerAtTurn, userId]); // Add playerAtTurn as a dependency
 
     // Timer logic
     const simulateGameStart = () => {
@@ -679,7 +713,7 @@ const Gamestate: React.FC = () => {
         return `${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
     };
 
-    const assignTilesToPlayer = async (userId: number, count: number) => {
+    const assignTilesToPlayer = async (count: number) => {
         try {
             console.log(`Assigning ${count} tiles to user ${userId}`);
             const response = await apiService.put<GamePutDTO>(
@@ -688,15 +722,12 @@ const Gamestate: React.FC = () => {
             );
             console.log("Response from server for tile retrieval:", response);
             if (response && response.newTiles) {
-                const newTiles = response.newTiles.map(
+                const startingTiles = response.newTiles.map(
                     (letter: string) => `/letters/${letter} Tile 70.jpg`
                 );
-                console.log("New tiles:", newTiles);
+                console.log("New tiles:", startingTiles);
                 // Update the tiles for the specific user
-                setPlayerHands((prev) => ({
-                    ...prev,
-                    [userId.toString()]: newTiles,
-                }));
+                setTilesInHand(startingTiles);
             }
         } catch (error) {
             console.error("Error assigning tiles:", error);
