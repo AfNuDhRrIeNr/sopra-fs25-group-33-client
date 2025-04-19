@@ -220,7 +220,6 @@ const Gamestate: React.FC = () => {
                         setBoardTiles(parsedBoardTiles);
                         setImmutableBoardTiles(prev => ({ ...prev, ...parsedBoardTiles })); // Store immutable tiles
                         setPlayerAtTurn(prev => prev.id === gameHost.id ? gameGuest : gameHost); // Toggle player at turn
-                        console.log(`Player at turn: ${playerAtTurn.username}`);
                         setPlayerPoints((prev) => ({
                             ...prev,
                             ...response.gameState.playerScores, // Merge new scores into the existing playerPoints
@@ -237,39 +236,31 @@ const Gamestate: React.FC = () => {
                     const response = JSON.parse(message.body);
                     const action = response.gameState.action.toString();
                     const responseStatus = response.messageStatus.toString();
-                    // console.log(`parsed body: ${response.messageStatus.toString()}`);
-                    
-                    // console.log("messageStatus:", response.messageStatus.toString());
-                    // console.log("MessageStatus === SUCCESS:", response.messageStatus.toString() === "SUCCESS");
                     
                     //verify
                     if (response.messageStatus.toString() === "VALIDATION_SUCCESS") {
-                        alert("Validation successful!");
+                        showModal("Validation", "Validation successful!");
                         setMoveVerified(true);
                     } 
                     else if (response.messageStatus.toString() === "VALIDATION_ERROR") {
-                        alert(`${response.message.toString()}`);
+                        showModal("Validation", `Validation failed! Reason: ${response.message.toString().substring(16)}`);
                     } 
                     //submit
                     else if (responseStatus === "SUCCESS" && action === "SUBMIT") {
                         const newUserLetters = response.gameState.userTiles
                         const currentHand = tilesInHandRef.current; // Get the current hand
-                        console.log("New user letters:", newUserLetters);
-                        console.log("Current hand:", currentHand);
+                        
                         
                         let letterIndex = 0; // Track the index of the next letter to use
-                        console.log(newUserLetters.length);
                         const updatedHand = currentHand.map((tile) => {
                             if ((tile === "" || tile === null) && letterIndex < newUserLetters.length) {
                                 const newLetter = newUserLetters[letterIndex]; // Get the letter at the current index
-                                console.log("Tile is empty, assigning new letter:", newLetter);
                                 letterIndex++; // Increment the index for the next letter
                                 return `/letters/${newLetter} Tile 70.jpg`;
                             }
                             return tile; // Keep the existing tile if it's not empty
                         });
 
-                        console.log("Updated hand:", updatedHand);
                         setTilesInHand(updatedHand);
                         setTileOnBoard(false);
                     } 
@@ -282,9 +273,6 @@ const Gamestate: React.FC = () => {
             stompClientRef.current = stompClient;
         };
 
-        if (tilesInHand) {
-            console.log("Tiles in hand:", tilesInHand);
-        }
         // Call the function to connect the WebSocket
         if (gameHost.id && gameGuest.id && playerAtTurn.id && id && tilesInHand) {
             connectWebSocket();
@@ -292,7 +280,7 @@ const Gamestate: React.FC = () => {
         // Cleanup WebSocket connection when the component unmounts
         return () => {
             if (stompClientRef.current) {
-                console.log("Disconnecting from WebSocket, self made log.");
+                console.log("Disconnecting from WebSocket.");
                 stompClientRef.current.deactivate();
             }
         };
@@ -333,7 +321,7 @@ const Gamestate: React.FC = () => {
 
     const handleCheck = async () => {
         if (letter.length !== 1 || !/[a-zA-Z]/.test(letter)) { // ! Never reached since button is disabled
-            alert("Please enter a single letter.");
+            showModal("Error", "Please enter a single letter.");
             return;
         }
         try 
@@ -347,7 +335,7 @@ const Gamestate: React.FC = () => {
             }
         } catch (error) {
             console.error("Error:", error);
-            alert(`Retrieval failed: ${(error as Error).message}`);
+            showModal("Error", `Failed to retrieve letter count: ${(error as Error).message}`);
         }
     };
     
@@ -404,7 +392,7 @@ const Gamestate: React.FC = () => {
     const exchangeTiles = async () => {
         const tilesToExchange = selectedTiles.map((i) => tilesInHand[i]);
         const exchangeList = tilesToExchange.map(tile => tile ? tile[9] : "");
-        alert(`${exchangeList} were exchanged.`)
+        showModal("Exchange", `${exchangeList} were exchanged.`)
 
         try {
             const response = await apiService.put<ExchangeResponse>(
@@ -426,7 +414,7 @@ const Gamestate: React.FC = () => {
         }
         catch (error) {
             console.error("Exchange Error:", error);
-            alert(`Exchange failed: ${(error as Error).message}`);
+            showModal("Error", `Exchange failed: ${(error as Error).message}`);
         }
         if (!id) {
             console.error("Game ID is null or undefined.");
@@ -569,8 +557,12 @@ const Gamestate: React.FC = () => {
         const draggedImage = e.dataTransfer.getData("imageSrc");
         const draggedCol = parseInt(e.dataTransfer.getData("col"));
         const draggedRow = parseInt(e.dataTransfer.getData("row"));
-
+        console.log(draggedIndex)
         if (tilesInHand[index] !== null) {
+            if (!draggedIndex) {
+                showModal("Error", "Space is not free! \nSwapping is only possible between two tiles in Hand.");
+                return;
+            }
             const newTilesInHand = [...tilesInHand]; //copy so useEffect registers a change
             newTilesInHand[index] = draggedImage; //replace drop location src with original src
             newTilesInHand[parseInt(draggedIndex)] = tilesInHand[index]; //replace original src with drop location src
@@ -667,13 +659,10 @@ const Gamestate: React.FC = () => {
         setTileOnBoard(mutableTiles.length > 0);
         setMoveVerified(false);
         setTileSelected(selectedTiles.length > 0);
-        // console.log(boardTiles);
     }, [boardTiles, selectedTiles, tilesInHand, playerPoints, immutableBoardTiles]);
 
     useEffect(() => {
         setUserTurn(userId === playerAtTurn.id.toString()); // Update user turn based on the current player at turn
-        console.log("User turn:", isUserTurn);
-        console.log("Player at turn:", playerAtTurn.username);
     }, [playerAtTurn, userId]); // Add playerAtTurn as a dependency
 
     // Timer logic
@@ -712,23 +701,20 @@ const Gamestate: React.FC = () => {
 
     const assignTilesToPlayer = async (count: number) => {
         try {
-            console.log(`Assigning ${count} tiles to user ${userId}`);
             const response = await apiService.put<GamePutDTO>(
                 `/games/${id}/assign?count=${count}`,
                 {}
             );
-            console.log("Response from server for tile retrieval:", response);
             if (response && response.newTiles) {
                 const startingTiles = response.newTiles.map(
                     (letter: string) => `/letters/${letter} Tile 70.jpg`
                 );
-                console.log("New tiles:", startingTiles);
                 // Update the tiles for the specific user
                 setTilesInHand(startingTiles);
             }
         } catch (error) {
             console.error("Error assigning tiles:", error);
-            alert(`Failed to assign tiles: ${(error as Error).message}`);
+            showModal(`${(error as Error).message}`, "Failed to assign tiles.")
         }
     };
 
