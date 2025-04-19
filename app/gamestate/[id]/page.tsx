@@ -162,7 +162,6 @@ const Gamestate: React.FC = () => {
 
                 // Subscribe to the game state topic dynamically using the gameId
                 stompClient.subscribe(`/topic/game_states/${id}`, (message) => {
-                    console.log("Received global message:", message.body);
                     const response = JSON.parse(message.body);
                     if (response.messageStatus.toString() === "SUCCESS")
                     {
@@ -175,11 +174,9 @@ const Gamestate: React.FC = () => {
                 });
 
                 stompClient.subscribe(`/topic/game_states/users/${localStorage.getItem("userId")}`, (message) => {
-                    console.log("Received personal response:", message.body);
                     
                     // Assuming the backend sends something like { valid: true/false }
                     const response = JSON.parse(message.body);
-                    console.log(`parsed body: ${response.messageStatus.toString()}`);
                     
                     
                     //verify
@@ -225,7 +222,6 @@ const Gamestate: React.FC = () => {
                 destination: `/ws/game_states/${id}`,
                 body: messageBody,
             });
-            console.log(`Message sent to /ws/game_states/${id}:`, messageBody);
         }
 
     };
@@ -323,7 +319,7 @@ const Gamestate: React.FC = () => {
 
         try {
             const response = await apiService.put<ExchangeResponse>(
-                `/games/${userId}/exchange`,
+                `/games/${id}/exchange`,
                 exchangeList,
             );
             if (response != null) {
@@ -556,7 +552,6 @@ const Gamestate: React.FC = () => {
         setTileOnBoard(mutableTiles.length > 0);
         setMoveVerified(false);
         setTileSelected(selectedTiles.length > 0);
-        console.log(boardTiles);
     }, [boardTiles, selectedTiles, tilesInHand]);
     
     // Timer logic
