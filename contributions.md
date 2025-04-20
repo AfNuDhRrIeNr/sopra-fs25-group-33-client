@@ -111,8 +111,7 @@ reason).
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **[@githubUser4]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **[@githubUser5]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **SilvanKasper** | 19.04.25   | [Commit 6522b48](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/6522b4812600681541fc9d1c14eecbb7cec36419) | Both players in same Lobby, update UI accordingly, Refactoring of CustomModal | Players must join same lobby to play against eachother, CustomModal reduces code redundancy |
 
 ---
 
