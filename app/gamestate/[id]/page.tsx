@@ -267,6 +267,29 @@ const Gamestate: React.FC = () => {
                     
 
                 });
+                stompClient.subscribe(`/topic/game_states/${id}`, (message) => {
+                    const response = JSON.parse(message.body);
+                    console.log("Received WebSocket message:", response);
+                    const action = response.gameState.action.toString();
+                    const responseStatus = response.messageStatus.toString();
+                
+                    if (action === "GIVE_UP") {
+                        showModal("Game Over", "Your opponent has surrendered!");
+                        handleGameEnd();
+                    } else if (action === "SUBMIT" && responseStatus === "SUCCESS") {
+                        const newBoardTiles = response.gameState.board;
+                        const parsedBoardTiles = dictifyMatrix(newBoardTiles);
+                        setBoardTiles(parsedBoardTiles);
+                        setImmutableBoardTiles(prev => ({ ...prev, ...parsedBoardTiles })); 
+                        setPlayerAtTurn(prev => prev.id === gameHost.id ? gameGuest : gameHost);
+                        setPlayerPoints((prev) => ({
+                            ...prev,
+                            ...response.gameState.playerScores, 
+                        }));
+                    } else if ((action === "SKIP" || action === "EXCHANGE") && responseStatus === "SUCCESS") {
+                        setPlayerAtTurn(prev => prev.id === gameHost.id ? gameGuest : gameHost); 
+                    }
+                });
             };
             
             stompClient.activate();
@@ -485,9 +508,26 @@ const Gamestate: React.FC = () => {
     }, [tilesInHand])
 
     const handleSurrender = () => {
+        if (!id || !stompClientRef.current) {
+            console.error("Game ID or WebSocket client is null or undefined.");
+            showModal("Error", "Cannot surrender. Game ID or WebSocket connection is missing.");
+            return;
+        }
+    
+        // Sende die GIVE_UP-Aktion über den WebSocket
+        stompClientRef.current.publish({
+            destination: `/app/game_states/${id}`,
+            body: JSON.stringify({
+                action: "GIVE_UP",
+                playerId: localStorage.getItem("userId"),
+                id: id,
+            }),
+        });
+    
+        // Zeige eine Bestätigungsmeldung an
         showModal("Surrender", "You have surrendered!");
-        // Handle surrender logic here
-    }
+        handleGameEnd(); // Beende das Spiel nach dem Surrender
+    };
 
     const handleGameEnd = () => {
         showModal("Game Over", "Game Over!");
