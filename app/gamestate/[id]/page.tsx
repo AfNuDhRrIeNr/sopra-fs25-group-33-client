@@ -489,9 +489,16 @@ const Gamestate: React.FC = () => {
         // Handle surrender logic here
     }
 
-    const handleGameEnd = () => {
-        showModal("Game Over", "Game Over!");
-        // Handle game end logic here
+    const handleGameEnd = async () => {
+        showModal("Game Over", "The game has ended.");
+
+        try {
+            await apiService.put(`/games/${id}`, { gameStatus: "TERMINATED" });
+            console.log("Game status updated to TERMINATED.");
+        } catch (error) {
+            console.error("Error terminating the game:", error);
+        }
+        // Redirect to GameEval page
     };
 
     const handleReturn = () => {
@@ -665,33 +672,36 @@ const Gamestate: React.FC = () => {
         setUserTurn(userId === playerAtTurn.id.toString()); // Update user turn based on the current player at turn
     }, [playerAtTurn, userId]); // Add playerAtTurn as a dependency
 
-    // Timer logic
+    /* Timer logic
     const simulateGameStart = () => {
         setIsGameStarted(true);
         const startTime = Date.now(); // Simulate server start time
         const endTime = startTime + 45 * 60 * 1000; // 45 minutes later
         const timeLeft = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
         setRemainingTime(timeLeft);
-    };
+    };*/
 
     useEffect(() => {
-        let timer: NodeJS.Timeout | undefined;
-
-        if (isGameStarted && remainingTime > 0) {
-            timer = setInterval(() => {
-                setRemainingTime((prev) => Math.max(0, prev - 1));
-            }, 1000);
-        }
-
-        if (remainingTime === 0) {
-            if (timer) {
-                clearInterval(timer);
-            }
-            handleGameEnd();
-        }
-
-        return () => clearInterval(timer);
-    }, [isGameStarted, remainingTime]);
+        const startTime = Date.now(); // Simulate server start time
+        const endTime = startTime + 45 * 60 * 1000; // 45 minutes later
+        const timeLeft = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
+        setRemainingTime(timeLeft);
+    
+        setIsGameStarted(true); // Automatically start the game    
+    
+        const timer = setInterval(() => {
+            setRemainingTime((prev) => {
+                if (prev <= 1) {
+                    clearInterval(timer); // Stop the timer when it reaches 0
+                    handleGameEnd(); // End the game
+                    return 0;
+                }
+                return prev - 1; // Decrease remainingTime by 1
+            });
+        }, 1000);
+    
+        return () => clearInterval(timer); // Cleanup the timer when the component unmounts
+    }, []); // Empty dependency array ensures this runs only once
 
     const formatTime = (seconds: number) => {
         const minutes = Math.floor(seconds / 60);
@@ -761,10 +771,6 @@ const Gamestate: React.FC = () => {
                         <div id="timer">
                             {formatTime(remainingTime)}
                         </div>
-                        {/*Temporary button to start timer*/}
-                        <button onClick={simulateGameStart} disabled={isGameStarted} style={{backgroundColor: isGameStarted ? "gray" : "white", margin: "20px", padding: "10px", borderRadius: "10px", height: "50px", width: "100px"}}>
-                            Start Game
-                        </button>
                         <div id="surrender">
                             <button 
                             id="surrender-button" 
