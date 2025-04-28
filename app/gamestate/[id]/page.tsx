@@ -514,7 +514,7 @@ const Gamestate: React.FC = () => {
             return;
         }
     
-        // Sende die GIVE_UP-Aktion über den WebSocket
+        
         stompClientRef.current.publish({
             destination: `/app/game_states/${id}`,
             body: JSON.stringify({
@@ -524,9 +524,8 @@ const Gamestate: React.FC = () => {
             }),
         });
     
-        // Zeige eine Bestätigungsmeldung an
         showModal("Surrender", "You have surrendered!");
-        handleGameEnd(); // Beende das Spiel nach dem Surrender
+        handleGameEnd();
     };
 
     const handleGameEnd = () => {
