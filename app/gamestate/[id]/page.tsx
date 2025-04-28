@@ -131,7 +131,7 @@ interface GamePutDTO {
 const Gamestate: React.FC = () => {
     const [letter, setLetter] = useState("");
     const [number, setNumber] = useState<number | null>(null);
-    const [submittedLetter, setSubmittedLetter] = useState("");
+    // const [submittedLetter, setSubmittedLetter] = useState("");
     const apiService = useApi();
     const [userId, setUserId] = useState<string | null>(null);
     const [token, setToken] = useState<string | null>(null);
@@ -148,7 +148,7 @@ const Gamestate: React.FC = () => {
     const { id } = useParams();
     const stompClientRef = useRef<Client | null>(null);
     const [remainingTime, setRemainingTime] = useState(45 * 60); // 45 minutes in seconds
-    const [isGameStarted, setIsGameStarted] = useState(false);
+    // const [isGameStarted, setIsGameStarted] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [modalTitle, setModalTitle] = useState("");
     const [modalMessage, setModalMessage] = useState("");
@@ -332,8 +332,6 @@ const Gamestate: React.FC = () => {
             
             if (response != null) {
                 setNumber(response);
-                setSubmittedLetter(letter.toUpperCase());
-                // setLetter("");
                 setShowNumber(true); // Show the number after fetching
                 setTimeout(() => {
                     setShowNumber(false); // Hide the number after 5 seconds
@@ -685,7 +683,7 @@ const Gamestate: React.FC = () => {
         const timeLeft = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
         setRemainingTime(timeLeft);
     
-        setIsGameStarted(true); // Automatically start the game    
+        //setIsGameStarted(true); // Automatically start the game    
     
         const timer = setInterval(() => {
             setRemainingTime((prev) => {
