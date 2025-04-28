@@ -158,6 +158,8 @@ const Gamestate: React.FC = () => {
     const [gameGuest, setGameGuest] = useState<User>(defaultUser);
     const [isInitialized, setIsInitialized] = useState(false);
     const tilesInHandRef = useRef<(string | null)[]>(tilesInHand); // Create a ref to store the tiles in hand
+    const [showNumber, setShowNumber] = useState(false); // New state to toggle between button and number
+
 
     useEffect(()=> {
         setToken(localStorage.getItem("token"));
@@ -332,13 +334,14 @@ const Gamestate: React.FC = () => {
                 setNumber(response);
                 setSubmittedLetter(letter.toUpperCase());
                 setLetter("");
+                setShowNumber(true); // Show the number after fetching
             }
         } catch (error) {
             console.error("Error:", error);
             showModal("Error", `Failed to retrieve letter count: ${(error as Error).message}`);
         }
     };
-    
+ 
     const constructMatrix = () => {
         // Initialize the 15x15 matrix with null values (or empty string)
         const matrix: (string)[][] = Array.from({ length: 15 }, () => Array(15).fill(""));
@@ -819,38 +822,45 @@ const Gamestate: React.FC = () => {
                         <Image id="bag-jpg" src="/TilesBag.png" alt="Letters Bag" width={222} height={168} priority />
                     </div>
                     <div id="bag-info">
-                        <div id="bag-description-container">
+                        {/*<div id="bag-description-container">
                             <div id="bag-description">Ask the bag for remaining tiles</div>
-                        </div>
+                        </div>*/}
                         <div id="bag-interaction">
                             <div id="bag-input-container">
                                 <input 
                                     type="text"
                                     id="bag-input"
                                     value={letter}
-                                    onChange={(e) => setLetter(e.target.value)}
+                                    onChange={(e) => {
+                                        setLetter(e.target.value);
+                                        setShowNumber(false); // Reset to show the button when a new letter is entered
+                                    }}
                                     maxLength={1}
                                     placeholder="// Letter"
                                 />
                             </div>
-                            <div id="bag-button-container">
-                                <button 
-                                id="bag-button" 
-                                onClick={handleCheck}
-                                disabled = {!letter}
-                                style = {{ 
-                                    opacity: letter ? 1 : 0.9,
-                                    cursor: letter ? "pointer" : "not-allowed",
-                                }}
-                                title = { !letter ? "Type a letter to request the info" : ""}
-                                >
-                                    Ask
-                                </button>
-                            </div>
-                        </div>
-                        <div id="tiles-info-container">
-                            <div>Remaining {submittedLetter || '{x}'}:</div>
-                            <div>{number || 0}</div>
+                            {!showNumber ? ( // Show the button if `showNumber` is false
+                                <div id="bag-button-container">
+                                        <button 
+                                            id="bag-button" 
+                                            onClick={handleCheck}
+                                            disabled={!letter}
+                                            style={{ 
+                                                opacity: letter ? 1 : 0.9,
+                                                cursor: letter ? "pointer" : "not-allowed",
+                                            }}
+                                            title={!letter ? "Type a letter to request the info" : ""}
+                                        >
+                                            Ask
+                                        </button>
+                                </div>
+                                ) : (
+                                <div id="bag-number-container">
+                                    <div id="bag-number">
+                                        {number || 0} tiles
+                                    </div>
+                                </div>
+                                )}
                         </div>
                     </div>
                 </div>
