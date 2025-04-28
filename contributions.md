@@ -105,8 +105,8 @@ reason).
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
 | **Alumen-Eng** | 19.04.25   | [Commit d670a5a](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/d670a5a) | Two player gameState functionalities | Two players are needed to play the game |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **AfNuDhRrIeNr** | 22.04.25   | [Commit e0d1f18](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/e0d1f18687313882c82332b3407fb6bf12f0bc31) | give up function backend & frontend commit e7fc083 | User should be able to surrender|
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **AfNuDhRrIeNr** | 18.04.25   | [Commit e0d1f18](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/e0d1f18687313882c82332b3407fb6bf12f0bc31) | give up function backend & frontend commit e7fc083 | User should be able to surrender|
+|                    | 22.04.25   | [Commit 7f70359](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/7f703591b44d0564ef4d802cca53a89723e60481) | integration test with test database for the m3 report | Cooperation between different components |
 | **[@githubUser3]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **[@githubUser4]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
