@@ -12,8 +12,9 @@
     width: 40%;
     display: flex;
     align-items: center;
-    justify-content: center;
-    font-size: 9vh;
+    justify-content: left;
+    padding-left: 2vw;
+    font-size: 4.5vh;
 }
 
 #surrender {
@@ -21,14 +22,12 @@
     width: 30%;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: right;
+    padding-right: 1vh;
 }
 
 #surrender-button {
     background-color: #D04949;
-    height: 7vh;
-    width: 13vw;
-    font-size: 3vh;
 }
 
 #surrender-button:hover {
@@ -73,7 +72,7 @@
 
 .player-name {
     padding-left: 2vw;
-    font-size: 5vh;
+    font-size: 4.5vh;
 }
 
 .dot-container {

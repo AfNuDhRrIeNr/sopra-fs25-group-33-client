@@ -131,7 +131,7 @@ interface GamePutDTO {
 const Gamestate: React.FC = () => {
     const [letter, setLetter] = useState("");
     const [number, setNumber] = useState<number | null>(null);
-    const [submittedLetter, setSubmittedLetter] = useState("");
+    // const [submittedLetter, setSubmittedLetter] = useState("");
     const apiService = useApi();
     const [userId, setUserId] = useState<string | null>(null);
     const [token, setToken] = useState<string | null>(null);
@@ -148,7 +148,7 @@ const Gamestate: React.FC = () => {
     const { id } = useParams();
     const stompClientRef = useRef<Client | null>(null);
     const [remainingTime, setRemainingTime] = useState(45 * 60); // 45 minutes in seconds
-    const [isGameStarted, setIsGameStarted] = useState(false);
+    // const [isGameStarted, setIsGameStarted] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [modalTitle, setModalTitle] = useState("");
     const [modalMessage, setModalMessage] = useState("");
@@ -158,6 +158,8 @@ const Gamestate: React.FC = () => {
     const [gameGuest, setGameGuest] = useState<User>(defaultUser);
     const [isInitialized, setIsInitialized] = useState(false);
     const tilesInHandRef = useRef<(string | null)[]>(tilesInHand); // Create a ref to store the tiles in hand
+    const [showNumber, setShowNumber] = useState(false); // New state to toggle between button and number
+
 
     useEffect(()=> {
         setToken(localStorage.getItem("token"));
@@ -330,15 +332,17 @@ const Gamestate: React.FC = () => {
             
             if (response != null) {
                 setNumber(response);
-                setSubmittedLetter(letter.toUpperCase());
-                setLetter("");
+                setShowNumber(true); // Show the number after fetching
+                setTimeout(() => {
+                    setShowNumber(false); // Hide the number after 5 seconds
+                }, 5000);
             }
         } catch (error) {
             console.error("Error:", error);
             showModal("Error", `Failed to retrieve letter count: ${(error as Error).message}`);
         }
     };
-    
+ 
     const constructMatrix = () => {
         // Initialize the 15x15 matrix with null values (or empty string)
         const matrix: (string)[][] = Array.from({ length: 15 }, () => Array(15).fill(""));
@@ -489,9 +493,16 @@ const Gamestate: React.FC = () => {
         // Handle surrender logic here
     }
 
-    const handleGameEnd = () => {
-        showModal("Game Over", "Game Over!");
-        // Handle game end logic here
+    const handleGameEnd = async () => {
+        showModal("Game Over", "The game has ended.");
+
+        try {
+            await apiService.put(`/games/${id}`, { gameStatus: "TERMINATED" });
+            console.log("Game status updated to TERMINATED.");
+        } catch (error) {
+            console.error("Error terminating the game:", error);
+        }
+        // Redirect to GameEval page
     };
 
     const handleReturn = () => {
@@ -665,33 +676,28 @@ const Gamestate: React.FC = () => {
         setUserTurn(userId === playerAtTurn.id.toString()); // Update user turn based on the current player at turn
     }, [playerAtTurn, userId]); // Add playerAtTurn as a dependency
 
-    // Timer logic
-    const simulateGameStart = () => {
-        setIsGameStarted(true);
+    // TODO: For a robust solution, use the server-side timer with periodic synchronization
+    useEffect(() => {
         const startTime = Date.now(); // Simulate server start time
         const endTime = startTime + 45 * 60 * 1000; // 45 minutes later
         const timeLeft = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
         setRemainingTime(timeLeft);
-    };
-
-    useEffect(() => {
-        let timer: NodeJS.Timeout | undefined;
-
-        if (isGameStarted && remainingTime > 0) {
-            timer = setInterval(() => {
-                setRemainingTime((prev) => Math.max(0, prev - 1));
-            }, 1000);
-        }
-
-        if (remainingTime === 0) {
-            if (timer) {
-                clearInterval(timer);
-            }
-            handleGameEnd();
-        }
-
-        return () => clearInterval(timer);
-    }, [isGameStarted, remainingTime]);
+    
+        //setIsGameStarted(true); // Automatically start the game    
+    
+        const timer = setInterval(() => {
+            setRemainingTime((prev) => {
+                if (prev <= 1) {
+                    clearInterval(timer); // Stop the timer when it reaches 0
+                    handleGameEnd(); // End the game
+                    return 0;
+                }
+                return prev - 1; // Decrease remainingTime by 1
+            });
+        }, 1000);
+    
+        return () => clearInterval(timer); // Cleanup the timer when the component unmounts
+    }, []); // Empty dependency array ensures this runs only once
 
     const formatTime = (seconds: number) => {
         const minutes = Math.floor(seconds / 60);
@@ -761,10 +767,6 @@ const Gamestate: React.FC = () => {
                         <div id="timer">
                             {formatTime(remainingTime)}
                         </div>
-                        {/*Temporary button to start timer*/}
-                        <button onClick={simulateGameStart} disabled={isGameStarted} style={{backgroundColor: isGameStarted ? "gray" : "white", margin: "20px", padding: "10px", borderRadius: "10px", height: "50px", width: "100px"}}>
-                            Start Game
-                        </button>
                         <div id="surrender">
                             <button 
                             id="surrender-button" 
@@ -810,41 +812,45 @@ const Gamestate: React.FC = () => {
                 </div>
                 <div id="bag-stuff">
                     <div id="bag-image">
-                        <Image id="bag-jpg" src="/TilesBag.png" alt="Letters Bag" width={222} height={168} priority />
+                        <Image id="bag-jpg" src="/BagWithTiles.png" alt="Letters Bag" width={222} height={168} priority /> {/* without tiles: /TilesBag.png*/}
                     </div>
                     <div id="bag-info">
-                        <div id="bag-description-container">
-                            <div id="bag-description">Ask the bag for remaining tiles</div>
-                        </div>
                         <div id="bag-interaction">
                             <div id="bag-input-container">
                                 <input 
                                     type="text"
                                     id="bag-input"
                                     value={letter}
-                                    onChange={(e) => setLetter(e.target.value)}
+                                    onChange={(e) => {
+                                        setLetter(e.target.value);
+                                        setShowNumber(false); // Reset to show the button when a new letter is entered
+                                    }}
                                     maxLength={1}
                                     placeholder="// Letter"
                                 />
                             </div>
-                            <div id="bag-button-container">
-                                <button 
-                                id="bag-button" 
-                                onClick={handleCheck}
-                                disabled = {!letter}
-                                style = {{ 
-                                    opacity: letter ? 1 : 0.9,
-                                    cursor: letter ? "pointer" : "not-allowed",
-                                }}
-                                title = { !letter ? "Type a letter to request the info" : ""}
-                                >
-                                    Ask
-                                </button>
-                            </div>
-                        </div>
-                        <div id="tiles-info-container">
-                            <div>Remaining {submittedLetter || '{x}'}:</div>
-                            <div>{number || 0}</div>
+                            {!showNumber ? ( // Show the button if `showNumber` is false
+                                <div id="bag-button-container">
+                                        <button 
+                                            id="bag-button" 
+                                            onClick={handleCheck}
+                                            disabled={!letter}
+                                            style={{ 
+                                                opacity: letter ? 1 : 0.9,
+                                                cursor: letter ? "pointer" : "not-allowed",
+                                            }}
+                                            title={!letter ? "Type a letter to request the info" : ""}
+                                        >
+                                            Ask
+                                        </button>
+                                </div>
+                                ) : (
+                                <div id="bag-number-container">
+                                    <div id="bag-number">
+                                        {number || 0} tiles
+                                    </div>
+                                </div>
+                                )}
                         </div>
                     </div>
                 </div>
