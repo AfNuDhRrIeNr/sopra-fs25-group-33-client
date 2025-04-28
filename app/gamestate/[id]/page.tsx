@@ -333,8 +333,11 @@ const Gamestate: React.FC = () => {
             if (response != null) {
                 setNumber(response);
                 setSubmittedLetter(letter.toUpperCase());
-                setLetter("");
+                // setLetter("");
                 setShowNumber(true); // Show the number after fetching
+                setTimeout(() => {
+                    setShowNumber(false); // Hide the number after 5 seconds
+                }, 5000);
             }
         } catch (error) {
             console.error("Error:", error);
@@ -675,15 +678,7 @@ const Gamestate: React.FC = () => {
         setUserTurn(userId === playerAtTurn.id.toString()); // Update user turn based on the current player at turn
     }, [playerAtTurn, userId]); // Add playerAtTurn as a dependency
 
-    /* Timer logic
-    const simulateGameStart = () => {
-        setIsGameStarted(true);
-        const startTime = Date.now(); // Simulate server start time
-        const endTime = startTime + 45 * 60 * 1000; // 45 minutes later
-        const timeLeft = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
-        setRemainingTime(timeLeft);
-    };*/
-
+    // TODO: For a robust solution, use the server-side timer with periodic synchronization
     useEffect(() => {
         const startTime = Date.now(); // Simulate server start time
         const endTime = startTime + 45 * 60 * 1000; // 45 minutes later
@@ -819,12 +814,9 @@ const Gamestate: React.FC = () => {
                 </div>
                 <div id="bag-stuff">
                     <div id="bag-image">
-                        <Image id="bag-jpg" src="/TilesBag.png" alt="Letters Bag" width={222} height={168} priority />
+                        <Image id="bag-jpg" src="/BagWithTiles.png" alt="Letters Bag" width={222} height={168} priority /> {/* without tiles: /TilesBag.png*/}
                     </div>
                     <div id="bag-info">
-                        {/*<div id="bag-description-container">
-                            <div id="bag-description">Ask the bag for remaining tiles</div>
-                        </div>*/}
                         <div id="bag-interaction">
                             <div id="bag-input-container">
                                 <input 
