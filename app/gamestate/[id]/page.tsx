@@ -1,6 +1,6 @@
 "use client"; // Required for using React hooks in Next.js
 
-import { useParams } from "next/navigation"; // use NextJS router for navigation
+import { useParams, useRouter } from "next/navigation"; // use NextJS router for navigation
 import React, { useState, useEffect, useRef } from "react";
 import "@ant-design/v5-patch-for-react-19";
 import { Button } from "antd"; 
@@ -129,6 +129,7 @@ interface GamePutDTO {
 }
 
 const Gamestate: React.FC = () => {
+    const router = useRouter();
     const [letter, setLetter] = useState("");
     const [number, setNumber] = useState<number | null>(null);
     // const [submittedLetter, setSubmittedLetter] = useState("");
@@ -250,11 +251,14 @@ const Gamestate: React.FC = () => {
                 });
                 stompClient.subscribe(`/topic/game_states/${id}`, (message) => {
                     const response = JSON.parse(message.body);
+                    console.log("Response: ", response);
                     const action = response.gameState.action.toString();
                     const responseStatus = response.messageStatus.toString();
-                
+                    console.log("Action: ", action);
                     if (action === "GIVE_UP") {
-                        showModal("Game Over", "Your opponent has surrendered!");
+                        const surrenderedPlayer = response.gameState.playerId == userId;
+                        showModal("Game Over", surrenderedPlayer ? "You have surrendered." : "Your opponent has surrendered!");
+                        showModal("Game Over", "Work in progress...");
                         handleGameEnd();
                     } else if (action === "SUBMIT" && responseStatus === "SUCCESS") {
                         const newBoardTiles = response.gameState.board;
@@ -315,6 +319,11 @@ const Gamestate: React.FC = () => {
     const handleModalClose = () => {
         setModalVisible(false);
     };
+
+    const handleGameOverClose = () => {
+        setModalVisible(false);
+        router.push(`/eval/${id}`); // Redirect to the home page or any other page
+    }
     
     // Function to get the tile class
     const getTileClass = (row: number, col: number) => {
@@ -494,24 +503,20 @@ const Gamestate: React.FC = () => {
             console.error("Game ID or WebSocket client is null or undefined.");
             showModal("Error", "Cannot surrender. Game ID or WebSocket connection is missing.");
             return;
-        }
-    
+        }    
+        const messageBody: GameState = {
+            id: id.toString(),
+            board: Array(15).fill(Array(15).fill("")),
+            token: token!,
+            userTiles: Array(7).fill(""),
+            action: "GIVE_UP",
+            playerId: localStorage.getItem("userId")!,
+        };
         
-        stompClientRef.current.publish({
-            destination: `/app/game_states/${id}`,
-            body: JSON.stringify({
-                action: "GIVE_UP",
-                playerId: localStorage.getItem("userId"),
-                id: id,
-            }),
-        });
-    
-        showModal("Surrender", "You have surrendered!");
-        handleGameEnd();
+        sendMessage(JSON.stringify(messageBody));
     };
 
     const handleGameEnd = async () => {
-        showModal("Game Over", "The game has ended.");
 
         try {
             await apiService.put(`/games/${id}`, { gameStatus: "TERMINATED" });
@@ -690,6 +695,7 @@ const Gamestate: React.FC = () => {
 
     useEffect(() => {
         setUserTurn(userId === playerAtTurn.id.toString()); // Update user turn based on the current player at turn
+        console.log("User Turn: ", userId === playerAtTurn.id.toString()); //necessary log so that ui correctly updates.
     }, [playerAtTurn, userId]); // Add playerAtTurn as a dependency
 
     // TODO: For a robust solution, use the server-side timer with periodic synchronization
@@ -705,6 +711,7 @@ const Gamestate: React.FC = () => {
             setRemainingTime((prev) => {
                 if (prev <= 1) {
                     clearInterval(timer); // Stop the timer when it reaches 0
+                    showModal("Game Over", "The game has ended.");
                     handleGameEnd(); // End the game
                     return 0;
                 }
@@ -965,7 +972,7 @@ const Gamestate: React.FC = () => {
                     visible={modalVisible}
                     title={modalTitle}
                     message={modalMessage}
-                    onClose={handleModalClose}
+                    onClose={modalTitle === "Game Over" ? handleGameOverClose : handleModalClose}
                     />
                 </div>
             </div>
