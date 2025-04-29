@@ -104,7 +104,7 @@ reason).
 | **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
 | **Alumen-Eng** | 19.04.25   | [Commit d670a5a](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/d670a5a) | Two player gameState functionalities | Two players are needed to play the game |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | 29.04.25   | [Commit d9f5e42](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/d9f5e42) | Routing to eval page | Before eval page design, you should be able to reach it. |
 | **AfNuDhRrIeNr** | 18.04.25   | [Commit e0d1f18](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/e0d1f18687313882c82332b3407fb6bf12f0bc31) | give up function backend & frontend commit e7fc083 | User should be able to surrender|
 |                    | 22.04.25   | [Commit 7f70359](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/7f703591b44d0564ef4d802cca53a89723e60481) | integration test with test database for the m3 report | Cooperation between different components |
 | **LucKer58** | 18.04.25   | [Commit 0b2e01b](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/0b2e01be6abc272af16fd8e04ef58b3ada87cb07) [Commit 9cf5c1d](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/043659bcea3a16d124fc5c4f3a050a9ac523526d)| Implement the websocket endpoint logic of the submission part and write corresponding test| Point calculation, gameboard persistence, communication to frontend |
