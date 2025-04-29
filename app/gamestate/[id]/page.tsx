@@ -414,6 +414,7 @@ const Gamestate: React.FC = () => {
                 });
                 setTilesInHand(updatedHand);
                 setSelectedTiles([]); // Clear selected tiles after exchange
+                setTurnTimeLeft(180); // Reset the timer to 3 minutes
                 setUserTurn(false); // Toggle user turn after exchange
             }
         }
@@ -473,6 +474,9 @@ const Gamestate: React.FC = () => {
             console.error("Game ID is null or undefined.");
             return;
         }
+
+        setTurnTimeLeft(180); // Reset the timer to 3 minutes
+
         // Create the message body using the GameState interface
         const messageBody: GameState = {
             id: id.toString(),
@@ -707,6 +711,8 @@ const Gamestate: React.FC = () => {
         const secs = seconds % 60;
         return `${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
     };
+    // TODO Bug fixes: When exchange then setTurnTimeLeft to 180 (currently the UI timer starts pretty randomly ;) 
+
 
     useEffect(() => {
         if (playerAtTurn.id.toString() !== userId) return; // Only start the timer if it's the user's turn
