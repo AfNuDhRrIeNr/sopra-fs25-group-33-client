@@ -113,6 +113,9 @@ reason).
 | **[@githubUser4]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **SilvanKasper** | 19.04.25   | [Commit 6522b48](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/6522b4812600681541fc9d1c14eecbb7cec36419) | Both players in same Lobby, update UI accordingly, Refactoring of CustomModal | Players must join same lobby to play against eachother, CustomModal reduces code redundancy |
+|  | 27.04.25   | [Commit 4253fa3](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/4253fa3c5527748dac4cc599b064647ec0268faa) [Commit 4b3383f](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/4b3383f8c95d064cc135107018d906324b1a252c)| Autostart Timer and New bag design | Time must be started directly when the player enters the GameState, the new design makes the page less overloaded. |
+|  | 29.04.25   | [Commit bd63b09](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/bd63b09d0ff58c1ab18ea4fa0894b2ce1a2f4737) | Implement Turn Timer | If there is no time limit per turn a player that leads can wait until the time is over. That is avoided by a time limit |
+
 
 ---
 
