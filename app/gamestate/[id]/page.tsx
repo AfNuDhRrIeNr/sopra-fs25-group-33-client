@@ -210,7 +210,7 @@ const Gamestate: React.FC = () => {
                 debug: (str) => console.log(str),
             });
             
-            
+
             stompClient.onConnect = () => {
                 console.log("Connected to WebSocket");
                 
@@ -228,6 +228,11 @@ const Gamestate: React.FC = () => {
                     } 
                     else if (response.messageStatus.toString() === "VALIDATION_ERROR") {
                         showModal("Validation", `Validation failed! Reason: ${response.message.toString().substring(16)}`);
+                    }
+                    else if (responseStatus === "SUCCESS" && action === "GAME_END") {
+                        console.log("Game has ended. Reason: Surrender or Time is up");
+                        showModal("Game Over", "The game has ended!");
+                        handleGameEnd();
                     } 
                     //submit
                     else if (responseStatus === "SUCCESS" && action === "SUBMIT") {
@@ -252,17 +257,6 @@ const Gamestate: React.FC = () => {
 
                 });
 
-                stompClient.subscribe(`/topic/game_states/${id}`, (message) => {
-                    console.log("Received WebSocket message:", message.body);
-                    const response = JSON.parse(message.body);
-                
-                    if (response.message === "Game has been terminated successfully." && response.messageStatus === "SUCCESS") {
-                        console.log("Game has ended. Reason: Surrender or Time is up");
-                        showModal("Game Over", "The game has ended!");
-                        handleGameEnd();
-                        return;
-                    }
-                });
             };
             
             stompClient.activate();
