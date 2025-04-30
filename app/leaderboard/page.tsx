@@ -1,4 +1,5 @@
 'use client';
+import { useParams, useRouter } from "next/navigation"; // use NextJS router for navigation
 import React, { useEffect, useState } from 'react';
 import { useApi } from "@/hooks/useApi";
 import './leaderboard.css';
@@ -11,26 +12,28 @@ interface User {
 
 const LeaderboardPage: React.FC = () => {
     const [users, setUsers] = useState<User[]>([
-        { username: 'User1', highscore: 100 },
-        { username: 'User2', highscore: 200 },
-        { username: 'User3', highscore: 300 },
-        { username: 'User4', highscore: 400 },
-        { username: 'User5', highscore: 500 },
-        { username: 'User6', highscore: 600 },
-        { username: 'User7', highscore: 700 },
-        { username: 'User8', highscore: 800 },
-        { username: 'User9', highscore: 900 },
-        { username: 'User10', highscore: 1000 }
+        { username: 'Manu', highscore: 100 },
+        { username: 'Luca', highscore: 80 },
+        { username: 'Lucker', highscore: 70 },
+        { username: 'Andr', highscore: 60 },
+        { username: 'S', highscore: 30 },
+        { username: 'TheUltraMegaSpecialOne', highscore: 4 },
+        { username: 'anotherOne', highscore: 3 },
+        { username: 'andAgain', highscore: 2 },
     ]);
     const apiService = useApi();
     const [username, setUsername] = useState<string | null>(null);
     const [token, setToken] = useState<string | null>(null);
+    const router = useRouter();
     
     useEffect(() => {
         setUsername(localStorage.getItem("username"));
         setToken(localStorage.getItem("token"));
     }, []);
 
+    const handleButtonClick = () => {
+        router.push("/dashboard");
+      };
     /*
     useEffect(() => {
         apiService.get<User[]>('/users/leaderboard')
@@ -43,7 +46,7 @@ const LeaderboardPage: React.FC = () => {
             <header>
                   <button 
                   className = "nav_button"
-                  //onClick={handleButtonClick}
+                  onClick={handleButtonClick}
                   style = {{ backgroundColor: '#D04949', left: 0, marginLeft: '1vw'}}
                   >
                     Leave
@@ -75,23 +78,39 @@ const LeaderboardPage: React.FC = () => {
                 <table className="leaderboard-table">
                     <thead>
                         <tr>
-                            <th>User Icon</th>
-                            <th>Username</th>
-                            <th>Points</th>
+                            <th>User Info</th>
+                            <th>Highscore</th>
                         </tr>
                     </thead>
                     <tbody>
                         {users.map((user, index) => (
                             <tr key={index}>
-                                <td>
+                                <td className="user-info">
                                     <Image
-                                        src="/User_Icon.jpg"
-                                        alt="User Icon"
+                                        src={
+                                            index === 0
+                                                ? "/Gold.png"
+                                                : index === 1
+                                                ? "/Silver.png"
+                                                : index === 2
+                                                ? "/Bronze.png"
+                                                : "/User_Icon.jpg"
+                                        }
+                                        alt={
+                                            index === 0
+                                                ? "Gold Medal"
+                                                : index === 1
+                                                ? "Silver Medal"
+                                                : index === 2
+                                                ? "Bronze Medal"
+                                                : "User Icon"
+                                        }
                                         width={50}
                                         height={50}
+                                        style={{ height: "auto", width: "auto", maxHeight: "50px", maxWidth: "50px" }} // Allow natural scaling
                                     />
+                                    <span>{user.username}</span>
                                 </td>
-                                <td>{user.username}</td>
                                 <td>{user.highscore}</td>
                             </tr>
                         ))}
