@@ -158,8 +158,9 @@ const Gamestate: React.FC = () => {
     const [gameGuest, setGameGuest] = useState<User>(defaultUser);
     const [isInitialized, setIsInitialized] = useState(false);
     const tilesInHandRef = useRef<(string | null)[]>(tilesInHand); // Create a ref to store the tiles in hand
-    const [showNumber, setShowNumber] = useState(false); // New state to toggle between button and number
-
+    const [showNumber, setShowNumber] = useState(false); // Toggle between button and number
+    const [turnTimeLeft, setTurnTimeLeft] = useState(180);
+    const alreadySkippedRef = useRef(false);
 
     useEffect(()=> {
         setToken(localStorage.getItem("token"));
@@ -414,6 +415,7 @@ const Gamestate: React.FC = () => {
                 });
                 setTilesInHand(updatedHand);
                 setSelectedTiles([]); // Clear selected tiles after exchange
+                setTurnTimeLeft(180); // Reset the timer to 3 minutes
                 setUserTurn(false); // Toggle user turn after exchange
             }
         }
@@ -440,10 +442,12 @@ const Gamestate: React.FC = () => {
     }
 
     const skipTurn = () => {
-        if (!id) {
+        if (!id || alreadySkippedRef.current) {
             console.error("Game ID is null or undefined.");
             return;
         }
+        setTurnTimeLeft(180); // Reset the timer to 3 minutes
+        alreadySkippedRef.current = true; // Update the ref to indicate the turn has been skipped
         // Create the message body using the GameState interface
         const messageBody: GameState = {
             id: id.toString(),
@@ -471,6 +475,9 @@ const Gamestate: React.FC = () => {
             console.error("Game ID is null or undefined.");
             return;
         }
+
+        setTurnTimeLeft(180); // Reset the timer to 3 minutes
+
         // Create the message body using the GameState interface
         const messageBody: GameState = {
             id: id.toString(),
@@ -720,6 +727,28 @@ const Gamestate: React.FC = () => {
         const secs = seconds % 60;
         return `${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
     };
+    // TODO Bug fixes: When exchange then setTurnTimeLeft to 180 (currently the UI timer starts pretty randomly ;) 
+
+
+    useEffect(() => {
+        if (playerAtTurn.id.toString() !== userId) return; // Only start the timer if it's the user's turn
+
+        const countdownTimer = setInterval(() => {
+          setTurnTimeLeft((prev) => {
+            if (prev > 0) {
+                if (alreadySkippedRef.current) alreadySkippedRef.current = false; // Reset alreadySkipped when the timer is running
+                return prev - 1;
+            } else {
+                if (alreadySkippedRef.current) {return 0;} // Prevent skipping if already skipped
+                clearInterval(countdownTimer); // Stop the timer when it reaches 1
+                skipTurn(); // Call the skipTurn function
+                return 0;
+            }
+          });
+        }, 1000);
+      
+        return () => clearInterval(countdownTimer); // Cleanup on unmount
+      }, [playerAtTurn]);
 
     const assignTilesToPlayer = async (count: number) => {
         try {
@@ -783,6 +812,15 @@ const Gamestate: React.FC = () => {
                         <div id="timer">
                             {formatTime(remainingTime)}
                         </div>
+                        {isUserTurn && (
+                        <div id="turn-timer">
+                            <div className="timer-bar-container">
+                                <div
+                                className="timer-bar"
+                                style={{ width: `${(turnTimeLeft / 180) * 100}%` }}
+                                ></div>
+                            </div>
+                        </div>)}
                         <div id="surrender">
                             <button 
                             id="surrender-button" 
