@@ -42,6 +42,7 @@ interface User {
     id: number;
     username: string;
     friends: string[]; // List of usernames
+    status: string; // ONLINE, OFFLINE, IN_GAME
 }
 
 const DashboardPage: React.FC = () => {
@@ -230,7 +231,7 @@ const DashboardPage: React.FC = () => {
             clearToken(); // Clear the token
             clearId();
             clearUsername();
-            router.push("/login"); // Redirect to login
+            router.push("/"); // Redirect to login
         } catch (error) {
             console.error("Error during logout:", error);
         };
