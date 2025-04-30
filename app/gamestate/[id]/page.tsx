@@ -213,27 +213,6 @@ const Gamestate: React.FC = () => {
             
             stompClient.onConnect = () => {
                 console.log("Connected to WebSocket");
-
-                // Subscribe to the game state topic dynamically using the gameId
-                stompClient.subscribe(`/topic/game_states/${id}`, (message) => {
-                    const response = JSON.parse(message.body);
-                    const action = response.gameState.action.toString();
-                    const responseStatus = response.messageStatus.toString();
-                    if (action === "SUBMIT" && responseStatus === "SUCCESS") {
-                        const newBoardTiles = response.gameState.board;
-                        const parsedBoardTiles = dictifyMatrix(newBoardTiles);
-                        setBoardTiles(parsedBoardTiles);
-                        setImmutableBoardTiles(prev => ({ ...prev, ...parsedBoardTiles })); // Store immutable tiles
-                        setPlayerAtTurn(prev => prev.id === gameHost.id ? gameGuest : gameHost); // Toggle player at turn
-                        setPlayerPoints((prev) => ({
-                            ...prev,
-                            ...response.gameState.playerScores, // Merge new scores into the existing playerPoints
-                        }));
-                    } else if ((action === "SKIP" || 
-                                action === "EXCHANGE") && responseStatus === "SUCCESS") {
-                        setPlayerAtTurn(prev => prev.id === gameHost.id ? gameGuest : gameHost); // Toggle player at turn
-                    }
-                });
                 
                 stompClient.subscribe(`/topic/game_states/users/${localStorage.getItem("userId")}`, (message) => {
                     
@@ -601,7 +580,6 @@ const Gamestate: React.FC = () => {
         const draggedImage = e.dataTransfer.getData("imageSrc");
         const draggedCol = parseInt(e.dataTransfer.getData("col"));
         const draggedRow = parseInt(e.dataTransfer.getData("row"));
-        console.log(draggedIndex)
         if (tilesInHand[index] !== null) {
             if (!draggedIndex) {
                 showModal("Error", "Space is not free! \nSwapping is only possible between two tiles in Hand.");
