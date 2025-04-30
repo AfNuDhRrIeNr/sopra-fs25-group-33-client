@@ -229,11 +229,6 @@ const Gamestate: React.FC = () => {
                     else if (response.messageStatus.toString() === "VALIDATION_ERROR") {
                         showModal("Validation", `Validation failed! Reason: ${response.message.toString().substring(16)}`);
                     }
-                    else if (responseStatus === "SUCCESS" && action === "GAME_END") {
-                        console.log("Game has ended. Reason: Surrender or Time is up");
-                        showModal("Game Over", "The game has ended!");
-                        handleGameEnd();
-                    }
                     //submit
                     else if (responseStatus === "SUCCESS" && action === "SUBMIT") {
                         const newUserLetters = response.gameState.userTiles
@@ -272,6 +267,12 @@ const Gamestate: React.FC = () => {
                             ...prev,
                             ...response.gameState.playerScores, 
                         }));
+                    
+                    } else if (responseStatus === "SUCCESS" && action === "GAME_END") {
+                        console.log("Game has ended. Reason: Surrender or Time is up");
+                        showModal("Game Over", "The game has ended!");
+                        handleGameEnd();
+                        
                     } else if ((action === "SKIP" || action === "EXCHANGE") && responseStatus === "SUCCESS") {
                         setPlayerAtTurn(prev => prev.id === gameHost.id ? gameGuest : gameHost); 
                     }
