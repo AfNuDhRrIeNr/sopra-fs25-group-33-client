@@ -1,0 +1,50 @@
+.leaderboard-page {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 20px;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #2c3e50;
+    color: white;
+}
+
+.Title {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.leaderboard-container {
+    margin-top: 20px;
+}
+
+.leaderboard-table {
+    width: 80%;
+    margin: 0 auto;
+    border-collapse: collapse;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.leaderboard-table th, .leaderboard-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+.leaderboard-table th {
+    background-color: #34495e;
+    color: white;
+}
+
+.leaderboard-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.leaderboard-table tr:hover {
+    background-color: #ddd;
+}

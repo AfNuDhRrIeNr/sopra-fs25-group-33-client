@@ -336,7 +336,10 @@ const DashboardPage: React.FC = () => {
                             </div>
                         </div>
                     </div>
-                    <button className="show-more-button">Show more</button>
+                    <button 
+                        className="show-more-button"
+                        onClick={() => router.push("/leaderboard")}
+                    >Show more</button>
                 </div>
                 {/* Modal for Pending Friend Requests */}
                 {isPendingRequestsModalOpen && (
