@@ -210,6 +210,7 @@ const Gamestate: React.FC = () => {
                 debug: (str) => console.log(str),
             });
             
+            
             stompClient.onConnect = () => {
                 console.log("Connected to WebSocket");
 
