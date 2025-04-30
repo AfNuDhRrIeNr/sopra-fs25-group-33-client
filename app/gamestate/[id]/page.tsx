@@ -233,7 +233,7 @@ const Gamestate: React.FC = () => {
                         console.log("Game has ended. Reason: Surrender or Time is up");
                         showModal("Game Over", "The game has ended!");
                         handleGameEnd();
-                    } 
+                    }
                     //submit
                     else if (responseStatus === "SUCCESS" && action === "SUBMIT") {
                         const newUserLetters = response.gameState.userTiles
@@ -255,6 +255,26 @@ const Gamestate: React.FC = () => {
                     } 
                     
 
+                });
+                stompClient.subscribe(`/topic/game_states/${id}`, (message) => {
+                    const response = JSON.parse(message.body);
+                    const action = response.gameState.action.toString();
+                    const responseStatus = response.messageStatus.toString();
+                
+
+                    if (action === "SUBMIT" && responseStatus === "SUCCESS") {
+                        const newBoardTiles = response.gameState.board;
+                        const parsedBoardTiles = dictifyMatrix(newBoardTiles);
+                        setBoardTiles(parsedBoardTiles);
+                        setImmutableBoardTiles(prev => ({ ...prev, ...parsedBoardTiles })); 
+                        setPlayerAtTurn(prev => prev.id === gameHost.id ? gameGuest : gameHost);
+                        setPlayerPoints((prev) => ({
+                            ...prev,
+                            ...response.gameState.playerScores, 
+                        }));
+                    } else if ((action === "SKIP" || action === "EXCHANGE") && responseStatus === "SUCCESS") {
+                        setPlayerAtTurn(prev => prev.id === gameHost.id ? gameGuest : gameHost); 
+                    }
                 });
 
             };
