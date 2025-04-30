@@ -5,6 +5,7 @@ import React, { useState, useEffect, useRef } from "react";
 import "@ant-design/v5-patch-for-react-19";
 import { Button } from "antd"; 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import "../gamestate.css";
 import { useApi } from "@/hooks/useApi";
 import { Client } from "@stomp/stompjs";
@@ -133,6 +134,7 @@ const Gamestate: React.FC = () => {
     const [number, setNumber] = useState<number | null>(null);
     // const [submittedLetter, setSubmittedLetter] = useState("");
     const apiService = useApi();
+    const router = useRouter();
     const [userId, setUserId] = useState<string | null>(null);
     const [token, setToken] = useState<string | null>(null);
     const [tilesInHand, setTilesInHand] = useState <(string | null)[]>(new Array(7).fill(null));
@@ -269,27 +271,16 @@ const Gamestate: React.FC = () => {
                     
 
                 });
+
                 stompClient.subscribe(`/topic/game_states/${id}`, (message) => {
+                    console.log("Received WebSocket message:", message.body);
                     const response = JSON.parse(message.body);
-                    console.log("Received WebSocket message:", response);
-                    const action = response.gameState.action.toString();
-                    const responseStatus = response.messageStatus.toString();
                 
-                    if (action === "GIVE_UP") {
-                        showModal("Game Over", "Your opponent has surrendered!");
+                    if (response.message === "Game has been terminated successfully." && response.messageStatus === "SUCCESS") {
+                        console.log("Game has ended. Reason: Surrender or Time is up");
+                        showModal("Game Over", "The game has ended!");
                         handleGameEnd();
-                    } else if (action === "SUBMIT" && responseStatus === "SUCCESS") {
-                        const newBoardTiles = response.gameState.board;
-                        const parsedBoardTiles = dictifyMatrix(newBoardTiles);
-                        setBoardTiles(parsedBoardTiles);
-                        setImmutableBoardTiles(prev => ({ ...prev, ...parsedBoardTiles })); 
-                        setPlayerAtTurn(prev => prev.id === gameHost.id ? gameGuest : gameHost);
-                        setPlayerPoints((prev) => ({
-                            ...prev,
-                            ...response.gameState.playerScores, 
-                        }));
-                    } else if ((action === "SKIP" || action === "EXCHANGE") && responseStatus === "SUCCESS") {
-                        setPlayerAtTurn(prev => prev.id === gameHost.id ? gameGuest : gameHost); 
+                        return;
                     }
                 });
             };
@@ -518,30 +509,32 @@ const Gamestate: React.FC = () => {
             return;
         }
     
-        
         stompClientRef.current.publish({
-            destination: `/app/game_states/${id}`,
+            destination: `/ws/game_states/${id}`,
             body: JSON.stringify({
-                action: "GIVE_UP",
+                action: "GAME_END",
+                reason: "SURRENDER",
                 playerId: localStorage.getItem("userId"),
                 id: id,
+                token: token,
+                userTiles: [],
+                board: [],
             }),
         });
     
+        console.log("Sent GAME_END message:", {
+            action: "GAME_END",
+            reason: "SURRENDER",
+            playerId: localStorage.getItem("userId"),
+            id: id,
+        });
+    
         showModal("Surrender", "You have surrendered!");
-        handleGameEnd();
     };
 
-    const handleGameEnd = async () => {
+    const handleGameEnd = () => {
         showModal("Game Over", "The game has ended.");
-
-        try {
-            await apiService.put(`/games/${id}`, { gameStatus: "TERMINATED" });
-            console.log("Game status updated to TERMINATED.");
-        } catch (error) {
-            console.error("Error terminating the game:", error);
-        }
-        // Redirect to GameEval page
+        router.push(`/endstate/${id}`);
     };
 
     const handleReturn = () => {
