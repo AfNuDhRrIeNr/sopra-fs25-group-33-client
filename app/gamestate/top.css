@@ -102,3 +102,29 @@
     border-top: 2px solid black;
     width: 83%;
 }
+
+#turn-timer {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .timer {
+    margin-top: 10px;
+  }
+  
+  .timer-bar-container {
+    width: 80%; /* Adjust width as needed */
+    height: 20px; /* Height of the timer bar */
+    background-color: #e0e0e0; /* Background color of the bar */
+    border-radius: 10px; /* Rounded corners */
+    overflow: hidden; /* Ensure the bar doesn't overflow */
+  }
+  
+  .timer-bar {
+    height: 100%;
+    background-color: #9A9CF5;
+    transition: width 1s linear; /* Smooth transition for the width */
+  }
