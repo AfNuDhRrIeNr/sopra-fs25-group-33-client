@@ -3,7 +3,6 @@ import Image from "next/image";
 import { useApi } from "@/hooks/useApi";
 
 interface FriendRequestsProps {
-    username: string | null;
     onFriendAdded?: (friend: User) => void; // Callback when a friend is added
 }
 
@@ -21,7 +20,7 @@ interface FriendRequest {
     status: string; // PENDING, ACCEPTED, DECLINED
 }
 
-const FriendRequests: React.FC<FriendRequestsProps> = ({ username, onFriendAdded }) => {
+const FriendRequests: React.FC<FriendRequestsProps> = ({ onFriendAdded }) => {
     const [pendingRequests, setPendingRequests] = useState<FriendRequest[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const apiService = useApi();

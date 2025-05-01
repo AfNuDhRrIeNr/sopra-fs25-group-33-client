@@ -81,10 +81,6 @@ const Lobby: React.FC = () => {
     router.push("/dashboard");
   };
 
-  const handleIconClick = () => {
-    alert("Icon clicked!");
-  };
-
   /* opens the Modal*/
   const openEditModal = () => {
     setIsModalVisible(true);
@@ -151,7 +147,6 @@ return (
         <div className="userSnippet">
             <span className="username">{username}</span>
             <FriendRequests 
-                username={username} 
                 onFriendAdded={handleFriendAdded} 
             />
         </div>

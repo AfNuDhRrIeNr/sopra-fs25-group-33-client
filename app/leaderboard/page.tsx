@@ -38,7 +38,7 @@ const LeaderboardPage: React.FC = () => {
     };
 
     useEffect(() => {
-        if (!userId) return; // Ensure userId is available before making the API call
+        if (!token) return; // Ensure userId is available before making the API call
 
         apiService.get<User[]>('/users?leaderboard=true')
             .then((data) => setUsers(data))
@@ -81,7 +81,6 @@ const LeaderboardPage: React.FC = () => {
                 <div className="userSnippet">
                     <span className="username">{username}</span>
                     <FriendRequests 
-                        username={username} 
                         onFriendAdded={handleFriendAdded} 
                     />
                 </div>
