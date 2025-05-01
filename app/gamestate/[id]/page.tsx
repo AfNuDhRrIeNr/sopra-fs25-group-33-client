@@ -5,7 +5,6 @@ import React, { useState, useEffect, useRef } from "react";
 import "@ant-design/v5-patch-for-react-19";
 import { Button } from "antd"; 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import "../gamestate.css";
 import { useApi } from "@/hooks/useApi";
 import { Client } from "@stomp/stompjs";
@@ -135,7 +134,6 @@ const Gamestate: React.FC = () => {
     const [number, setNumber] = useState<number | null>(null);
     // const [submittedLetter, setSubmittedLetter] = useState("");
     const apiService = useApi();
-    const router = useRouter();
     const [userId, setUserId] = useState<string | null>(null);
     const [token, setToken] = useState<string | null>(null);
     const [tilesInHand, setTilesInHand] = useState <(string | null)[]>(new Array(7).fill(null));
@@ -254,25 +252,25 @@ const Gamestate: React.FC = () => {
 
                 });
                 stompClient.subscribe(`/topic/game_states/${id}`, (message) => {
+                    
                     const response = JSON.parse(message.body);
                     console.log("Response: ", response);
                     const action = response.gameState.action.toString();
                     const responseStatus = response.messageStatus.toString();
-<<<<<<< HEAD
-                    console.log("Action: ", action);
-                    if (action === "GIVE_UP") {
-                        const surrenderedPlayer = response.gameState.playerId == userId;
-                        showModal("Game Over", surrenderedPlayer ? "You have surrendered." : "Your opponent has surrendered!");
-                        showModal("Game Over", "Work in progress...");
-                        handleGameEnd();
-                    } else if (action === "SUBMIT" && responseStatus === "SUCCESS") {
-=======
-                
-
+                    const moveById = response.gameState.playerId.toString();
+                    if (moveById !== localStorage.getItem("userId")) {
+                        handleReturn();
+                    }
                     if (action === "SUBMIT" && responseStatus === "SUCCESS") {
->>>>>>> fb3b780a356229eb1aa8f5075677e8fa0bfede61
+                        const points = response.message.match(/scored (\d+) points/); // Extract the number of points scored from the message
+                        //points = ["scored number points", "number"] ==> points[0] = wanted text
                         const newBoardTiles = response.gameState.board;
                         const parsedBoardTiles = dictifyMatrix(newBoardTiles);
+                        if (moveById === localStorage.getItem("userId")) {
+                            showModal("Points scored", `You ${points[0]}!`)
+                        } else {
+                            showModal("Points scored", `${playerAtTurn.username} ${points[0]}!`)
+                        }
                         setBoardTiles(parsedBoardTiles);
                         setImmutableBoardTiles(prev => ({ ...prev, ...parsedBoardTiles })); 
                         setPlayerAtTurn(prev => prev.id === gameHost.id ? gameGuest : gameHost);
@@ -280,13 +278,16 @@ const Gamestate: React.FC = () => {
                             ...prev,
                             ...response.gameState.playerScores, 
                         }));
-                    
+                                                                                                                                    
                     } else if (responseStatus === "SUCCESS" && action === "GAME_END") {
                         console.log("Game has ended. Reason: Surrender or Time is up");
                         showModal("Game Over", "The game has ended!");
                         handleGameEnd();
                         
                     } else if ((action === "SKIP" || action === "EXCHANGE") && responseStatus === "SUCCESS") {
+                        if (moveById !== localStorage.getItem("userId")) {
+                            showModal("Your turn!", action === "SKIP" ? "Your opponent skipped their turn." : "Your opponent exchanged some tiles.")
+                        }
                         setPlayerAtTurn(prev => prev.id === gameHost.id ? gameGuest : gameHost); 
                     }
                 });
@@ -526,14 +527,13 @@ const Gamestate: React.FC = () => {
             console.error("Game ID or WebSocket client is null or undefined.");
             showModal("Error", "Cannot surrender. Game ID or WebSocket connection is missing.");
             return;
-<<<<<<< HEAD
         }    
         const messageBody: GameState = {
             id: id.toString(),
             board: Array(15).fill(Array(15).fill("")),
             token: token!,
             userTiles: Array(7).fill(""),
-            action: "GIVE_UP",
+            action: "GAME_END",
             playerId: localStorage.getItem("userId")!,
         };
         
@@ -549,40 +549,11 @@ const Gamestate: React.FC = () => {
             console.error("Error terminating the game:", error);
         }
         // Redirect to GameEval page
-=======
-        }
-    
-        stompClientRef.current.publish({
-            destination: `/ws/game_states/${id}`,
-            body: JSON.stringify({
-                action: "GAME_END",
-                reason: "SURRENDER",
-                playerId: localStorage.getItem("userId"),
-                id: id,
-                token: token,
-                userTiles: [],
-                board: [],
-            }),
-        });
-    
-        console.log("Sent GAME_END message:", {
-            action: "GAME_END",
-            reason: "SURRENDER",
-            playerId: localStorage.getItem("userId"),
-            id: id,
-        });
-    
-        showModal("Surrender", "You have surrendered!");
-    };
-
-    const handleGameEnd = () => {
-        showModal("Game Over", "The game has ended.");
-        router.push(`/endstate/${id}`);
->>>>>>> fb3b780a356229eb1aa8f5075677e8fa0bfede61
     };
 
     const handleReturn = () => {
         // Make copies so we can mutate them safely
+        console.log("In handleReturn");
         const updatedHand = [...tilesInHand];
         const updatedBoard = { ...boardTiles };
 
