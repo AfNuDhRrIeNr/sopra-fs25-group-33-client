@@ -5,9 +5,18 @@
 }
 
 .leaderboard-container {
+    display: flex;
+    justify-content: center;
     margin-top: 20px;
     margin-bottom: 20px;
     text-align: center;
+}
+
+.leaderboard-section {
+    width: 45%; /* Each section takes up half the width */
+    text-align: center;
+    margin-left: 20px; /* Add margin to the left */
+    margin-right: 20px; /* Add margin to the right */
 }
 
 .leaderboard-container h2 {
@@ -16,9 +25,8 @@
 }
 
 .leaderboard-table {
-    width: 50%;
-    margin-top: 20px;
-    margin: 0 auto;
+    width: 100%; /* Make the table fill the section */
+    margin: 0;
     border-collapse: collapse;
     background-color: #f9f9f9;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
