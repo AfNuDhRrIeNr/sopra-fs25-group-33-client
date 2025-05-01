@@ -4,8 +4,11 @@ import React, { useEffect, useState } from 'react';
 import { useApi } from "@/hooks/useApi";
 import './leaderboard.css';
 import Image from "next/image";
+import FriendRequests from "@/components/FriendRequests";
 
 interface User {
+    token: string;
+    id: number;
     username: string;
     highScore: number;
     friends: string[];
@@ -20,12 +23,14 @@ const LeaderboardPage: React.FC = () => {
     const [friends, setFriends] = useState<Friend[]>([]);
     const apiService = useApi();
     const [username, setUsername] = useState<string | null>(null);
+    const [token, setToken] = useState<string | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
     const router = useRouter();
-    
+
     useEffect(() => {
         setUsername(localStorage.getItem("username"));
         setUserId(localStorage.getItem("userId"));
+        setToken(localStorage.getItem("token"));
     }, []);
 
     const handleButtonClick = () => {
@@ -52,11 +57,15 @@ const LeaderboardPage: React.FC = () => {
                 }
             })
             .catch((error) => console.error('Error fetching friends:', error));
-    }, [apiService, userId]); // Include userId in the dependency array
+    }, [apiService, userId, friends]);
 
     const friendsLeaderboard = users.filter(
         (user) => friends.some((friend) => friend.name === user.username) || user.username === username
     );
+
+    const handleFriendAdded = (friend: User) => {
+        setFriends([...friends, { name: friend.username }]);
+    };
 
     return (
         <div className="leaderboard-page">
@@ -71,14 +80,9 @@ const LeaderboardPage: React.FC = () => {
                 <div className="Title">ScrabbleNow</div>
                 <div className="userSnippet">
                     <span className="username">{username}</span>
-                    <Image
-                        className="icon"
-                        src="/User_Icon.jpg"
-                        alt="User Icon"
-                        width={100}
-                        height={100}
-                        priority
-                        style={{ cursor: "pointer" }}
+                    <FriendRequests 
+                        username={username} 
+                        onFriendAdded={handleFriendAdded} 
                     />
                 </div>
             </header>
@@ -118,10 +122,10 @@ const LeaderboardPage: React.FC = () => {
                                             width={50}
                                             height={50}
                                             style={{
-                                                width: "auto", // Maintain aspect ratio
-                                                height: "auto", // Maintain aspect ratio
-                                                maxWidth: "50px", // Limit maximum width
-                                                maxHeight: "50px", // Limit maximum height
+                                                width: "auto",
+                                                height: "auto",
+                                                maxWidth: "50px",
+                                                maxHeight: "50px",
                                             }}
                                         />
                                         <span>{user.username}</span>
@@ -167,10 +171,10 @@ const LeaderboardPage: React.FC = () => {
                                             width={50}
                                             height={50}
                                             style={{
-                                                width: "auto", // Maintain aspect ratio
-                                                height: "auto", // Maintain aspect ratio
-                                                maxWidth: "50px", // Limit maximum width
-                                                maxHeight: "50px", // Limit maximum height
+                                                width: "auto",
+                                                height: "auto",
+                                                maxWidth: "50px",
+                                                maxHeight: "50px",
                                             }}
                                         />
                                         <span>{user.username}</span>
