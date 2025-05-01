@@ -5,6 +5,7 @@ import React, { useState, useEffect, useRef } from "react";
 import "@ant-design/v5-patch-for-react-19";
 import { Button } from "antd"; 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import "../gamestate.css";
 import { useApi } from "@/hooks/useApi";
 import { Client } from "@stomp/stompjs";
@@ -134,6 +135,7 @@ const Gamestate: React.FC = () => {
     const [number, setNumber] = useState<number | null>(null);
     // const [submittedLetter, setSubmittedLetter] = useState("");
     const apiService = useApi();
+    const router = useRouter();
     const [userId, setUserId] = useState<string | null>(null);
     const [token, setToken] = useState<string | null>(null);
     const [tilesInHand, setTilesInHand] = useState <(string | null)[]>(new Array(7).fill(null));
@@ -210,6 +212,7 @@ const Gamestate: React.FC = () => {
                 debug: (str) => console.log(str),
             });
             
+
             stompClient.onConnect = () => {
                 console.log("Connected to WebSocket");
                 
@@ -227,7 +230,7 @@ const Gamestate: React.FC = () => {
                     } 
                     else if (response.messageStatus.toString() === "VALIDATION_ERROR") {
                         showModal("Validation", `Validation failed! Reason: ${response.message.toString().substring(16)}`);
-                    } 
+                    }
                     //submit
                     else if (responseStatus === "SUCCESS" && action === "SUBMIT") {
                         const newUserLetters = response.gameState.userTiles
@@ -255,6 +258,7 @@ const Gamestate: React.FC = () => {
                     console.log("Response: ", response);
                     const action = response.gameState.action.toString();
                     const responseStatus = response.messageStatus.toString();
+<<<<<<< HEAD
                     console.log("Action: ", action);
                     if (action === "GIVE_UP") {
                         const surrenderedPlayer = response.gameState.playerId == userId;
@@ -262,6 +266,11 @@ const Gamestate: React.FC = () => {
                         showModal("Game Over", "Work in progress...");
                         handleGameEnd();
                     } else if (action === "SUBMIT" && responseStatus === "SUCCESS") {
+=======
+                
+
+                    if (action === "SUBMIT" && responseStatus === "SUCCESS") {
+>>>>>>> fb3b780a356229eb1aa8f5075677e8fa0bfede61
                         const newBoardTiles = response.gameState.board;
                         const parsedBoardTiles = dictifyMatrix(newBoardTiles);
                         setBoardTiles(parsedBoardTiles);
@@ -271,10 +280,17 @@ const Gamestate: React.FC = () => {
                             ...prev,
                             ...response.gameState.playerScores, 
                         }));
+                    
+                    } else if (responseStatus === "SUCCESS" && action === "GAME_END") {
+                        console.log("Game has ended. Reason: Surrender or Time is up");
+                        showModal("Game Over", "The game has ended!");
+                        handleGameEnd();
+                        
                     } else if ((action === "SKIP" || action === "EXCHANGE") && responseStatus === "SUCCESS") {
                         setPlayerAtTurn(prev => prev.id === gameHost.id ? gameGuest : gameHost); 
                     }
                 });
+
             };
             
             stompClient.activate();
@@ -510,6 +526,7 @@ const Gamestate: React.FC = () => {
             console.error("Game ID or WebSocket client is null or undefined.");
             showModal("Error", "Cannot surrender. Game ID or WebSocket connection is missing.");
             return;
+<<<<<<< HEAD
         }    
         const messageBody: GameState = {
             id: id.toString(),
@@ -532,6 +549,36 @@ const Gamestate: React.FC = () => {
             console.error("Error terminating the game:", error);
         }
         // Redirect to GameEval page
+=======
+        }
+    
+        stompClientRef.current.publish({
+            destination: `/ws/game_states/${id}`,
+            body: JSON.stringify({
+                action: "GAME_END",
+                reason: "SURRENDER",
+                playerId: localStorage.getItem("userId"),
+                id: id,
+                token: token,
+                userTiles: [],
+                board: [],
+            }),
+        });
+    
+        console.log("Sent GAME_END message:", {
+            action: "GAME_END",
+            reason: "SURRENDER",
+            playerId: localStorage.getItem("userId"),
+            id: id,
+        });
+    
+        showModal("Surrender", "You have surrendered!");
+    };
+
+    const handleGameEnd = () => {
+        showModal("Game Over", "The game has ended.");
+        router.push(`/endstate/${id}`);
+>>>>>>> fb3b780a356229eb1aa8f5075677e8fa0bfede61
     };
 
     const handleReturn = () => {
