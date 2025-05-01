@@ -329,10 +329,11 @@ const DashboardPage: React.FC = () => {
                                     .filter((player) => player.rank === 2 || player.rank === 3)
                                     .map((player) => (
                                         <div className="leader" key={player.rank}>
-                                            <img src={player.rank === 2 ? "Silver.png" : "Bronze.png" }/>
+                                            <img src={player.rank === 2 ? "/Silver.png" : "/Bronze.png" }/>
                                             {player.name}
                                         </div>
-                                    ))}
+                                    ))
+                                    }
                             </div>
                         </div>
                     </div>
