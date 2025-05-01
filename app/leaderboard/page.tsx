@@ -1,5 +1,5 @@
 'use client';
-import { useParams, useRouter } from "next/navigation"; // use NextJS router for navigation
+import { useRouter } from "next/navigation"; // use NextJS router for navigation
 import React, { useEffect, useState } from 'react';
 import { useApi } from "@/hooks/useApi";
 import './leaderboard.css';
@@ -20,13 +20,11 @@ const LeaderboardPage: React.FC = () => {
     const [friends, setFriends] = useState<Friend[]>([]);
     const apiService = useApi();
     const [username, setUsername] = useState<string | null>(null);
-    const [token, setToken] = useState<string | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
     const router = useRouter();
     
     useEffect(() => {
         setUsername(localStorage.getItem("username"));
-        setToken(localStorage.getItem("token"));
         setUserId(localStorage.getItem("userId"));
     }, []);
 
