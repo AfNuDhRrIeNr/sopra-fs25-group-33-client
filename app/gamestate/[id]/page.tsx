@@ -17,81 +17,9 @@ import "../playingButtons.css";
 import "../top.css";
 import { CustomAlertModal } from "@/components/customModal"; // Import CustomAlertModal
 import { getApiDomain } from "@/utils/domain";
+import Board from "@/components/Board";
 
 // TODO: Replace some alerts with customModal
-
-// Generate specialTiles outside the component to prevent re-execution
-const generateSpecialTiles = () => {
-    const specialTiles: { [key: string]: string } = {};
-    for (let row = 0; row < 15; row++) {
-        for (let col = 0; col < 15; col++) {
-            // Triple Word (Triple-Word-Score)
-            if (
-                (row === 14 && (col === 7 || col === 14)) ||
-                (row === 7 && col === 14) || 
-                (row === 14 && col === 14) || 
-                (row === 0 && col % 7 === 0) || 
-                (col === 0 && row % 7 === 0)
-              ) {
-                const key = `${col}-${row}`;
-                specialTiles[key] = 'Triple-Word-Score';
-                continue;  // Assign 'Triple-Word-Score' class for triple word tiles
-            }
-
-            // Double Letter (Double-Letter-Score)
-            if (
-                ((col === 3 || col === 11) && [0, 7, 14].includes(row)) ||
-                ((col === 6 || col === 8) && [2, 6, 8, 12].includes(row)) ||
-                (col === 7 && [3, 11].includes(row)) ||
-                (([0, 14].includes(col)) && [3, 11].includes(row)) ||
-                (([2, 12].includes(col)) && [6, 8].includes(row))
-
-            ) {
-                const key = `${col}-${row}`;
-                specialTiles[key] = 'Double-Letter-Score';
-                continue; 
-            }
-
-            // Double Word (Double-Word-Score)
-            if (
-                (col === row && [1, 2, 3, 4, 10, 11, 12, 13].includes(row)) ||
-                (col + row === 14 && [1, 2, 3, 4, 10, 11, 12, 13].includes(row))
-            ) {
-                const key = `${col}-${row}`;
-                specialTiles[key] = 'Double-Word-Score';
-                continue; 
-            }
-
-            // Triple Letter (Triple-Letter-Score)
-            if (
-                ((col === 1 || col === 13) && [5, 9].includes(row)) ||
-                ((col === 5 || col === 9) && [1, 5, 9, 13].includes(row))
-
-            ) {
-                const key = `${col}-${row}`;
-                specialTiles[key] = 'Triple-Letter-Score';
-                continue; 
-            }
-
-            // center
-            if (
-                col === 7 && row ===7
-            )
-                {
-                    const key = "7-7";
-                    specialTiles[key] = 'Center';
-                    continue; 
-                }
-            
-            const key = `${col}-${row}`;
-            specialTiles[key] = 'Base'; 
-        }
-    }
-    return specialTiles;
-};
-
-const specialTiles = generateSpecialTiles();
-
 
 interface GameState {
     id: string;
@@ -132,7 +60,6 @@ const Gamestate: React.FC = () => {
     const router = useRouter();
     const [letter, setLetter] = useState("");
     const [number, setNumber] = useState<number | null>(null);
-    // const [submittedLetter, setSubmittedLetter] = useState("");
     const apiService = useApi();
     const [userId, setUserId] = useState<string | null>(null);
     const [token, setToken] = useState<string | null>(null);
@@ -316,13 +243,6 @@ const Gamestate: React.FC = () => {
             }
         };
     }, [isInitialized]); // Add dependencies to useEffect
-    
-    // const disconnectWebSocket = () => {
-    //     if (stompClientRef.current) {
-    //         console.log("Manually disconnecting from WebSocket.");
-    //         stompClientRef.current.deactivate();
-    //     }
-    // };
 
     const sendMessage = (messageBody: string) => {
         if (stompClientRef.current) {
@@ -349,12 +269,6 @@ const Gamestate: React.FC = () => {
         router.push(`/eval/${id}`); // Redirect to the home page or any other page
     }
     
-    // Function to get the tile class
-    const getTileClass = (row: number, col: number) => {
-        const key = `${col}-${row}`;
-        return specialTiles[key];
-    };
-
     const handleCheck = async () => {
         if (letter.length !== 1 || !/[a-zA-Z]/.test(letter)) { // ! Never reached since button is disabled
             showModal("Error", "Please enter a single letter.");
@@ -605,17 +519,28 @@ const Gamestate: React.FC = () => {
         }
     }
 
+    const handleHandDragStart = (e: React.DragEvent, index: number) => {
+        e.dataTransfer.setData("index", index.toString());
+        e.dataTransfer.setData("imageSrc", tilesInHand[index] || "");
+    
+        const target = e.target as HTMLImageElement;
+        target.classList.add("dragging");
+    
+        // Keep the dragged image visible since reference opacity is now 0
+        const dragPreview = document.createElement("img");
+        dragPreview.src = target.src;
+        dragPreview.style.width = target.width + "px";
+        dragPreview.style.height = target.height + "px";
+    
+        e.dataTransfer.setDragImage(dragPreview, target.width / 2, target.height / 2);
+    };
 
       // Handle drag start
-    const handleDragStart = (e: React.DragEvent, index: number | null, col: number | null, row: number | null) => {
-        if (index !== null) {
-            e.dataTransfer.setData("index", index.toString()); // Store the image index from inside the hand
-            e.dataTransfer.setData("imageSrc", tilesInHand[index] || ''); // Store the image source
-        } else if (col !== null && row !== null) {
-            e.dataTransfer.setData("col", col.toString());
-            e.dataTransfer.setData("row", row.toString());
-            e.dataTransfer.setData("imageSrc", boardTiles[`${col}-${row}`] || '');
-        }
+    const handleDragStart = (e: React.DragEvent, col: number, row: number) => {
+        e.dataTransfer.setData("col", col.toString());
+        e.dataTransfer.setData("row", row.toString());
+        e.dataTransfer.setData("imageSrc", boardTiles[`${col}-${row}`] || '');
+        
         const target = e.target as HTMLImageElement; //set original e (e meaning event) (e.target) type as htmlimage
         target.classList.add('dragging');
         
@@ -817,39 +742,15 @@ const Gamestate: React.FC = () => {
     return (
         <div id="screen">
             <div id="board-container">
-                <div id="game-board" style={{
-                    gridTemplateColumns: 'repeat(15, 1fr)',
-                    gridTemplateRows: 'repeat(15, 1fr)',
-                }}>
-                    {[...Array(15)].map((_, row) => (
-                        [...Array(15)].map((_, col) => {
-                            const tileClass = getTileClass(row, col);
-                            return (
-                                <div key={`${col}-${row}`} 
-                                    id={`tile-${col}-${row}`} 
-                                    data-coordinates={`(${col},${row})`} 
-                                    className={tileClass}
-                                    onDragOver={handleDragOver}
-                                    title = {tileClass}
-                                    onDrop={(e) => handleBoardDrop(e, col, row)}
-                                    >
-                                       {boardTiles[`${col}-${row}`] && (
-                                        <Image 
-                                            src={boardTiles[`${col}-${row}`] || "/letters/empty tile 70.jpg"} 
-                                            alt={`Tile at ${col}-${row}`} 
-                                            className={`board-tiles ${immutableBoardTiles[`${col}-${row}`] ? 'immutable-tile' : ''}`}
-                                            width={100} 
-                                            height={100}
-                                            draggable = {!immutableBoardTiles[`${col}-${row}`]} // Disable dragging for immutable tiles
-                                            onDragStart={(e) => handleDragStart(e, null, col, row)} 
-                                            onDragEnd = {handleDragEnd}
-                                        /> 
-                                        )}
-                                </div>
-                            );
-                        })
-                    ))}
-                </div>
+                <Board
+                    boardTiles={boardTiles}
+                    immutableBoardTiles={immutableBoardTiles}
+                    isInteractive={true} // Enable interactivity
+                    onDragOver={handleDragOver}
+                    onDrop={handleBoardDrop}
+                    onDragStart={handleDragStart}
+                    onDragEnd={handleDragEnd}
+                />
             </div>
             <div id="rest-container">
                 <div id="top">
@@ -983,7 +884,7 @@ const Gamestate: React.FC = () => {
                         width={100}
                         height={100} 
                         draggable
-                        onDragStart={(e)=>handleDragStart(e, index, null, null)}
+                        onDragStart={(e)=>handleHandDragStart(e, index)}
                         onDragEnd = {handleDragEnd}
                         />
                     )}
