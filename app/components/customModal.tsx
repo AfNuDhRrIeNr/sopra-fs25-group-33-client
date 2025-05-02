@@ -103,7 +103,7 @@ export const CustomListModal = <T,>({
       <div className="modal">
         <h2>{title}</h2>
         {items.length > 0 ? (
-          <ul>
+          <ul className="friend-requests-list">
             {items.map((item, index) => (
               <li key={index}>{renderItem(item)}</li>
             ))}
