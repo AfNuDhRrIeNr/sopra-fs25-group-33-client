@@ -329,14 +329,18 @@ const DashboardPage: React.FC = () => {
                                     .filter((player) => player.rank === 2 || player.rank === 3)
                                     .map((player) => (
                                         <div className="leader" key={player.rank}>
-                                            <img src={player.rank === 2 ? "Silver.png" : "Bronze.png" }/>
+                                            <img src={player.rank === 2 ? "/Silver.png" : "/Bronze.png" }/>
                                             {player.name}
                                         </div>
-                                    ))}
+                                    ))
+                                    }
                             </div>
                         </div>
                     </div>
-                    <button className="show-more-button">Show more</button>
+                    <button 
+                        className="show-more-button"
+                        onClick={() => router.push("/leaderboard")}
+                    >Show more</button>
                 </div>
                 {/* Modal for Pending Friend Requests */}
                 {isPendingRequestsModalOpen && (
