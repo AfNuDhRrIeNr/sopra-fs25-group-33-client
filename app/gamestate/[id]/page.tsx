@@ -158,7 +158,9 @@ const Gamestate: React.FC = () => {
     const [gameHost, setGameHost] = useState<User>(defaultUser);
     const [gameGuest, setGameGuest] = useState<User>(defaultUser);
     const [isInitialized, setIsInitialized] = useState(false);
-    const tilesInHandRef = useRef<(string | null)[]>(tilesInHand); // Create a ref to store the tiles in hand
+    const tilesInHandRef = useRef(tilesInHand); // Create a ref to store the tiles in hand
+    const boardTilesRef = useRef(boardTiles); // Create a ref to store the board tiles
+    const immutableBoardTilesRef = useRef(immutableBoardTiles); // Create a ref to store the immutable board tiles
     const [showNumber, setShowNumber] = useState(false); // Toggle between button and number
     const [turnTimeLeft, setTurnTimeLeft] = useState(180);
     const alreadySkippedRef = useRef(false);
@@ -258,10 +260,10 @@ const Gamestate: React.FC = () => {
                     const action = response.gameState.action.toString();
                     const responseStatus = response.messageStatus.toString();
                     const moveById = response.gameState.playerId.toString();
-                    if (moveById !== localStorage.getItem("userId")) {
-                        handleReturn();
-                    }
                     if (action === "SUBMIT" && responseStatus === "SUCCESS") {
+                        if (moveById !== localStorage.getItem("userId")) {
+                            handleReturn();
+                        }
                         const points = response.message.match(/scored (\d+) points/); // Extract the number of points scored from the message
                         //points = ["scored number points", "number"] ==> points[0] = wanted text
                         const newBoardTiles = response.gameState.board;
@@ -280,10 +282,14 @@ const Gamestate: React.FC = () => {
                         }));
                                                                                                                                     
                     } else if (responseStatus === "SUCCESS" && action === "GAME_END") {
-                        console.log("Game has ended. Reason: Surrender or Time is up");
+                        console.log("Game has ended. Reason: time out or vote.");
                         showModal("Game Over", "The game has ended!");
-                        handleGameEnd();
                         
+                    } else if (action === "SURRENDER" && responseStatus === "SUCCESS") {
+                        console.log("Game has ended. Reason: surrender.");
+                        showModal("Game Over", moveById !== localStorage.getItem("userId") ? "Your opponent surrendered." : "You have surrendered.")
+                        
+
                     } else if ((action === "SKIP" || action === "EXCHANGE") && responseStatus === "SUCCESS") {
                         if (moveById !== localStorage.getItem("userId")) {
                             showModal("Your turn!", action === "SKIP" ? "Your opponent skipped their turn." : "Your opponent exchanged some tiles.")
@@ -522,6 +528,14 @@ const Gamestate: React.FC = () => {
         tilesInHandRef.current = tilesInHand; // Update the ref whenever tilesInHand changes
     }, [tilesInHand])
 
+    useEffect (() => {
+        boardTilesRef.current = boardTiles; // Update the ref whenever boardTiles changes
+    }, [boardTiles]);
+
+    useEffect (() => {
+        immutableBoardTilesRef.current = immutableBoardTiles; // Update the ref whenever immutableBoardTiles changes)
+    }, [immutableBoardTiles]);
+
     const handleSurrender = () => {
         if (!id || !stompClientRef.current) {
             console.error("Game ID or WebSocket client is null or undefined.");
@@ -533,7 +547,7 @@ const Gamestate: React.FC = () => {
             board: Array(15).fill(Array(15).fill("")),
             token: token!,
             userTiles: Array(7).fill(""),
-            action: "GAME_END",
+            action: "SURRENDER",
             playerId: localStorage.getItem("userId")!,
         };
         
@@ -541,49 +555,56 @@ const Gamestate: React.FC = () => {
     };
 
     const handleGameEnd = async () => {
+        if (!id || !stompClientRef.current) {
+            console.error("Game ID or WebSocket client is null or undefined.");
+            showModal("Error", "The game cannot be ended since the game cannot be found or the WebSocket client has an error.");
+            return;
+        }    
+        const messageBody: GameState = {
+            id: id.toString(),
+            board: Array(15).fill(Array(15).fill("")),
+            token: token!,
+            userTiles: Array(7).fill(""),
+            action: "GAME_END",
+            playerId: localStorage.getItem("userId")!,
+        };
 
-        try {
-            await apiService.put(`/games/${id}`, { gameStatus: "TERMINATED" });
-            console.log("Game status updated to TERMINATED.");
-        } catch (error) {
-            console.error("Error terminating the game:", error);
-        }
-        // Redirect to GameEval page
+        sendMessage(JSON.stringify(messageBody));
     };
 
     const handleReturn = () => {
-        // Make copies so we can mutate them safely
-        console.log("In handleReturn");
-        const updatedHand = [...tilesInHand];
-        const updatedBoard = { ...boardTiles };
+        const updatedHand = [...tilesInHandRef.current];
+        const updatedBoard = { ...boardTilesRef.current };
+        const tempImmutables = { ...immutableBoardTilesRef.current };
+        let hasChanges = false;
 
-        for (const key in boardTiles) {
-            if (immutableBoardTiles[key]) continue; // Skip immutable tiles
+        for (const key in boardTilesRef.current) {
 
+            if (tempImmutables[key]) {
 
-            const image = boardTiles[key];
+                continue; // Skip immutable tiles
+            }
+
+            const image = updatedBoard[key];
             const emptyIndex = updatedHand.findIndex(tile => tile === null);
-
             if (emptyIndex !== -1 && image) {
                 updatedHand[emptyIndex] = image;
                 delete updatedBoard[key];
+                hasChanges = true;
             } else {
                 // Optional: alert or handle situation where hand is full
                 console.warn(`No space in hand to return tile from board position ${key}`);
             }
         }
 
-        setTilesInHand(updatedHand);
-        setBoardTiles(updatedBoard);
+        if (hasChanges) {
+            setTilesInHand(updatedHand);
+            setBoardTiles(updatedBoard);
+        } else {
+            console.log("No changes made to hand or board.");
+        }
     }
 
-    // const setHandImageAt = (index: number, imagePath: string | null) => {
-    //     setTilesInHand(prev => {
-    //         const updated = [...prev];
-    //         updated[index] = imagePath;
-    //         return updated;
-    //     })
-    // }
 
       // Handle drag start
     const handleDragStart = (e: React.DragEvent, index: number | null, col: number | null, row: number | null) => {
@@ -736,7 +757,6 @@ const Gamestate: React.FC = () => {
             setRemainingTime((prev) => {
                 if (prev <= 1) {
                     clearInterval(timer); // Stop the timer when it reaches 0
-                    showModal("Game Over", "The game has ended.");
                     handleGameEnd(); // End the game
                     return 0;
                 }
