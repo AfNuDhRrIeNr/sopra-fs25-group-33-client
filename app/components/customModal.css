@@ -1,5 +1,5 @@
- /* Modal Overlay */
- .modal-overlay {
+  /* Modal Overlay */
+  .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -78,3 +78,61 @@
     margin-top: 10px;
   }
   
+  .user-icon {
+    position: relative;
+    display: inline-block;
+    height: clamp(1rem, min(73vh, 7vw), 100%);
+    width: auto;
+    overflow: hidden;
+  }
+  
+  /* Red notification dot */
+  .notification-dot {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 15px;
+    height: 15px;
+    background-color: var(--Button-red);
+    border-radius: 50%;
+    z-index: 10;
+  }
+  
+  /* Smaller avatar size for the modal */
+  .modal-avatar {
+    width: 40px; 
+    height: 40px;
+    object-fit: cover; /* Ensure the image scales properly */
+    margin-right: 10px; /* Add spacing between the avatar and the text */
+  }
+  
+  /* Friend Requests List */
+  .friend-requests-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Space between rows */
+  }
+  
+  /* Friend Request Row */
+  .friend-request-row, .invitations-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Spread items across the row */
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: var(--Box-purple); /* Optional: Add a background color */
+    border-radius: 8px; /* Optional: Add rounded corners */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle shadow */
+  }
+  
+  /* Username */
+  .friend-username {
+    flex: 1; /* Take up remaining space between avatar and buttons */
+    margin-left: 10px; /* Space between avatar and username */
+    font-size: 16px;
+    font-weight: bold;
+    color: white; /* Adjust text color */
+  }
