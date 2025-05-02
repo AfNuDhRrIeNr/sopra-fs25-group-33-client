@@ -1,0 +1,73 @@
+.leaderboard-page {
+    display: flex;
+    flex-direction: column;
+    margin-top: 11vh;
+}
+
+.leaderboard-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.leaderboard-section {
+    width: 45%; /* Each section takes up half the width */
+    text-align: center;
+    margin-left: 20px; /* Add margin to the left */
+    margin-right: 20px; /* Add margin to the right */
+}
+
+.leaderboard-container h2 {
+    margin-bottom: 20px;
+    font-size: 35px;
+}
+
+.leaderboard-table {
+    width: 100%; /* Make the table fill the section */
+    margin: 0;
+    border-collapse: collapse;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    table-layout: fixed;
+}
+
+leaderboard-table td:first-child {
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.leaderboard-table td:nth-child(2), .leaderboard-table th:nth-child(2) {
+    text-align: center;
+}
+
+.leaderboard-table th, .leaderboard-table td {
+    padding: 20px;
+    text-align: left;
+    font-size: clamp(1rem, 2vw, 2vw);
+}
+
+.leaderboard-table th {
+    background-color: #9A9CF5;
+    font-weight: bold;
+}
+
+.leaderboard-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.leaderboard-table tr:hover {
+    background-color: #ddd;
+}
+
+.leaderboard-table td.user-info {
+    display: flex;
+    align-items: center;
+    padding-left: 20px;
+    gap: 30px;
+    justify-content: left;
+    overflow-x: auto;
+    white-space: nowrap;
+}
