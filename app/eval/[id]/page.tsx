@@ -8,6 +8,8 @@ import { useApi } from "@/hooks/useApi";
 import FriendRequests from "@/components/FriendRequests";
 import "../modal.css"; 
 import "../eval.css"; 
+import Image from "next/image";
+
 
 
 
@@ -22,18 +24,17 @@ const Eval: React.FC = () => {
   const [isPendingRequestsModalOpen, setIsPendingRequestsModalOpen] = useState(false);
   
   
-  interface Game {
-    gameId: number;
-    users: User[];
-    host: User;
-    gameStatus: string; // CREATED, ONGOING, TERMINATED
-  }
+//   interface Game {
+//     gameId: number;
+//     users: User[];
+//     host: User;
+//     gameStatus: string; // CREATED, ONGOING, TERMINATED
+//   }
 
   interface User {
     token: string;
     id: number;
     username: string;
-    highScore: number;
     friends: string[];
 }
 
@@ -126,7 +127,7 @@ useEffect(() => {
             onClick={handleButtonClick}
             style={{ backgroundColor: '#D04949', left: 0, marginLeft: '1vw' }}
         >
-            Back
+            Dashboard
         </button>
         <div className="Title">ScrabbleNow</div>
         <div className="userSnippet">
@@ -138,7 +139,54 @@ useEffect(() => {
       </header>
 
       <main>
-        
+        <div id = "left_side">
+            <div className = "user_quarter">
+                <div className = "place" id = "first_place">
+                    1st
+                </div>
+                <div className = "user" style={{marginLeft: "8.1%"}}>
+                    <Image
+                    className = "bigger_icon"
+                    src="/User_Icon.jpg"
+                    alt="User Icon"
+                    width={100}
+                    height={100}
+                    priority
+                />
+                    <div>
+                        Stand In 
+                    </div>
+                </div>
+                <div className = "userInfo">
+                    <span>Score:</span>
+                    <span className = "points">Points</span>
+                </div>
+            </div>
+            <div className = "user_quarter">
+            <div className = "place" id = "second_place">
+                    2nd
+                </div>
+                <div className = "user" style={{marginLeft: "8.1%"}}>
+                        <Image
+                        className = "bigger_icon"
+                        src="/User_Icon.jpg"
+                        alt="User Icon"
+                        width={100}
+                        height={100}
+                        priority
+                    />
+                    <div>
+                        Stand In 
+                    </div>
+                </div>
+                <div className = "userInfo">
+                    <span>Score:</span>
+                    <span className = "points">Points</span>
+                </div>
+            </div>
+        </div>
+        <div id = "right_side">
+        </div>
       {isPendingRequestsModalOpen && (
         <div className="modal-overlay">
             <div className="modal">
