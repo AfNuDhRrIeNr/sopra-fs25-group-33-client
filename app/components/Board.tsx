@@ -10,6 +10,7 @@ interface BoardProps {
     onDrop?: (e: React.DragEvent, col: number, row: number) => void;
     onDragStart?: (e: React.DragEvent, col: number, row: number) => void;
     onDragEnd?: (e: React.DragEvent) => void;
+    onTileClick?: (col: number, row: number) => void;
 }
 
 const generateSpecialTiles = () => {
@@ -92,6 +93,7 @@ const Board: React.FC<BoardProps> = ({
     onDrop,
     onDragStart,
     onDragEnd,
+    onTileClick,
 }) => {
     return (
         <div
@@ -105,6 +107,7 @@ const Board: React.FC<BoardProps> = ({
                 [...Array(15)].map((_, col) => {
                     const key = `${col}-${row}`;
                     const tileClass = specialTiles[key];
+                    const isImmutable = immutableBoardTiles[key] !== undefined;
                     return (
                         <div
                             key={key}
@@ -114,17 +117,22 @@ const Board: React.FC<BoardProps> = ({
                             onDragOver={isInteractive ? onDragOver : undefined}
                             onDrop={isInteractive ? (e) => onDrop?.(e, col, row) : undefined}
                             title={tileClass}
+                            onClick = { 
+                                isInteractive && !isImmutable && onTileClick 
+                                ? () => onTileClick(col, row)
+                                : undefined
+                            }
                         >
                             {boardTiles[key] && (
                                 <Image
                                     src={boardTiles[key] || "/letters/empty tile 70.jpg"}
                                     alt={`Tile at ${col}-${row}`}
                                     className={`board-tiles ${
-                                        immutableBoardTiles[key] ? "immutable-tile" : ""
+                                        isImmutable ? "immutable-tile" : ""
                                     }`}
                                     width={100}
                                     height={100}
-                                    draggable={isInteractive && !immutableBoardTiles[key]} // Disable dragging for immutable tiles
+                                    draggable={isInteractive && !isImmutable} // Disable dragging for immutable tiles
                                     onDragStart={
                                         isInteractive
                                             ? (e) => onDragStart?.(e, col, row)
