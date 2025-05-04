@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useApi } from "@/hooks/useApi";
 import { CustomListModal } from "./customModal"; // Import CustomListModal
 
+
 interface FriendRequestsProps {
     onFriendAdded?: (friend: User) => void; // Callback when a friend is added
 }
@@ -27,7 +28,6 @@ const FriendRequests: React.FC<FriendRequestsProps> = ({ onFriendAdded }) => {
     const apiService = useApi();
 
     useEffect(() => {
-        // Poll for friend requests
         const fetchFriendRequests = () => {
             apiService.get<FriendRequest[]>('/users/friendRequests')
                 .then((data) => {
