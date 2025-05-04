@@ -36,6 +36,7 @@ const Lobby: React.FC = () => {
     token: string;
     id: number;
     username: string;
+    status: string; // ONLINE, OFFLINE, IN_GAME
     highScore: number;
     friends: string[];
   }
