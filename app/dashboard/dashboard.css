@@ -116,11 +116,11 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    font-size: 24px;
+    font-size: clamp(1rem, 2vw, 2vw);
   }
   
   .leader img {
-    height: 125px;
+    height: 110px;
     margin-bottom: 10px; /* Space between image and text */
   }
   

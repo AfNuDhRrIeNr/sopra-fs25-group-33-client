@@ -19,12 +19,6 @@ interface Friend {
     username: string;
 }
 
-// TODO logic for Leaderboard (currently hardcoded)
-interface LeaderboardPlayer {
-    rank: number;
-    name: string;
-}
-
 interface Game {
     id: number;
     host: string;
@@ -52,11 +46,7 @@ const DashboardPage: React.FC = () => {
     const [username, setUsername] = useState<string | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
     const [friends, setFriends] = useState<Friend[]>([]);
-    const [leaderboard] = useState<LeaderboardPlayer[]>([
-        { rank: 1, name: 'Monica' },
-        { rank: 2, name: 'Daniel' },
-        { rank: 3, name: 'Marcel' },
-    ]);
+    const [leaders, setLeaders] = useState<User[]>([]);
     const [pendingInvitations, setPendingInvitations] = useState<GameInvitation[]>([]);
     const [sentRequests, setSentRequests] = useState<FriendRequest[]>([]);
     const [isAddFriendModalOpen, setIsAddFriendModalOpen] = useState(false);
@@ -98,6 +88,16 @@ const DashboardPage: React.FC = () => {
 
         return () => clearInterval(intervalId); // Cleanup on unmount
     }, [apiService, userId, token]);
+
+    useEffect(() => {
+            if (!token) return; // Ensure userId is available before making the API call
+    
+            apiService.get<User[]>('/users?leaderboard=true')
+                .then((data) => setLeaders(data))
+                .catch((error) => console.error('Error fetching leaderboard data:', error));
+
+        }, [apiService, token]);
+
 
     // Function to send a friend request
     const sendFriendRequest = () => {
@@ -266,25 +266,23 @@ const DashboardPage: React.FC = () => {
                     <div className="leaderboard">
                         <div className="leaderboard-list">
                             <div className="leaderboard-row">
-                                {leaderboard
-                                    .filter((player) => player.rank === 1)
-                                    .map((player) => (
-                                        <div className="leader" key={player.rank}>
-                                            <img src={"/Gold.png"}/>
-                                            {player.name}
-                                        </div>
-                                    ))}
+                                {leaders.slice(0, 1).map((leader) => (
+                                    <div className="leader" key={leader.id}>
+                                        <img src={"/Gold.png"} alt="Rank 1" />
+                                        {leader.username}
+                                    </div>
+                                ))}
                             </div>
                             <div className="leaderboard-row">
-                                {leaderboard
-                                    .filter((player) => player.rank === 2 || player.rank === 3)
-                                    .map((player) => (
-                                        <div className="leader" key={player.rank}>
-                                            <img src={player.rank === 2 ? "/Silver.png" : "/Bronze.png" }/>
-                                            {player.name}
-                                        </div>
-                                    ))
-                                    }
+                                {leaders.slice(1, 3).map((leader, index) => (
+                                    <div className="leader" key={leader.id}>
+                                        <img
+                                            src={index === 0 ? "/Silver.png" : "/Bronze.png"}
+                                            alt={`Rank ${index + 2}`}
+                                        />
+                                        {leader.username}
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>
