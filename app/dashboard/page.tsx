@@ -17,6 +17,7 @@ interface FriendRequest {
 
 interface Friend {
     username: string;
+    status: string; // ONLINE, OFFLINE, IN_GAME
 }
 
 interface Game {
@@ -36,7 +37,7 @@ interface User {
     token: string;
     id: number;
     username: string;
-    friends: string[]; // List of usernames
+    friends: Friend[];
     status: string; // ONLINE, OFFLINE, IN_GAME
 }
 
@@ -45,7 +46,20 @@ const DashboardPage: React.FC = () => {
     const [token, setToken] = useState<string | null>(null);
     const [username, setUsername] = useState<string | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
-    const [friends, setFriends] = useState<Friend[]>([]);
+    const [friends, setFriends] = useState<Friend[]>([
+        {
+            username: "JohnDoe",
+            status: "ONLINE"
+        },
+        {
+            username: "JaneSmith",
+            status: "OFFLINE"
+        },
+        {
+            username: "AliceWonderland",
+            status: "IN_GAME"
+        }
+    ]);
     const [leaders, setLeaders] = useState<User[]>([]);
     const [pendingInvitations, setPendingInvitations] = useState<GameInvitation[]>([]);
     const [sentRequests, setSentRequests] = useState<FriendRequest[]>([]);
@@ -65,16 +79,17 @@ const DashboardPage: React.FC = () => {
     useEffect(() => {
         if (!token) return; // Skip polling if token is not available
         const fetchUpdates = () => {
-            apiService.get<User[]>(`/users?userId=${userId}`)
+            /*apiService.get<User[]>(`/users?userId=${userId}`)
                 .then((data) => {
                     const user = (data[0] || {}) as User;
-                    const friendsList = (user.friends || []).map((username) => ({
-                        username: username, // Map the username to the Friend interface
+                    const friendsList = (user.friends || []).map((friend) => ({
+                        username: friend.username, // Extract username
+                        status: friend.status, // Extract status
                     }));
                     setFriends(friendsList); // Update the friends state
                 })
                 .catch((error) => console.error('Error fetching friends:', error));
-            
+            */
             apiService.get<GameInvitation[]>(`/games/invitations/${userId}`)
             .then((data) => {
                 const pending = data.filter((invitation) => invitation.status === "PENDING");
@@ -250,22 +265,25 @@ const DashboardPage: React.FC = () => {
                 <div className="dashboard-section">
                     <h2>Friends List</h2>
                     <div className="friends-list">
-                        <ul>
-                            {friends.map((friend) => (
-                                <li key={friend.username} className="friend-item">
-                                    <img src="/User_Icon.jpg" alt="User Icon" className="user-icon" />
-                                    {friend.username}
-                                    <img
-                                        src="/PlayIcon.png"
-                                        alt="Play Icon"
-                                        style={{ width: "20px", height: "20px", cursor: "pointer", marginLeft: "20px" }}
-                                        className="play-icon"
-                                        onClick={() => handlePlayWithFriend(friend.username)
-                                        }
-                                    />
-                                </li>
-                            ))}
-                        </ul>
+                    <ul>
+                        {friends.map((friend) => (
+                            <li key={friend.username} className="friend-item">
+                                <img src="/User_Icon.jpg" alt="User Icon" className="user-icon" />
+                                <span className="username">{friend.username}</span>
+                                <span 
+                                    className={`status-circle ${friend.status.toLowerCase()}`}
+                                    title={friend.status}    
+                                ></span>
+                                <img
+                                    src="/PlayIcon.png"
+                                    alt="Play Icon"
+                                    className="play-icon"
+                                    onClick={() => handlePlayWithFriend(friend.username)}
+                                    title={`Play with ${friend.username}`}
+                                />
+                            </li>
+                        ))}
+                    </ul>
                     </div>
                 <button 
                     className="add-friend-button" 
