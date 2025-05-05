@@ -144,6 +144,26 @@ const DashboardPage: React.FC = () => {
         }
     };
 
+    const handlePlayWithFriend = async (friendUsername: string) => {
+        try {
+            // Create a new game lobby
+            const response = await apiService.post<Game>("/games", {});
+            if (response.id) {
+                // Send a game invitation to the friend
+                await apiService.post<GameInvitation>("/games/invitations", {
+                    gameId: response.id,
+                    targetUsername: friendUsername,
+                });
+    
+                // Redirect to the lobby
+                router.push(`/lobby/${response.id}`);
+            }
+        } catch (error) {
+            console.error("Error creating game or sending invitation:", error);
+            alert(`Could not start a game with ${friendUsername}: ${(error as Error).message}`);
+        }
+    };
+
     // Function to accept or decline game invitations
     const handleInvitation = async (invitationId: number, action: 'play' | 'decline') => {
         const status = action === 'play' ? 'ACCEPTED' : 'DECLINED';
@@ -232,14 +252,26 @@ const DashboardPage: React.FC = () => {
                     <div className="friends-list">
                         <ul>
                             {friends.map((friend) => (
-                                <li key={friend.username}>
-                                    <img src="/User_Icon.jpg" alt="User Icon" />
-                                    {friend.username} {/* Display the friend's name */}
+                                <li key={friend.username} className="friend-item">
+                                    <img src="/User_Icon.jpg" alt="User Icon" className="user-icon" />
+                                    {friend.username}
+                                    <img
+                                        src="/PlayIcon.png"
+                                        alt="Play Icon"
+                                        style={{ width: "20px", height: "20px", cursor: "pointer", marginLeft: "20px" }}
+                                        className="play-icon"
+                                        onClick={() => handlePlayWithFriend(friend.username)
+                                        }
+                                    />
                                 </li>
                             ))}
                         </ul>
                     </div>
-                    <button className="add-friend-button" onClick={() => setIsAddFriendModalOpen(true)}>Add Friend</button>
+                <button 
+                    className="add-friend-button" 
+                    onClick={() => setIsAddFriendModalOpen(true)}>
+                        Add Friend
+                </button>
                 </div>
                 {/* CustomInputModal for Adding Friend */}
                 <CustomInputModal
