@@ -46,20 +46,7 @@ const DashboardPage: React.FC = () => {
     const [token, setToken] = useState<string | null>(null);
     const [username, setUsername] = useState<string | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
-    const [friends, setFriends] = useState<Friend[]>([
-        {
-            username: "JohnDoe",
-            status: "ONLINE"
-        },
-        {
-            username: "JaneSmith",
-            status: "OFFLINE"
-        },
-        {
-            username: "AliceWonderland",
-            status: "IN_GAME"
-        }
-    ]);
+    const [friends, setFriends] = useState<Friend[]>([]);
     const [leaders, setLeaders] = useState<User[]>([]);
     const [pendingInvitations, setPendingInvitations] = useState<GameInvitation[]>([]);
     const [sentRequests, setSentRequests] = useState<FriendRequest[]>([]);
@@ -79,7 +66,7 @@ const DashboardPage: React.FC = () => {
     useEffect(() => {
         if (!token) return; // Skip polling if token is not available
         const fetchUpdates = () => {
-            /*apiService.get<User[]>(`/users?userId=${userId}`)
+            apiService.get<User[]>(`/users?userId=${userId}`)
                 .then((data) => {
                     const user = (data[0] || {}) as User;
                     const friendsList = (user.friends || []).map((friend) => ({
@@ -89,7 +76,7 @@ const DashboardPage: React.FC = () => {
                     setFriends(friendsList); // Update the friends state
                 })
                 .catch((error) => console.error('Error fetching friends:', error));
-            */
+            
             apiService.get<GameInvitation[]>(`/games/invitations/${userId}`)
             .then((data) => {
                 const pending = data.filter((invitation) => invitation.status === "PENDING");
