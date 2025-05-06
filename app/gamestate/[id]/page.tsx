@@ -424,7 +424,7 @@ const Gamestate: React.FC = () => {
         sendMessage(JSON.stringify(messageBody));
     };
 
-    const handleVote = async () => {
+    const handleVote = () => {
 
         const currentTime = Date.now();
 
@@ -452,7 +452,7 @@ const Gamestate: React.FC = () => {
         showAlertModal("Vote", "Vote sent! Waiting for your opponent's response.");
     }
     
-    const handleDecline = async () => {
+    const handleDecline = () => {
         if (!id || !stompClientRef.current) {
             console.error("Game ID or WebSocket client is null or undefined.");
             return;
@@ -531,7 +531,7 @@ const Gamestate: React.FC = () => {
         sendMessage(JSON.stringify(messageBody));
     };
 
-    const handleGameEnd = async () => {
+    const handleGameEnd = () => {
         setDecisionModalVisible(false); // Close the decision modal
         if (!id || !stompClientRef.current) {
             console.error("Game ID or WebSocket client is null or undefined.");
