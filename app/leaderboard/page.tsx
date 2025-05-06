@@ -12,11 +12,12 @@ interface User {
     username: string;
     status: string; // ONLINE, OFFLINE, IN_GAME
     highScore: number;
-    friends: string[];
+    friends: Friend[];
 }
 
 interface Friend {
     username: string;
+    status: string; // ONLINE, OFFLINE, IN_GAME
 }
 
 const LeaderboardPage: React.FC = () => {
@@ -45,17 +46,14 @@ const LeaderboardPage: React.FC = () => {
             .then((data) => setUsers(data))
             .catch((error) => console.error('Error fetching leaderboard data:', error));
 
-        apiService.get<User[]>(`/users?userId=${userId}`)
+            apiService.get<User[]>(`/users?userId=${userId}`)
             .then((data) => {
-                if (data.length > 0) {
-                    const user = data[0] as User;
-                    const friendsList = (user.friends || []).map((username) => ({
-                        username: username, // Map the username to the Friend interface
-                    }));
-                    setFriends(friendsList); // Update the friends state
-                } else {
-                    console.error('No user data found for the given userId.');
-                }
+                const user = (data[0] || {}) as User;
+                const friendsList = (user.friends || []).map((friend) => ({
+                    username: friend.username, // Extract username
+                    status: friend.status, // Extract status
+                }));
+                setFriends(friendsList); // Update the friends state
             })
             .catch((error) => console.error('Error fetching friends:', error));
     }, [apiService, userId, friends]);
@@ -65,7 +63,7 @@ const LeaderboardPage: React.FC = () => {
     );
 
     const handleFriendAdded = (friend: User) => {
-        setFriends([...friends, { username: friend.username }]);
+        setFriends([...friends, { username: friend.username, status: friend.status }]);
     };
 
     return (

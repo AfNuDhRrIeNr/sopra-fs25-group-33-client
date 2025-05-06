@@ -17,12 +17,7 @@ interface FriendRequest {
 
 interface Friend {
     username: string;
-}
-
-// TODO logic for Leaderboard (currently hardcoded)
-interface LeaderboardPlayer {
-    rank: number;
-    name: string;
+    status: string; // ONLINE, OFFLINE, IN_GAME
 }
 
 interface Game {
@@ -42,7 +37,7 @@ interface User {
     token: string;
     id: number;
     username: string;
-    friends: string[]; // List of usernames
+    friends: Friend[];
     status: string; // ONLINE, OFFLINE, IN_GAME
 }
 
@@ -52,11 +47,7 @@ const DashboardPage: React.FC = () => {
     const [username, setUsername] = useState<string | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
     const [friends, setFriends] = useState<Friend[]>([]);
-    const [leaderboard] = useState<LeaderboardPlayer[]>([
-        { rank: 1, name: 'Monica' },
-        { rank: 2, name: 'Daniel' },
-        { rank: 3, name: 'Marcel' },
-    ]);
+    const [leaders, setLeaders] = useState<User[]>([]);
     const [pendingInvitations, setPendingInvitations] = useState<GameInvitation[]>([]);
     const [sentRequests, setSentRequests] = useState<FriendRequest[]>([]);
     const [isAddFriendModalOpen, setIsAddFriendModalOpen] = useState(false);
@@ -78,8 +69,9 @@ const DashboardPage: React.FC = () => {
             apiService.get<User[]>(`/users?userId=${userId}`)
                 .then((data) => {
                     const user = (data[0] || {}) as User;
-                    const friendsList = (user.friends || []).map((username) => ({
-                        username: username, // Map the username to the Friend interface
+                    const friendsList = (user.friends || []).map((friend) => ({
+                        username: friend.username, // Extract username
+                        status: friend.status, // Extract status
                     }));
                     setFriends(friendsList); // Update the friends state
                 })
@@ -98,6 +90,16 @@ const DashboardPage: React.FC = () => {
 
         return () => clearInterval(intervalId); // Cleanup on unmount
     }, [apiService, userId, token]);
+
+    useEffect(() => {
+            if (!token) return; // Ensure userId is available before making the API call
+    
+            apiService.get<User[]>('/users?leaderboard=true')
+                .then((data) => setLeaders(data))
+                .catch((error) => console.error('Error fetching leaderboard data:', error));
+
+        }, [apiService, token]);
+
 
     // Function to send a friend request
     const sendFriendRequest = () => {
@@ -141,6 +143,26 @@ const DashboardPage: React.FC = () => {
         } catch (error) {
             console.error("Error creating lobby:", error);
             alert(`Could not create lobby: ${(error as Error).message}`);
+        }
+    };
+
+    const handlePlayWithFriend = async (friendUsername: string) => {
+        try {
+            // Create a new game lobby
+            const response = await apiService.post<Game>("/games", {});
+            if (response.id) {
+                // Send a game invitation to the friend
+                await apiService.post<GameInvitation>("/games/invitations", {
+                    gameId: response.id,
+                    targetUsername: friendUsername,
+                });
+    
+                // Redirect to the lobby
+                router.push(`/lobby/${response.id}`);
+            }
+        } catch (error) {
+            console.error("Error creating game or sending invitation:", error);
+            alert(`Could not start a game with ${friendUsername}: ${(error as Error).message}`);
         }
     };
 
@@ -230,16 +252,31 @@ const DashboardPage: React.FC = () => {
                 <div className="dashboard-section">
                     <h2>Friends List</h2>
                     <div className="friends-list">
-                        <ul>
-                            {friends.map((friend) => (
-                                <li key={friend.username}>
-                                    <img src="/User_Icon.jpg" alt="User Icon" />
-                                    {friend.username} {/* Display the friend's name */}
-                                </li>
-                            ))}
-                        </ul>
+                    <ul>
+                        {friends.map((friend) => (
+                            <li key={friend.username} className="friend-item">
+                                <img src="/User_Icon.jpg" alt="User Icon" className="user-icon" />
+                                <span className="username">{friend.username}</span>
+                                <span 
+                                    className={`status-circle ${friend.status.toLowerCase()}`}
+                                    title={friend.status}    
+                                ></span>
+                                <img
+                                    src="/PlayIcon.png"
+                                    alt="Play Icon"
+                                    className="play-icon"
+                                    onClick={() => handlePlayWithFriend(friend.username)}
+                                    title={`Play with ${friend.username}`}
+                                />
+                            </li>
+                        ))}
+                    </ul>
                     </div>
-                    <button className="add-friend-button" onClick={() => setIsAddFriendModalOpen(true)}>Add Friend</button>
+                <button 
+                    className="add-friend-button" 
+                    onClick={() => setIsAddFriendModalOpen(true)}>
+                        Add Friend
+                </button>
                 </div>
                 {/* CustomInputModal for Adding Friend */}
                 <CustomInputModal
@@ -266,25 +303,23 @@ const DashboardPage: React.FC = () => {
                     <div className="leaderboard">
                         <div className="leaderboard-list">
                             <div className="leaderboard-row">
-                                {leaderboard
-                                    .filter((player) => player.rank === 1)
-                                    .map((player) => (
-                                        <div className="leader" key={player.rank}>
-                                            <img src={"/Gold.png"}/>
-                                            {player.name}
-                                        </div>
-                                    ))}
+                                {leaders.slice(0, 1).map((leader) => (
+                                    <div className="leader" key={leader.id}>
+                                        <img src={"/Gold.png"} alt="Rank 1" />
+                                        <span className="username">{leader.username}</span>
+                                    </div>
+                                ))}
                             </div>
                             <div className="leaderboard-row">
-                                {leaderboard
-                                    .filter((player) => player.rank === 2 || player.rank === 3)
-                                    .map((player) => (
-                                        <div className="leader" key={player.rank}>
-                                            <img src={player.rank === 2 ? "/Silver.png" : "/Bronze.png" }/>
-                                            {player.name}
-                                        </div>
-                                    ))
-                                    }
+                                {leaders.slice(1, 3).map((leader, index) => (
+                                    <div className="leader" key={leader.id}>
+                                        <img
+                                            src={index === 0 ? "/Silver.png" : "/Bronze.png"}
+                                            alt={`Rank ${index + 2}`}
+                                        />
+                                        <span className="username">{leader.username}</span>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>

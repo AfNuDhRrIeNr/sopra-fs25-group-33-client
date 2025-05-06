@@ -88,8 +88,7 @@
   .friends-list li {
     display: flex;
     align-items: center;
-    margin-bottom: 20px;
-    font-size: 24px;
+    font-size: clamp(1rem, 2vw, 2vw);
   }
   
   .friends-list li img {
@@ -98,6 +97,67 @@
     margin-right: 20px;
   }
   
+  .friend-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .friend-item .user-icon {
+    flex: 0 0 20%; /* 20% of the width */
+    max-width: 20%;
+    height: auto;
+    object-fit: cover;
+  }
+
+  .friend-item .username {
+    flex: 0 0 60%; /* 60% of the width */
+    max-width: 50%;
+    text-align: left;
+    font-size: clamp(1rem, 2vw, 2vw);
+    overflow-x: auto; /* Enable horizontal scrolling */
+    white-space: nowrap; /* Prevent text wrapping */
+    text-overflow: unset; /* Remove ellipsis */
+  }
+
+  /* Base style for the status circle */
+  .friend-item .status-circle {
+    flex: 0 0 auto; /* 10% of the width */
+    max-width: 15%;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    margin: 0 auto; /* Center the circle */
+  }
+
+  /* Status-specific colors */
+  .status-circle.online {
+    background-color: var(--Button-green);
+  }
+
+  .status-circle.offline {
+    background-color: var(--Button-gold);
+  }
+
+  .status-circle.in_game {
+    background-color: var(--Button-red);
+  }
+
+  .friend-item .play-icon {
+    flex: 0 0 auto; /* 10% of the width */
+    max-width: 15%;
+    cursor: pointer;
+    margin-left: auto;
+    display: block;
+    width: 25px;
+    height: 20px;
+    padding-left:5px;
+  }
+
   .leaderboard-list {
     display: flex;
     flex-direction: column;
@@ -116,11 +176,18 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    font-size: 24px;
+  }
+
+  .leader .username {
+    font-size: clamp(1rem, 2vw, 2vw);
+    max-width: 130px; /* Limit width */
+    overflow-x: auto; /* Enable horizontal scrolling */
+    white-space: nowrap; /* Prevent text wrapping */
+    text-overflow: unset; /* Remove ellipsis */
   }
   
   .leader img {
-    height: 125px;
+    height: 110px;
     margin-bottom: 10px; /* Space between image and text */
   }
   
@@ -223,14 +290,6 @@
 .modal-button-gold {
   background-color: var(--Button-gold, #DCBB73);
   margin-top: 10px;
-}
-
-.user-icon {
-  position: relative;
-  display: inline-block;
-  height: clamp(1rem, min(73vh, 7vw), 100%);
-  width: auto;
-  overflow: hidden;
 }
 
 /* Red notification dot */

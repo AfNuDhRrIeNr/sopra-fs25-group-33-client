@@ -14,13 +14,18 @@ interface User {
     username: string;
     status: string; // ONLINE, OFFLINE, IN_GAME
     highScore: number;
-    friends: string[];
+    friends: Friend[];
 }
 
 interface FriendRequest {
     id: number;
     sender: User;
     status: string; // PENDING, ACCEPTED, DECLINED
+}
+
+interface Friend {
+        username: string;
+        status: string; // ONLINE, OFFLINE, IN_GAME
 }
 
 const FriendRequests: React.FC<FriendRequestsProps> = ({ onFriendAdded }) => {
