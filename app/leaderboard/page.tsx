@@ -10,12 +10,13 @@ interface User {
     token: string;
     id: number;
     username: string;
+    status: string; // ONLINE, OFFLINE, IN_GAME
     highScore: number;
     friends: string[];
 }
 
 interface Friend {
-    name: string;
+    username: string;
 }
 
 const LeaderboardPage: React.FC = () => {
@@ -49,7 +50,7 @@ const LeaderboardPage: React.FC = () => {
                 if (data.length > 0) {
                     const user = data[0] as User;
                     const friendsList = (user.friends || []).map((username) => ({
-                        name: username, // Map the username to the Friend interface
+                        username: username, // Map the username to the Friend interface
                     }));
                     setFriends(friendsList); // Update the friends state
                 } else {
@@ -60,11 +61,11 @@ const LeaderboardPage: React.FC = () => {
     }, [apiService, userId, friends]);
 
     const friendsLeaderboard = users.filter(
-        (user) => friends.some((friend) => friend.name === user.username) || user.username === username
+        (user) => friends.some((friend) => friend.username === user.username) || user.username === username
     );
 
     const handleFriendAdded = (friend: User) => {
-        setFriends([...friends, { name: friend.username }]);
+        setFriends([...friends, { username: friend.username }]);
     };
 
     return (
