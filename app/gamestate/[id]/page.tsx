@@ -193,6 +193,7 @@ const Gamestate: React.FC = () => {
                     const action = response.gameState.action.toString();
                     const responseStatus = response.messageStatus.toString();
                     const moveById = response.gameState.playerId.toString();
+                    const playerUsername = moveById === gameHost.id.toString() ? gameHost.username : gameGuest.username;
                     if (action === "SUBMIT" && responseStatus === "SUCCESS") {
                         if (moveById !== localStorage.getItem("userId")) {
                             handleReturn();
@@ -204,7 +205,7 @@ const Gamestate: React.FC = () => {
                         if (moveById === localStorage.getItem("userId")) {
                             showAlertModal("Points scored", `You ${points[0]}!`)
                         } else {
-                            showAlertModal("Points scored", `${playerAtTurn.username} ${points[0]}!`)
+                            showAlertModal("Points scored", `${playerUsername} ${points[0]}!`)
                         }
                         setBoardTiles(parsedBoardTiles);
                         setImmutableBoardTiles(prev => ({ ...prev, ...parsedBoardTiles })); 
@@ -511,6 +512,7 @@ const Gamestate: React.FC = () => {
     }, [immutableBoardTiles]);
 
     const handleSurrender = () => {
+        setDecisionModalVisible(false); // Close the decision modal
         if (!id || !stompClientRef.current) {
             console.error("Game ID or WebSocket client is null or undefined.");
             showAlertModal("Error", "Cannot surrender. Game ID or WebSocket connection is missing.");
