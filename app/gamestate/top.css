@@ -4,26 +4,45 @@
     width: 100%;
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
 }
 
 #timer {
     height: 100%;
+    width: 15%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4.5vh;
+    /* border: 2px solid black; */
+}
+
+#end_buttons {
+    height: 100%;
     width: 40%;
     display: flex;
     align-items: center;
-    justify-content: left;
-    padding-left: 2vw;
-    font-size: 4.5vh;
+    justify-content: end;
+    /* border: 2px solid black; */
+}
+
+#end_vote {
+    height: 100%;
+    width: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#end_vote_button {
+    background-color: #DCBB73;
 }
 
 #surrender {
     height: 100%;
-    width: 30%;
+    width: 50%;
     display: flex;
     align-items: center;
     justify-content: right;
-    padding-right: 1vh;
 }
 
 #surrender-button {
@@ -105,10 +124,12 @@
 
 #turn-timer {
     height: 100%;
-    width: 100%;
+    width: 45%;
+    padding: 0 10px;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    /* border:2px solid black; */
   }
   
   .timer {
@@ -116,7 +137,7 @@
   }
   
   .timer-bar-container {
-    width: 80%; /* Adjust width as needed */
+    width: 90%; /* Adjust width as needed */
     height: 20px; /* Height of the timer bar */
     background-color: #e0e0e0; /* Background color of the bar */
     border-radius: 10px; /* Rounded corners */

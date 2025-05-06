@@ -36,6 +36,7 @@ const Lobby: React.FC = () => {
     token: string;
     id: number;
     username: string;
+    status: string; // ONLINE, OFFLINE, IN_GAME
     highScore: number;
     friends: string[];
   }
@@ -127,7 +128,7 @@ const Lobby: React.FC = () => {
             alert("Failed to send the invitation. Please try again.");
         });
 };
-
+// this is where the page is updated when a friend is added, not needed on some pages
   const handleFriendAdded = (friend: User) => {
     setFriends([...friends, friend]); // Update friends list
   };

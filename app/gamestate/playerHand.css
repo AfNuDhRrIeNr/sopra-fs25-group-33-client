@@ -31,8 +31,8 @@
 }
 
 .board-tiles {
-    width: 100%;
-    height: 100%;
+    width: 90%;
+    height: 90%;
     cursor: grab;
 }
 
@@ -43,8 +43,6 @@
 #undo-button-image {
     /* position: absolute; */
     display: flex;
-    margin-left: 0;
-    margin-right: 2vh;
     height: 4vh;
     width: 4vh;
     /* padding-right: 2vh; */

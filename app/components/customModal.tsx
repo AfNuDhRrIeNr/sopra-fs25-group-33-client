@@ -80,3 +80,76 @@ export const CustomInputModal: React.FC<CustomInputModalProps> = ({
     </div>
   );
 };
+
+interface CustomListModalProps<T> {
+  visible: boolean;
+  title: string;
+  items: T[];
+  renderItem: (item: T) => React.ReactNode; // Function to render each item
+  onClose: () => void;
+}
+
+export const CustomListModal = <T,>({
+  visible,
+  title,
+  items,
+  renderItem,
+  onClose,
+}: CustomListModalProps<T>) => {
+  if (!visible) return null;
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal">
+        <h2>{title}</h2>
+        {items.length > 0 ? (
+          <ul className="friend-requests-list">
+            {items.map((item, index) => (
+              <li key={index}>{renderItem(item)}</li>
+            ))}
+          </ul>
+        ) : (
+          <p>No items available.</p>
+        )}
+        <button className="modal-button-gold" onClick={onClose}>
+          Close
+        </button>
+      </div>
+    </div>
+  );
+};
+
+interface CustomDecisionModalProps {
+  visible: boolean;
+  title: string;
+  message: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}
+
+export const CustomDecisionModal: React.FC<CustomDecisionModalProps> = ({
+  visible,
+  title,
+  message,
+  onConfirm,
+  onCancel,
+}) => {
+  if (!visible) return null;
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal">
+        <h2>{title}</h2>
+        <p>{message}</p>
+        <div className="modal-buttons">
+          <button className="modal-button-green" onClick={onConfirm}>
+            {title === "Vote" ? "Agree" : "Yes"}
+          </button>
+          <button className="modal-button-red" onClick={onCancel}>
+            {title === "Vote" ? "Disagree" : "Cancel"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};

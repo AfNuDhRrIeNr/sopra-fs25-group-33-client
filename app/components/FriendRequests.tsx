@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import Image from "next/image";
 import { useApi } from "@/hooks/useApi";
+import { CustomListModal } from "./customModal"; // Import CustomListModal
+
 
 interface FriendRequestsProps {
     onFriendAdded?: (friend: User) => void; // Callback when a friend is added
@@ -10,6 +12,7 @@ interface User {
     token: string;
     id: number;
     username: string;
+    status: string; // ONLINE, OFFLINE, IN_GAME
     highScore: number;
     friends: string[];
 }
@@ -26,7 +29,6 @@ const FriendRequests: React.FC<FriendRequestsProps> = ({ onFriendAdded }) => {
     const apiService = useApi();
 
     useEffect(() => {
-        // Poll for friend requests
         const fetchFriendRequests = () => {
             apiService.get<FriendRequest[]>('/users/friendRequests')
                 .then((data) => {
@@ -78,38 +80,36 @@ const FriendRequests: React.FC<FriendRequestsProps> = ({ onFriendAdded }) => {
                 style={{ cursor: "pointer" }}
             />
             {pendingRequests.length > 0 && <div className="notification-dot"></div>}
-            {isModalOpen && (
-                <div className="modal-overlay">
-                    <div className="modal">
-                        <h2>Pending Friend Requests</h2>
-                        {pendingRequests.length > 0 ? (
-                            <ul>
-                                {pendingRequests.map((request) => (
-                                    <li key={request.id} className='friend-request-row'>
-                                        <img 
-                                            src="/User_Icon.jpg" 
-                                            alt="User Icon"
-                                            className='modal-avatar'
-                                        />
-                                        <span className='friend-username'>{request.sender.username}</span>
-                                        <div className='modal-buttons'>
-                                            <button className='modal-button-green' onClick={() => handleFriendRequest(request.id, 'accept')}>
-                                                Accept
-                                            </button>
-                                            <button className='modal-button-red' onClick={() => handleFriendRequest(request.id, 'decline')}>
-                                                Decline
-                                            </button>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <p>No pending friend requests.</p>
-                        )}
-                        <button className='modal-button-gold' onClick={() => setIsModalOpen(false)}>Close</button>
+            <CustomListModal
+                visible={isModalOpen}
+                title="Pending Friend Requests"
+                items={pendingRequests}
+                renderItem={(request) => (
+                    <div className="friend-request-row">
+                        <img
+                            src="/User_Icon.jpg"
+                            alt="User Icon"
+                            className="modal-avatar"
+                        />
+                        <span className="friend-username">{request.sender.username}</span>
+                        <div className="modal-buttons">
+                            <button
+                                className="modal-button-green"
+                                onClick={() => handleFriendRequest(request.id, 'accept')}
+                            >
+                                Accept
+                            </button>
+                            <button
+                                className="modal-button-red"
+                                onClick={() => handleFriendRequest(request.id, 'decline')}
+                            >
+                                Decline
+                            </button>
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
+                onClose={() => setIsModalOpen(false)}
+            />
         </>
     );
 };
