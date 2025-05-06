@@ -49,11 +49,12 @@ const Eval: React.FC = () => {
         username: string;
         status: string; // ONLINE, OFFLINE, IN_GAME
         highScore: number;
-        friends: string[];
+        friends: Friend[];
     }
 
     interface Friend {
     username: string;
+    status: string; // ONLINE, OFFLINE, IN_GAME
     }
 
     interface SentInvitation {
