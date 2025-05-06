@@ -123,11 +123,6 @@ const defaultUser: User = {
     username: "Unknown",
 }
 
-interface GamePutDTO {
-    gameStatus: string | null;
-    newTiles: string[];
-}
-
 const Gamestate: React.FC = () => {
     const [letter, setLetter] = useState("");
     const [number, setNumber] = useState<number | null>(null);
@@ -164,10 +159,10 @@ const Gamestate: React.FC = () => {
     useEffect(()=> {
         setToken(localStorage.getItem("token"));
         setUserId(localStorage.getItem("userId"));
-        assignTilesToPlayer(7);
         
         apiService.get<Game>(`/games/${id}`)
             .then((game) => {
+                console.log(game);
                 setGameHost(game.host);
                 setGameGuest(game.users[1]);
 
@@ -176,7 +171,7 @@ const Gamestate: React.FC = () => {
                     [game.users[1].id]: 0,
                 });
 
-                setPlayerAtTurn(game.host);
+                setPlayerAtTurn(game.hostTurn ? game.host : game.users[1]);
                 setIsInitialized(true); // Set initialized to true after fetching game data
             })
             .catch((error) => console.error("Error retrieving game information:", error));
@@ -217,19 +212,21 @@ const Gamestate: React.FC = () => {
                         const response = JSON.parse(message.body);
                         const action = response.gameState.action.toString();
                         const responseStatus = response.messageStatus.toString();
+                        console.log(response);
                         if (action === "SUBMIT" && responseStatus === "SUCCESS") {
                             const newBoardTiles = response.gameState.board;
                             const parsedBoardTiles = dictifyMatrix(newBoardTiles);
                             setBoardTiles(parsedBoardTiles);
                             setImmutableBoardTiles(prev => ({ ...prev, ...parsedBoardTiles })); // Store immutable tiles
-                            setPlayerAtTurn(prev => prev.id === gameHost.id ? gameGuest : gameHost); // Toggle player at turn
+                            setPlayerAtTurn(response.hostTurn ? gameHost : gameGuest); // Toggle player at turn
                             setPlayerPoints((prev) => ({
                                 ...prev,
                                 ...response.gameState.playerScores, // Merge new scores into the existing playerPoints
                             }));
+                            setTilesInHand(response.gameState.userTiles);
                         } else if ((action === "SKIP" ||
                             action === "EXCHANGE") && responseStatus === "SUCCESS") {
-                            setPlayerAtTurn(prev => prev.id === gameHost.id ? gameGuest : gameHost); // Toggle player at turn
+                            setPlayerAtTurn(response.hostTurn ? gameHost : gameGuest); // Toggle player at turn
                         }
                     });
 
@@ -239,7 +236,7 @@ const Gamestate: React.FC = () => {
                         const response = JSON.parse(message.body);
                         const action = response.gameState.action.toString();
                         const responseStatus = response.messageStatus.toString();
-
+                        console.log(response);
                         //verify
                         if (response.messageStatus.toString() === "VALIDATION_SUCCESS") {
                             showModal("Validation", "Validation successful!");
@@ -250,6 +247,8 @@ const Gamestate: React.FC = () => {
                         }
                         //submit
                         else if (responseStatus === "SUCCESS" && action === "SUBMIT") {
+                        //fetch game state
+                        else if (responseStatus === "SUCCESS" && action === "FETCH_GAME_STATE") {
                             const newUserLetters = response.gameState.userTiles
                             const currentHand = tilesInHandRef.current; // Get the current hand
 
@@ -266,7 +265,11 @@ const Gamestate: React.FC = () => {
 
                         setTilesInHand(updatedHand);
                         setTileOnBoard(false);
-                    } 
+                        const parsedBoardTiles = dictifyMatrix(response.gameState.board)
+                        setBoardTiles(parsedBoardTiles);
+                        setImmutableBoardTiles(prev => ({ ...prev, ...parsedBoardTiles })); // Store immutable tiles
+                        setPlayerAtTurn(response.id===gameHost.id ? gameHost : gameGuest)
+                    }
                     
 
                 });
@@ -303,7 +306,20 @@ const Gamestate: React.FC = () => {
 
         // Call the function to connect the WebSocket
         if (gameHost.id && gameGuest.id && playerAtTurn.id && id && tilesInHand) {
-            connectWebSocket();
+            connectWebSocket().then(() => {
+                // Create the message body using the GameState interface
+                const messageBody: GameState = {
+                    id: id.toString(),
+                    board: constructMatrix(),
+                    token: token!,
+                    userTiles: [],
+                    action: "FETCH_GAME_STATE",
+                    playerId: localStorage.getItem("userId")!,
+                };
+
+                // Convert the object to a JSON string before sending
+                sendMessage(JSON.stringify(messageBody));
+            });
         }
         // Cleanup WebSocket connection when the component unmounts
         return () => {
@@ -426,7 +442,7 @@ const Gamestate: React.FC = () => {
 
         try {
             const response = await apiService.put<ExchangeResponse>(
-                `/games/${id}/exchange`,
+                `/games/${id}/users/${localStorage.getItem("userId")}/exchange`,
                 exchangeList,
             );
             if (response != null) {
@@ -700,7 +716,7 @@ const Gamestate: React.FC = () => {
 
     useEffect(() => {
         setUserTurn(userId === playerAtTurn.id.toString()); // Update user turn based on the current player at turn
-    }, [playerAtTurn, userId]); // Add playerAtTurn as a dependency
+    }, [setPlayerAtTurn, playerAtTurn, userId]); // Add playerAtTurn as a dependency
 
     // TODO: For a robust solution, use the server-side timer with periodic synchronization
     useEffect(() => {
@@ -729,25 +745,6 @@ const Gamestate: React.FC = () => {
         const minutes = Math.floor(seconds / 60);
         const secs = seconds % 60;
         return `${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-    };
-
-    const assignTilesToPlayer = async (count: number) => {
-        try {
-            const response = await apiService.put<GamePutDTO>(
-                `/games/${id}/assign?count=${count}`,
-                {}
-            );
-            if (response && response.newTiles) {
-                const startingTiles = response.newTiles.map(
-                    (letter: string) => `/letters/${letter} Tile 70.jpg`
-                );
-                // Update the tiles for the specific user
-                setTilesInHand(startingTiles);
-            }
-        } catch (error) {
-            console.error("Error assigning tiles:", error);
-            showModal(`${(error as Error).message}`, "Failed to assign tiles.")
-        }
     };
 
     return (
