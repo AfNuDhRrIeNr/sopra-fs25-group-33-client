@@ -306,7 +306,7 @@ const DashboardPage: React.FC = () => {
                                 {leaders.slice(0, 1).map((leader) => (
                                     <div className="leader" key={leader.id}>
                                         <img src={"/Gold.png"} alt="Rank 1" />
-                                        {leader.username}
+                                        <span className="username">{leader.username}</span>
                                     </div>
                                 ))}
                             </div>
@@ -317,7 +317,7 @@ const DashboardPage: React.FC = () => {
                                             src={index === 0 ? "/Silver.png" : "/Bronze.png"}
                                             alt={`Rank ${index + 2}`}
                                         />
-                                        {leader.username}
+                                        <span className="username">{leader.username}</span>
                                     </div>
                                 ))}
                             </div>
