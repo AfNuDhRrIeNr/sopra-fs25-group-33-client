@@ -133,9 +133,9 @@ reason).
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **[@githubUser4]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **[@githubUser5]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-
+| **Silvan Kasper** | 01.05.25  | [Commit 7bc78ca](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/7bc78ca0db6813d7628e2e73b975ef6445802c54) | Design & Logic of Leaderboard page | The leaderboard is the globally persistent part of our game  |
+|                    | 01.05.25   | [Commit 84a86f0](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/84a86f08cb4a4c333293332cb23a19b86c8c813f) | Create FriendRequest component to handle in all headers | Same behaviour for each header and nice to have |
+|                    | 05.05.25   | [Commit f293144](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/f29314409429afe8bca106bc3899357147fbd1f1) | Upgrade Friends List on Dashboard with status dot and play icon | Now one can see if the friends are available and can invite them directly from dashboard |
 
 ---
 
