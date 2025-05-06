@@ -5,10 +5,10 @@ main {
     display: flex;
     flex-direction: row;
 }
-
+/*
 main div {
-    /* border: 2px solid black; */
-}
+    border: 2px solid black;
+}*/
 
 #left_side {
     display: flex;

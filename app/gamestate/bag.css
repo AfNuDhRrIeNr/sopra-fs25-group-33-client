@@ -19,20 +19,6 @@
     justify-content: center;
 }
 
-#bag-description-container {
-    width: 100%;
-    height: 33.33%;
-    display: flex;
-    justify-content: center;
-    align-items: end;
-}
-
-#bag-description {
-    font-weight: bold;
-    font-size: 4vh;
-    height: fit-content;
-}
-
 #bag-interaction {
     height: 33.33%;
     display: flex; 
@@ -65,7 +51,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding-right: 1vw; /* Add padding to the right */
 }
 
 #bag-button,
@@ -91,20 +76,4 @@
     background-color: #9A9CF5; /* Match the button's background color */
     font-size: 4.5vh; /* Match the button's font size */
     padding: 0; /* Remove padding for consistency */
-}
-
-#tiles-info-container {
-    width: 65%;
-    height: 33.33%;
-    padding-left: 1vw;
-    justify-content: space-between;
-    display: flex;
-    flex-direction: row;
-}
-
-#tiles-info-container div {
-    font-size: 3vh;
-    font-style: italic;
-    height: fit-content;
-    padding-right: 1vw;
 }

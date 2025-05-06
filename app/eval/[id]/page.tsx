@@ -6,26 +6,20 @@ import "@ant-design/v5-patch-for-react-19";
 //import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import FriendRequests from "@/components/FriendRequests";
-import "../modal.css"; 
 import "../eval.css"; 
 import Image from "next/image";
 import Board from "@/components/Board";
 import "../../gamestate/boardTilesColor.css";
 
 
-
-
-
 const Eval: React.FC = () => {
     const router = useRouter();
-    //const [pendingRequests, setPendingRequests] = useState<FriendRequest[]>([]);
     const [username, setUsername] = useState<string | null>(null);
     const [opponentUsername, setOpponentUsername] = useState<string | null>(null);
     //const [token, setToken] = useState<string | null>(null);
     //const [userId, setUserId] = useState<string | null>(null);
     const apiService = useApi();
     const [friends, setFriends] = useState<Friend[]>([]);
-    //const [isPendingRequestsModalOpen, setIsPendingRequestsModalOpen] = useState(false);
     const [immutableBoardTiles, setImmutableBoardTiles] = useState<{ [key:string]: string | null }>({});
     const { id } = useParams();
     const [playerPoints, setPlayerPoints] = useState< {[key:string]: number | null}>({}); // initialize with 0 points each
@@ -61,7 +55,7 @@ const Eval: React.FC = () => {
         targetUsername: string;
     }
 
-    //? I removed polling of friends as we don't use it here jet
+    //? Removed polling of friends as we don't use it here jet
 
     const dictifyMatrix = (matrix: string[][]) => {
         const dict: { [key: string]: string | null } = {};

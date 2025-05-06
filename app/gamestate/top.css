@@ -8,7 +8,7 @@
 
 #timer {
     height: 100%;
-    width: 8vw;
+    width: 15%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -18,7 +18,7 @@
 
 #end_buttons {
     height: 100%;
-    width: 19.5vw;
+    width: 40%;
     display: flex;
     align-items: center;
     justify-content: end;
@@ -43,7 +43,6 @@
     display: flex;
     align-items: center;
     justify-content: right;
-    padding-right: 1vh;
 }
 
 #surrender-button {
@@ -125,7 +124,8 @@
 
 #turn-timer {
     height: 100%;
-    width: 24vw;
+    width: 45%;
+    padding: 0 10px;
     display: flex;
     flex-direction: column;
     justify-content: center;

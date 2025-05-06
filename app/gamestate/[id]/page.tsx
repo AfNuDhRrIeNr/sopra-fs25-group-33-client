@@ -19,7 +19,6 @@ import { CustomAlertModal, CustomDecisionModal } from "@/components/customModal"
 import { getApiDomain } from "@/utils/domain";
 import Board from "@/components/Board";
 
-// TODO: Replace some alerts with customModal
 
 interface GameState {
     id: string;
@@ -72,11 +71,9 @@ const Gamestate: React.FC = () => {
     const [isTileOnBoard, setTileOnBoard] = useState(false);
     const [isMoveVerified, setMoveVerified] = useState(false);
     const [isTileSelected, setTileSelected] = useState(false);
-    // const [messages, setMessages] = useState<string[]>([]);
     const { id } = useParams();
     const stompClientRef = useRef<Client | null>(null);
     const [remainingTime, setRemainingTime] = useState(45 * 60); // 45 minutes in seconds
-    // const [isGameStarted, setIsGameStarted] = useState(false);
     const [alertModalVisible, setAlertModalVisible] = useState(false);
     const [alertModalTitle, setAlertModalTitle] = useState("");
     const [alertModalMessage, setAlertModalMessage] = useState("");
