@@ -127,7 +127,7 @@ reason).
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
 | **[@githubUser1]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **AfNuDhRrIeNr** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+| **AfNuDhRrIeNr** | 02.05.25   | [Commit a69b05a](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/a69b05a7a7d56d96a0680b8eeaa3fe498684b8a9) | Updating the highscore of each user after a game if necessary and differentiate between surrender and game end action. | The highscore needs to be updated for the leaderboard & if a user surrendered the setSurrenderedPlayerId gets set. |
 |                    | 05..05.25-06.05.25   | [Commit edd3c54](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/edd3c54d2fbe75413ca64d1e1fb6f3a6325d3882) | Implementing games deletion endpoint & corresponding tests. | Relevant for the deletion of game entities.|
 | **[@githubUser3]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
