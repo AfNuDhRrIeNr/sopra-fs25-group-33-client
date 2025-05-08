@@ -2,10 +2,9 @@
 import { useRouter } from "next/navigation"; // use NextJS router for navigation
 import React, { useEffect, useState } from 'react';
 import './dashboard.css';
-//import Image from "next/image";
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
-import { CustomInputModal } from "@/components/customModal"; // Import CustomInputModal
+import { CustomInputModal } from "@/components/customModal";
 import FriendRequests from "@/components/FriendRequests";
 
 
@@ -55,28 +54,31 @@ const DashboardPage: React.FC = () => {
     const [newFriendUsername, setNewFriendUsername] = useState<string>('');
     const apiService = useApi();
 
-    //fetch user info from localstorage
     useEffect(()=> {
         setToken(localStorage.getItem("token"));
         setUsername(localStorage.getItem("username"));
         setUserId(localStorage.getItem("userId"));
     }, []);
 
-    // Fetch pending friend requests and game invitations regularly
+    // Fetch pending friend requests and game invitations
     useEffect(() => {
-        if (!token) return; // Skip polling if token is not available
+        if (!token) return;
         const fetchUpdates = () => {
             apiService.get<User[]>(`/users?userId=${userId}`)
                 .then((data) => {
                     const user = (data[0] || {}) as User;
                     const friendsList = (user.friends || []).map((friend) => ({
-                        username: friend.username, // Extract username
-                        status: friend.status, // Extract status
+                        username: friend.username,
+                        status: friend.status,
                     }));
-                    setFriends(friendsList); // Update the friends state
+                    setFriends(friendsList);
                 })
                 .catch((error) => console.error('Error fetching friends:', error));
-            
+
+            apiService.get<User[]>('/users?leaderboard=true')
+                .then((data) => setLeaders(data))
+                .catch((error) => console.error('Error fetching leaderboard data:', error));
+
             apiService.get<GameInvitation[]>(`/games/invitations/${userId}`)
             .then((data) => {
                 const pending = data.filter((invitation) => invitation.status === "PENDING");
@@ -85,23 +87,12 @@ const DashboardPage: React.FC = () => {
             .catch((error) => console.error('Error fetching game invitations:', error));
         };
 
-        fetchUpdates(); // Initial fetch
+        fetchUpdates();
         const intervalId = setInterval(fetchUpdates, 5000);
 
-        return () => clearInterval(intervalId); // Cleanup on unmount
+        return () => clearInterval(intervalId);
     }, [apiService, userId, token]);
 
-    useEffect(() => {
-            if (!token) return; // Ensure userId is available before making the API call
-    
-            apiService.get<User[]>('/users?leaderboard=true')
-                .then((data) => setLeaders(data))
-                .catch((error) => console.error('Error fetching leaderboard data:', error));
-
-        }, [apiService, token]);
-
-
-    // Function to send a friend request
     const sendFriendRequest = () => {
         if (!newFriendUsername.trim()) {
             alert('Please enter a valid username.');
@@ -114,22 +105,17 @@ const DashboardPage: React.FC = () => {
         apiService.post<FriendRequest>(
             '/users/friendRequests', 
             { targetUsername: newFriendUsername,
-              message: "Hello, I would like to be your friend!" // Not displayed in the UI jet
+              message: "Hello, I would like to be your friend!" // Not displayed in the UI
              }
         )
             .then((data) => {
                 setSentRequests([...sentRequests, data]);
-                setNewFriendUsername(''); // Reset input
-                setIsAddFriendModalOpen(false); // Close modal
+                setNewFriendUsername('');
+                setIsAddFriendModalOpen(false);
             })
             .catch((error) => console.error('Error sending friend request:', error));
     };
 
-    const handleFriendAdded = (friend: User) => {
-        setFriends([...friends, friend]); // Update friends list
-      };
-
-    // Function to create a new game state
     const createGamestate = async () => {
         try {
             const response = await apiService.post<Game>(
@@ -157,7 +143,6 @@ const DashboardPage: React.FC = () => {
                     targetUsername: friendUsername,
                 });
     
-                // Redirect to the lobby
                 router.push(`/lobby/${response.id}`);
             }
         } catch (error) {
@@ -170,7 +155,6 @@ const DashboardPage: React.FC = () => {
     const handleInvitation = async (invitationId: number, action: 'play' | 'decline') => {
         const status = action === 'play' ? 'ACCEPTED' : 'DECLINED';
         
-        // Optimistically update the UI by removing the invitation from the pending list
         const updatedPendingInvitations = pendingInvitations.filter((invitation) => invitation.id !== invitationId);
         setPendingInvitations(updatedPendingInvitations);
 
@@ -211,10 +195,10 @@ const DashboardPage: React.FC = () => {
                 "/users/logout", 
                 {}
             );
-            clearToken(); // Clear the token
+            clearToken();
             clearId();
             clearUsername();
-            router.push("/"); // Redirect to login
+            router.push("/"); // to login
         } catch (error) {
             console.error("Error during logout:", error);
         };
@@ -241,9 +225,7 @@ const DashboardPage: React.FC = () => {
                     <span className="username">
                       {username}
                     </span>
-                    <FriendRequests 
-                        onFriendAdded={handleFriendAdded} 
-                    />
+                    <FriendRequests />
                 </div>
             </header>
 
@@ -278,7 +260,6 @@ const DashboardPage: React.FC = () => {
                         Add Friend
                 </button>
                 </div>
-                {/* CustomInputModal for Adding Friend */}
                 <CustomInputModal
                     visible={isAddFriendModalOpen}
                     title="New Friend Request"
@@ -328,7 +309,6 @@ const DashboardPage: React.FC = () => {
                         onClick={() => router.push("/leaderboard")}
                     >Show more</button>
                 </div>
-                {/* Modal for Game Invitations */}
                 {isInvitationsModalOpen && (
                   <div className="modal-overlay">
                       <div className="modal">

@@ -16,9 +16,7 @@ const Lobby: React.FC = () => {
   const [isAlone, setIsAlone] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [newPlayerUsername, setnewPlayerUsername] = useState("");
-  const [sentInvitations, setSentInvitations] = useState<SentInvitation[]>([]);
-  const [friends, setFriends] = useState<User[]>([]);
-  
+  const [sentInvitations, setSentInvitations] = useState<SentInvitation[]>([]);  
   const [username, setUsername] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isHost, setIsHost] = useState(false);
@@ -133,10 +131,6 @@ const Lobby: React.FC = () => {
             alert("Failed to send the invitation. Please try again.");
         });
 };
-// this is where the page is updated when a friend is added, not needed on some pages
-  const handleFriendAdded = (friend: User) => {
-    setFriends([...friends, friend]); // Update friends list
-  };
 
 return (
     <div>
@@ -152,9 +146,7 @@ return (
         <div className="Title">ScrabbleNow</div>
         <div className="userSnippet">
             <span className="username">{username}</span>
-            <FriendRequests 
-                onFriendAdded={handleFriendAdded} 
-            />
+            <FriendRequests />
         </div>
     </header>
 

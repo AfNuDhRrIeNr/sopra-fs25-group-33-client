@@ -3,11 +3,6 @@ import Image from "next/image";
 import { useApi } from "@/hooks/useApi";
 import { CustomListModal } from "./customModal"; // Import CustomListModal
 
-
-interface FriendRequestsProps {
-    onFriendAdded?: (friend: User) => void; // Callback when a friend is added
-}
-
 interface User {
     token: string;
     id: number;
@@ -28,7 +23,7 @@ interface Friend {
         status: string; // ONLINE, OFFLINE, IN_GAME
 }
 
-const FriendRequests: React.FC<FriendRequestsProps> = ({ onFriendAdded }) => {
+const FriendRequests: React.FC = () => {
     const [pendingRequests, setPendingRequests] = useState<FriendRequest[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const apiService = useApi();
@@ -58,10 +53,7 @@ const FriendRequests: React.FC<FriendRequestsProps> = ({ onFriendAdded }) => {
         apiService.put<string>(`/users/friendRequests/${requestId}`, { status })
             .then(() => {
                 if (action === 'accept') {
-                    const acceptedRequest = pendingRequests.find((req) => req.id === requestId);
-                    if (acceptedRequest && onFriendAdded) {
-                        onFriendAdded(acceptedRequest.sender); // Notify parent component
-                    }
+                    // Removed onFriendAdded callback
                 }
             })
             .catch((error) => {

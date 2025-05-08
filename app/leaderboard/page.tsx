@@ -40,7 +40,7 @@ const LeaderboardPage: React.FC = () => {
     };
 
     useEffect(() => {
-        if (!token) return; // Ensure userId is available before making the API call
+        if (!token) return;
 
         apiService.get<User[]>('/users?leaderboard=true')
             .then((data) => setUsers(data))
@@ -50,10 +50,10 @@ const LeaderboardPage: React.FC = () => {
             .then((data) => {
                 const user = (data[0] || {}) as User;
                 const friendsList = (user.friends || []).map((friend) => ({
-                    username: friend.username, // Extract username
-                    status: friend.status, // Extract status
+                    username: friend.username,
+                    status: friend.status,
                 }));
-                setFriends(friendsList); // Update the friends state
+                setFriends(friendsList);
             })
             .catch((error) => console.error('Error fetching friends:', error));
     }, [apiService, userId, friends]);
@@ -62,9 +62,54 @@ const LeaderboardPage: React.FC = () => {
         (user) => friends.some((friend) => friend.username === user.username) || user.username === username
     );
 
-    const handleFriendAdded = (friend: User) => {
-        setFriends([...friends, { username: friend.username, status: friend.status }]);
-    };
+    const renderLeaderboardTable = (leaderboard: User[]) => (
+        <table className="leaderboard-table">
+            <thead>
+                <tr>
+                    <th>User Info</th>
+                    <th>Highscore</th>
+                </tr>
+            </thead>
+            <tbody>
+                {leaderboard.map((user, index) => (
+                    <tr key={index}>
+                        <td className="user-info">
+                            <Image
+                                src={
+                                    index === 0
+                                        ? "/Gold.png"
+                                        : index === 1
+                                        ? "/Silver.png"
+                                        : index === 2
+                                        ? "/Bronze.png"
+                                        : "/User_Icon.jpg"
+                                }
+                                alt={
+                                    index === 0
+                                        ? "Gold Medal"
+                                        : index === 1
+                                        ? "Silver Medal"
+                                        : index === 2
+                                        ? "Bronze Medal"
+                                        : "User Icon"
+                                }
+                                width={50}
+                                height={50}
+                                style={{
+                                    width: "auto",
+                                    height: "auto",
+                                    maxWidth: "50px",
+                                    maxHeight: "50px",
+                                }}
+                            />
+                            <span>{user.username}</span>
+                        </td>
+                        <td>{user.highScore}</td>
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+    );
 
     return (
         <div className="leaderboard-page">
@@ -79,109 +124,17 @@ const LeaderboardPage: React.FC = () => {
                 <div className="Title">ScrabbleNow</div>
                 <div className="userSnippet">
                     <span className="username">{username}</span>
-                    <FriendRequests 
-                        onFriendAdded={handleFriendAdded} 
-                    />
+                    <FriendRequests />
                 </div>
             </header>
             <div className="leaderboard-container">
                 <div className="leaderboard-section">
                     <h2>Friends Leaderboard</h2>
-                    <table className="leaderboard-table">
-                        <thead>
-                            <tr>
-                                <th>User Info</th>
-                                <th>Highscore</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {friendsLeaderboard.map((user, index) => (
-                                <tr key={index}>
-                                    <td className="user-info">
-                                        <Image
-                                            src={
-                                                index === 0
-                                                    ? "/Gold.png"
-                                                    : index === 1
-                                                    ? "/Silver.png"
-                                                    : index === 2
-                                                    ? "/Bronze.png"
-                                                    : "/User_Icon.jpg"
-                                            }
-                                            alt={
-                                                index === 0
-                                                    ? "Gold Medal"
-                                                    : index === 1
-                                                    ? "Silver Medal"
-                                                    : index === 2
-                                                    ? "Bronze Medal"
-                                                    : "User Icon"
-                                            }
-                                            width={50}
-                                            height={50}
-                                            style={{
-                                                width: "auto",
-                                                height: "auto",
-                                                maxWidth: "50px",
-                                                maxHeight: "50px",
-                                            }}
-                                        />
-                                        <span>{user.username}</span>
-                                    </td>
-                                    <td>{user.highScore}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                    {renderLeaderboardTable(friendsLeaderboard)}
                 </div>
                 <div className="leaderboard-section">
                     <h2>Global Leaderboard</h2>
-                    <table className="leaderboard-table">
-                        <thead>
-                            <tr>
-                                <th>User Info</th>
-                                <th>Highscore</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {users.map((user, index) => (
-                                <tr key={index}>
-                                    <td className="user-info">
-                                        <Image
-                                            src={
-                                                index === 0
-                                                    ? "/Gold.png"
-                                                    : index === 1
-                                                    ? "/Silver.png"
-                                                    : index === 2
-                                                    ? "/Bronze.png"
-                                                    : "/User_Icon.jpg"
-                                            }
-                                            alt={
-                                                index === 0
-                                                    ? "Gold Medal"
-                                                    : index === 1
-                                                    ? "Silver Medal"
-                                                    : index === 2
-                                                    ? "Bronze Medal"
-                                                    : "User Icon"
-                                            }
-                                            width={50}
-                                            height={50}
-                                            style={{
-                                                width: "auto",
-                                                height: "auto",
-                                                maxWidth: "50px",
-                                                maxHeight: "50px",
-                                            }}
-                                        />
-                                        <span>{user.username}</span>
-                                    </td>
-                                    <td>{user.highScore}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                    {renderLeaderboardTable(users)}
                 </div>
             </div>
         </div>

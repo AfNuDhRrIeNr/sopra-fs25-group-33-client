@@ -19,7 +19,6 @@ const Eval: React.FC = () => {
     //const [token, setToken] = useState<string | null>(null);
     //const [userId, setUserId] = useState<string | null>(null);
     const apiService = useApi();
-    const [friends, setFriends] = useState<Friend[]>([]);
     const [immutableBoardTiles, setImmutableBoardTiles] = useState<{ [key:string]: string | null }>({});
     const { id } = useParams();
     const [playerPoints, setPlayerPoints] = useState< {[key:string]: number | null}>({}); // initialize with 0 points each
@@ -89,10 +88,6 @@ const Eval: React.FC = () => {
             .catch((error) => console.error("Error retrieving game information:", error));
     }, []);
 
-    const handleFriendAdded = (friend: User) => {
-        setFriends([...friends, friend]);
-    };
-
     const handleButtonClick = () => {
         router.push("/dashboard");
     };
@@ -142,9 +137,7 @@ const Eval: React.FC = () => {
         <div className="Title">ScrabbleNow</div>
         <div className="userSnippet">
             <span className="username">{username}</span>
-            <FriendRequests 
-                onFriendAdded={handleFriendAdded} 
-            />
+            <FriendRequests />
         </div>
       </header>
 
