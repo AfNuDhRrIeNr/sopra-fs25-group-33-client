@@ -6,6 +6,7 @@ import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { CustomInputModal } from "@/components/customModal";
 import FriendRequests from "@/components/FriendRequests";
+import useAuth from "@/hooks/useAuth";
 
 
 interface FriendRequest {
@@ -42,6 +43,7 @@ interface User {
 
 const DashboardPage: React.FC = () => {
     const router = useRouter();
+    const { isAuthenticated, isLoading } = useAuth();
     const [token, setToken] = useState<string | null>(null);
     const [username, setUsername] = useState<string | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
@@ -205,6 +207,13 @@ const DashboardPage: React.FC = () => {
 
     };
 
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+    
+    if (!isAuthenticated) {
+        return null;
+    }
 
     return (
         <div className="dashboard-page">

@@ -5,6 +5,7 @@ import { useApi } from "@/hooks/useApi";
 import './leaderboard.css';
 import Image from "next/image";
 import FriendRequests from "@/components/FriendRequests";
+import useAuth from "@/hooks/useAuth";
 
 interface User {
     token: string;
@@ -27,6 +28,7 @@ const LeaderboardPage: React.FC = () => {
     const [username, setUsername] = useState<string | null>(null);
     const [token, setToken] = useState<string | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
+    const { isAuthenticated, isLoading } = useAuth();
     const maxLeaderboardSize = 20;
     const router = useRouter();
 
@@ -113,6 +115,14 @@ const LeaderboardPage: React.FC = () => {
             </tbody>
         </table>
     );
+
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+
+    if (!isAuthenticated) {
+        return null;
+    }
 
     return (
         <div className="leaderboard-page">

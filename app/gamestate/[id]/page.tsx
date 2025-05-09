@@ -18,6 +18,7 @@ import "../top.css";
 import { CustomAlertModal, CustomDecisionModal } from "@/components/customModal"; // Import CustomAlertModal
 import { getApiDomain } from "@/utils/domain";
 import Board from "@/components/Board";
+import useAuth from "@/hooks/useAuth";
 
 
 interface GameState {
@@ -62,6 +63,7 @@ const Gamestate: React.FC = () => {
     const apiService = useApi();
     const [userId, setUserId] = useState<string | null>(null);
     const [token, setToken] = useState<string | null>(null);
+    const { isAuthenticated, isLoading } = useAuth();
     const [tilesInHand, setTilesInHand] = useState <(string | null)[]>(new Array(7).fill(null));
     const [selectedTiles, setSelectedTiles ] = useState<number[]>([]);
     const [boardTiles, setBoardTiles] = useState<{ [key:string]: string | null }>({});
@@ -95,8 +97,12 @@ const Gamestate: React.FC = () => {
     const [voteCooldownRemaining, setVoteCooldownRemaining] = useState<number | null>(null); // Store the vote cooldown time
 
     useEffect(()=> {
-        setToken(localStorage.getItem("token"));
-        setUserId(localStorage.getItem("userId"));
+            setUserId(localStorage.getItem("userId"));
+            setToken(localStorage.getItem("token"));
+        }, []);
+
+    useEffect(()=> {
+        if (!token) return;
         assignTilesToPlayer(7);
         
         apiService.get<Game>(`/games/${id}`)
@@ -130,7 +136,7 @@ const Gamestate: React.FC = () => {
     }
     
     useEffect(() => {
-        if (!isInitialized) return; // Wait until the game data is fetched
+        if (!isInitialized || !token) return; // Wait until the game data is fetched
 
 
         const connectWebSocket = () => {
@@ -500,14 +506,17 @@ const Gamestate: React.FC = () => {
     };
 
     useEffect (() => {
+        if (!token) return;
         tilesInHandRef.current = tilesInHand; // Update the ref whenever tilesInHand changes
     }, [tilesInHand])
 
     useEffect (() => {
+        if (!token) return;
         boardTilesRef.current = boardTiles; // Update the ref whenever boardTiles changes
     }, [boardTiles]);
 
     useEffect (() => {
+        if (!token) return;
         immutableBoardTilesRef.current = immutableBoardTiles; // Update the ref whenever immutableBoardTiles changes)
     }, [immutableBoardTiles]);
 
@@ -742,6 +751,7 @@ const Gamestate: React.FC = () => {
     }
     
     useEffect(() => {
+        if (!token) return;
         const mutableTiles = Object.keys(boardTiles).filter(key => !immutableBoardTiles[key]);
         setTileOnBoard(mutableTiles.length > 0);
         setMoveVerified(false);
@@ -749,12 +759,15 @@ const Gamestate: React.FC = () => {
     }, [boardTiles, selectedTiles, tilesInHand, playerPoints, immutableBoardTiles]);
 
     useEffect(() => {
+        if (!token) return;
         setUserTurn(userId === playerAtTurn.id.toString()); // Update user turn based on the current player at turn
         console.log("User Turn: ", userId === playerAtTurn.id.toString()); //necessary log so that ui correctly updates.
     }, [playerAtTurn, userId]); // Add playerAtTurn as a dependency
 
 
     useEffect(() => {
+        if (!token) return;
+
         if (!lastVoteTime) {
             setVoteCooldownRemaining(null); // No vote has been sent yet
             return;
@@ -778,6 +791,8 @@ const Gamestate: React.FC = () => {
 
     // TODO: For a robust solution, use the server-side timer with periodic synchronization
     useEffect(() => {
+        if (!token) return;
+
         const startTime = Date.now(); // Simulate server start time
         const endTime = startTime + 45 * 60 * 1000; // 45 minutes later
         const timeLeft = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
@@ -808,7 +823,7 @@ const Gamestate: React.FC = () => {
 
 
     useEffect(() => {
-        if (playerAtTurn.id.toString() !== userId) return; // Only start the timer if it's the user's turn
+        if (playerAtTurn.id.toString() !== userId || !token) return; // Only start the timer if it's the user's turn
 
         const countdownTimer = setInterval(() => {
           setTurnTimeLeft((prev) => {
@@ -845,6 +860,14 @@ const Gamestate: React.FC = () => {
             showAlertModal(`${(error as Error).message}`, "Failed to assign tiles.")
         }
     };
+
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+
+    if (!isAuthenticated) {
+        return null;
+    }
 
     return (
         <div id="screen">

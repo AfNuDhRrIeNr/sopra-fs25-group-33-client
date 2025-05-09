@@ -29,6 +29,7 @@ const FriendRequests: React.FC = () => {
     const apiService = useApi();
 
     useEffect(() => {
+        if (!localStorage.getItem("token")) return;
         const fetchFriendRequests = () => {
             apiService.get<FriendRequest[]>('/users/friendRequests')
                 .then((data) => {
@@ -83,7 +84,7 @@ const FriendRequests: React.FC = () => {
                 items={pendingRequests}
                 renderItem={(request) => (
                     <div className="friend-request-row">
-                        <img
+                        <Image
                             src="/User_Icon.jpg"
                             alt="User Icon"
                             className="modal-avatar"

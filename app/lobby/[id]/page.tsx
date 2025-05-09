@@ -8,6 +8,7 @@ import "../lobby.css";
 import { useApi } from "@/hooks/useApi";
 import { CustomInputModal } from "@/components/customModal";
 import FriendRequests from "@/components/FriendRequests";
+import useAuth from "@/hooks/useAuth";
 
 const Lobby: React.FC = () => {
   const games = 0;
@@ -19,6 +20,7 @@ const Lobby: React.FC = () => {
   const [sentInvitations, setSentInvitations] = useState<SentInvitation[]>([]);  
   const [username, setUsername] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const { isAuthenticated, isLoading } = useAuth();
   const [isHost, setIsHost] = useState(false);
   const { id } = useParams();
   const apiService = useApi();
@@ -131,6 +133,14 @@ const Lobby: React.FC = () => {
             alert("Failed to send the invitation. Please try again.");
         });
 };
+
+if (isLoading) {
+  return <div>Loading...</div>;
+}
+
+if (!isAuthenticated) {
+  return null;
+}
 
 return (
     <div>
