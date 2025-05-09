@@ -3,29 +3,25 @@
 import { useParams, useRouter } from "next/navigation"; // use NextJS router for navigation
 import React, { useState, useEffect } from "react";
 import "@ant-design/v5-patch-for-react-19";
-//import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import FriendRequests from "@/components/FriendRequests";
 import "../eval.css"; 
 import Image from "next/image";
 import Board from "@/components/Board";
 import "../../gamestate/boardTilesColor.css";
-
+import useAuth from "@/hooks/useAuth";
 
 const Eval: React.FC = () => {
     const router = useRouter();
     const [username, setUsername] = useState<string | null>(null);
     const [opponentUsername, setOpponentUsername] = useState<string | null>(null);
-    //const [token, setToken] = useState<string | null>(null);
-    //const [userId, setUserId] = useState<string | null>(null);
+    const [token, setToken] = useState<string | null>(null);
+    const { isAuthenticated, isLoading } = useAuth();
     const apiService = useApi();
-    const [friends, setFriends] = useState<Friend[]>([]);
     const [immutableBoardTiles, setImmutableBoardTiles] = useState<{ [key:string]: string | null }>({});
     const { id } = useParams();
     const [playerPoints, setPlayerPoints] = useState< {[key:string]: number | null}>({}); // initialize with 0 points each
     const [surrendered, setSurrendered] = useState(false); // Track if the game was surrendered
-    
-        
     
     
     interface Game {
@@ -73,8 +69,11 @@ const Eval: React.FC = () => {
 
     useEffect(()=> {
         setUsername(localStorage.getItem("username"));
-        //setToken(localStorage.getItem("token"));
-        //setUserId(localStorage.getItem("userId"));
+        setToken(localStorage.getItem("token"));
+    }, []);
+
+    useEffect(() => {
+        if (!token) return;
         apiService.get<Game>(`/games/${id}`)
             .then((game) => {
                 console.log("Game data:", game);
@@ -88,10 +87,6 @@ const Eval: React.FC = () => {
             })
             .catch((error) => console.error("Error retrieving game information:", error));
     }, []);
-
-    const handleFriendAdded = (friend: User) => {
-        setFriends([...friends, friend]);
-    };
 
     const handleButtonClick = () => {
         router.push("/dashboard");
@@ -129,8 +124,16 @@ const Eval: React.FC = () => {
             });
     };
     
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+
+    if (!isAuthenticated) {
+        return null;
+    }
+
     return (
-    <div>
+    <div className="eval-page">
       <header>
         <button 
             className="nav_button"
@@ -142,9 +145,7 @@ const Eval: React.FC = () => {
         <div className="Title">ScrabbleNow</div>
         <div className="userSnippet">
             <span className="username">{username}</span>
-            <FriendRequests 
-                onFriendAdded={handleFriendAdded} 
-            />
+            <FriendRequests />
         </div>
       </header>
 

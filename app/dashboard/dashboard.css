@@ -132,6 +132,7 @@
     height: 15px;
     border-radius: 50%;
     margin: 0 auto; /* Center the circle */
+    border: 1.5px solid black; /* Add a black border */
   }
 
   /* Status-specific colors */
@@ -140,11 +141,11 @@
   }
 
   .status-circle.offline {
-    background-color: var(--Button-gold);
+    background-color: var(--Button-red);
   }
 
   .status-circle.in_game {
-    background-color: var(--Button-red);
+    background-color: var(--Button-gold);
   }
 
   .friend-item .play-icon {
