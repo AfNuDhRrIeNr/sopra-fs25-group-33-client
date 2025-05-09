@@ -3,7 +3,6 @@
 import { useParams, useRouter } from "next/navigation"; // use NextJS router for navigation
 import React, { useState, useEffect } from "react";
 import "@ant-design/v5-patch-for-react-19";
-//import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import FriendRequests from "@/components/FriendRequests";
 import "../eval.css"; 
@@ -125,7 +124,7 @@ const Eval: React.FC = () => {
     };
     
     return (
-    <div>
+    <div className="eval-page">
       <header>
         <button 
             className="nav_button"

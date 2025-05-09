@@ -27,6 +27,7 @@ const LeaderboardPage: React.FC = () => {
     const [username, setUsername] = useState<string | null>(null);
     const [token, setToken] = useState<string | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
+    const maxLeaderboardSize = 20;
     const router = useRouter();
 
     useEffect(() => {
@@ -58,9 +59,11 @@ const LeaderboardPage: React.FC = () => {
             .catch((error) => console.error('Error fetching friends:', error));
     }, [apiService, userId, friends]);
 
-    const friendsLeaderboard = users.filter(
-        (user) => friends.some((friend) => friend.username === user.username) || user.username === username
-    );
+    const friendsLeaderboard = users
+        .filter((user) => friends.some((friend) => friend.username === user.username) || user.username === username)
+        .slice(0, maxLeaderboardSize);
+
+    const globalLeaderboard = users.slice(0, maxLeaderboardSize);
 
     const renderLeaderboardTable = (leaderboard: User[]) => (
         <table className="leaderboard-table">
@@ -133,8 +136,8 @@ const LeaderboardPage: React.FC = () => {
                     {renderLeaderboardTable(friendsLeaderboard)}
                 </div>
                 <div className="leaderboard-section">
-                    <h2>Global Leaderboard</h2>
-                    {renderLeaderboardTable(users)}
+                    <h2>Global Leaderboard (Top {maxLeaderboardSize})</h2>
+                    {renderLeaderboardTable(globalLeaderboard)}
                 </div>
             </div>
         </div>
