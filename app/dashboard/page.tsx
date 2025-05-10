@@ -8,6 +8,7 @@ import useLocalStorage from "@/hooks/useLocalStorage";
 import { CustomInputModal } from "@/components/customModal"; // Import CustomInputModal
 import FriendRequests from "@/components/FriendRequests";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import { CustomAlertModal } from "@/components/customModal";
 
 
 interface FriendRequest {
@@ -56,12 +57,18 @@ const DashboardPage: React.FC = () => {
     const [newFriendUsername, setNewFriendUsername] = useState<string>('');
     const apiService = useApi();
     const [isLoading, setIsLoading] = useState(false); // Loading state
+    const [isVerified, setIsVerified] = useState(false);
+    const [isFetching, setIsFetching] = useState(true);
 
     //fetch user info from localstorage
     useEffect(()=> {
         setToken(localStorage.getItem("token"));
         setUsername(localStorage.getItem("username"));
         setUserId(localStorage.getItem("userId"));
+        if (localStorage.getItem("token") && localStorage.getItem("username") && localStorage.getItem("userId")) {
+            setIsVerified(true);
+        }
+        setIsFetching(false);
     }, []);
 
     // Fetch pending friend requests and game invitations regularly
@@ -234,189 +241,199 @@ const DashboardPage: React.FC = () => {
 
     return (
         <div className="dashboard-page">
-            <header>
-                <button
-                    className="nav_button"
-                    onClick={handleLogoutClick}
-                    style={{ backgroundColor: "#D04949", left: 0, marginLeft: "1vw" }}
-                >
-                    Logout
-                </button>
-    
-                <div className="Title">ScrabbleNow</div>
-    
-                <div className="userSnippet">
-                    <span className="username">{username}</span>
-                    <FriendRequests onFriendAdded={handleFriendAdded} />
-                </div>
-            </header>
-    
-            <div className={`dashboard-container ${isLoading ? "loading" : ""}`}>
-                {isLoading ? (
-                    <LoadingSpinner message="Loading..." />
-                ) : (
+            {isFetching ? (<LoadingSpinner message="Fetching data."/>
+            ) : (
+                <>
+                {!isVerified ? (<CustomAlertModal
+                visible={!isVerified}
+                title={"Account needed"}
+                message={"An account is needed to visit this page. Please log in or register to continue."}
+                onClose={() => router.push("/")}
+                />)
+                :
+                (
                     <>
-                        <div className="dashboard-section">
-                            <h2>Friends List</h2>
-                            <div className="friends-list">
-                                <ul>
-                                    {friends.map((friend) => (
-                                        <li key={friend.username} className="friend-item">
-                                            <img
-                                                src="/User_Icon.jpg"
-                                                alt="User Icon"
-                                                className="user-icon"
-                                            />
-                                            <span className="username">{friend.username}</span>
-                                            <span
-                                                className={`status-circle ${friend.status.toLowerCase()}`}
-                                                title={friend.status}
-                                            ></span>
-                                            <img
-                                                src="/PlayIcon.png"
-                                                alt="Play Icon"
-                                                className="play-icon"
-                                                onClick={() => handlePlayWithFriend(friend.username)}
-                                                title={`Play with ${friend.username}`}
-                                            />
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                            <button
-                                className="add-friend-button"
-                                onClick={() => setIsAddFriendModalOpen(true)}
-                            >
-                                Add Friend
-                            </button>
-                        </div>
-                        {/* CustomInputModal for Adding Friend */}
-                        <CustomInputModal
-                            visible={isAddFriendModalOpen}
-                            title="New Friend Request"
-                            placeholder="Enter Friend's Username"
-                            inputValue={newFriendUsername}
-                            onInputChange={(e) => setNewFriendUsername(e.target.value)}
-                            onSubmit={sendFriendRequest}
-                            onCancel={() => setIsAddFriendModalOpen(false)}
-                        />
-                        <div className="dashboard-section">
-                            <h2>ScrabbleNow!</h2>
-                            <div className="scrabble-now">
-                                <div className="scrabble-board">
-                                    {pendingInvitations.length > 0 && (
-                                        <button
-                                            className="invitations-button"
-                                            onClick={() => setIsInvitationsModalOpen(true)}
-                                        >
-                                            Invitations
-                                        </button>
-                                    )}
-                                    <img src="/Board.jpg" alt="Scrabble Board" />
-                                </div>
-                            </div>
-                            <button
-                                className="create-game-button"
-                                onClick={createGamestate}
-                            >
-                                Create Game
-                            </button>
-                        </div>
-                        <div className="dashboard-section">
-                            <h2>Leaderboard</h2>
-                            <div className="leaderboard">
-                                <div className="leaderboard-list">
-                                    <div className="leaderboard-row">
-                                        {leaders.slice(0, 1).map((leader) => (
-                                            <div className="leader" key={leader.id}>
-                                                <img src={"/Gold.png"} alt="Rank 1" />
-                                                <span className="username">{leader.username}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <div className="leaderboard-row">
-                                        {leaders.slice(1, 3).map((leader, index) => (
-                                            <div className="leader" key={leader.id}>
+                <header>
+                    <button
+                        className="nav_button"
+                        onClick={handleLogoutClick}
+                        style={{ backgroundColor: "#D04949", left: 0, marginLeft: "1vw" }}
+                    >
+                        Logout
+                    </button>
+        
+                    <div className="Title">ScrabbleNow</div>
+        
+                    <div className="userSnippet">
+                        <span className="username">{username}</span>
+                        <FriendRequests onFriendAdded={handleFriendAdded} />
+                    </div>
+                </header>
+        
+                <div className={`dashboard-container ${isLoading ? "loading" : ""}`}>
+                    {isLoading && <LoadingSpinner message="Loading..." />}
+                            <div className="dashboard-section">
+                                <h2>Friends List</h2>
+                                <div className="friends-list">
+                                    <ul>
+                                        {friends.map((friend) => (
+                                            <li key={friend.username} className="friend-item">
                                                 <img
-                                                    src={
-                                                        index === 0
-                                                            ? "/Silver.png"
-                                                            : "/Bronze.png"
-                                                    }
-                                                    alt={`Rank ${index + 2}`}
+                                                    src="/User_Icon.jpg"
+                                                    alt="User Icon"
+                                                    className="user-icon"
                                                 />
-                                                <span className="username">{leader.username}</span>
-                                            </div>
+                                                <span className="username">{friend.username}</span>
+                                                <span
+                                                    className={`status-circle ${friend.status.toLowerCase()}`}
+                                                    title={friend.status}
+                                                ></span>
+                                                <img
+                                                    src="/PlayIcon.png"
+                                                    alt="Play Icon"
+                                                    className="play-icon"
+                                                    onClick={() => handlePlayWithFriend(friend.username)}
+                                                    title={`Play with ${friend.username}`}
+                                                />
+                                            </li>
                                         ))}
+                                    </ul>
+                                </div>
+                                <button
+                                    className="add-friend-button"
+                                    onClick={() => setIsAddFriendModalOpen(true)}
+                                >
+                                    Add Friend
+                                </button>
+                            </div>
+                            {/* CustomInputModal for Adding Friend */}
+                            <CustomInputModal
+                                visible={isAddFriendModalOpen}
+                                title="New Friend Request"
+                                placeholder="Enter Friend's Username"
+                                inputValue={newFriendUsername}
+                                onInputChange={(e) => setNewFriendUsername(e.target.value)}
+                                onSubmit={sendFriendRequest}
+                                onCancel={() => setIsAddFriendModalOpen(false)}
+                            />
+                            <div className="dashboard-section">
+                                <h2>ScrabbleNow!</h2>
+                                <div className="scrabble-now">
+                                    <div className="scrabble-board">
+                                        {pendingInvitations.length > 0 && (
+                                            <button
+                                                className="invitations-button"
+                                                onClick={() => setIsInvitationsModalOpen(true)}
+                                            >
+                                                Invitations
+                                            </button>
+                                        )}
+                                        <img src="/Board.jpg" alt="Scrabble Board" />
                                     </div>
                                 </div>
+                                <button
+                                    className="create-game-button"
+                                    onClick={createGamestate}
+                                >
+                                    Create Game
+                                </button>
                             </div>
-                            <button
-                                className="show-more-button"
-                                onClick={handlePushLeaderboard}
-                            >
-                                Show more
-                            </button>
-                        </div>
-                        {/* Modal for Game Invitations */}
-                        {isInvitationsModalOpen && (
-                            <div className="modal-overlay">
-                                <div className="modal">
-                                    <h2>Invitations</h2>
-                                    {pendingInvitations.length > 0 ? (
-                                        <ul>
-                                            {pendingInvitations.map((invitation) => (
-                                                <li
-                                                    key={invitation.id}
-                                                    className="invitations-row"
-                                                >
-                                                    <span className="friend-username">
-                                                        {invitation.sender.username}
-                                                    </span>
-                                                    <div className="modal-buttons">
-                                                        <button
-                                                            className="modal-button-green"
-                                                            onClick={() =>
-                                                                handleInvitation(
-                                                                    invitation.id,
-                                                                    "play"
-                                                                )
-                                                            }
-                                                        >
-                                                            Play
-                                                        </button>
-                                                        <button
-                                                            className="modal-button-red"
-                                                            onClick={() =>
-                                                                handleInvitation(
-                                                                    invitation.id,
-                                                                    "decline"
-                                                                )
-                                                            }
-                                                        >
-                                                            Decline
-                                                        </button>
-                                                    </div>
-                                                </li>
+                            <div className="dashboard-section">
+                                <h2>Leaderboard</h2>
+                                <div className="leaderboard">
+                                    <div className="leaderboard-list">
+                                        <div className="leaderboard-row">
+                                            {leaders.slice(0, 1).map((leader) => (
+                                                <div className="leader" key={leader.id}>
+                                                    <img src={"/Gold.png"} alt="Rank 1" />
+                                                    <span className="username">{leader.username}</span>
+                                                </div>
                                             ))}
-                                        </ul>
-                                    ) : (
-                                        <p>No pending Invitations.</p>
-                                    )}
-                                    <button
-                                        className="modal-button-gold"
-                                        onClick={() =>
-                                            setIsInvitationsModalOpen(false)
-                                        }
-                                    >
-                                        Close
-                                    </button>
+                                        </div>
+                                        <div className="leaderboard-row">
+                                            {leaders.slice(1, 3).map((leader, index) => (
+                                                <div className="leader" key={leader.id}>
+                                                    <img
+                                                        src={
+                                                            index === 0
+                                                                ? "/Silver.png"
+                                                                : "/Bronze.png"
+                                                        }
+                                                        alt={`Rank ${index + 2}`}
+                                                    />
+                                                    <span className="username">{leader.username}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
+                                <button
+                                    className="show-more-button"
+                                    onClick={handlePushLeaderboard}
+                                >
+                                    Show more
+                                </button>
                             </div>
-                        )}
+                            {/* Modal for Game Invitations */}
+                            {isInvitationsModalOpen && (
+                                <div className="modal-overlay">
+                                    <div className="modal">
+                                        <h2>Invitations</h2>
+                                        {pendingInvitations.length > 0 ? (
+                                            <ul>
+                                                {pendingInvitations.map((invitation) => (
+                                                    <li
+                                                        key={invitation.id}
+                                                        className="invitations-row"
+                                                    >
+                                                        <span className="friend-username">
+                                                            {invitation.sender.username}
+                                                        </span>
+                                                        <div className="modal-buttons">
+                                                            <button
+                                                                className="modal-button-green"
+                                                                onClick={() =>
+                                                                    handleInvitation(
+                                                                        invitation.id,
+                                                                        "play"
+                                                                    )
+                                                                }
+                                                            >
+                                                                Play
+                                                            </button>
+                                                            <button
+                                                                className="modal-button-red"
+                                                                onClick={() =>
+                                                                    handleInvitation(
+                                                                        invitation.id,
+                                                                        "decline"
+                                                                    )
+                                                                }
+                                                            >
+                                                                Decline
+                                                            </button>
+                                                        </div>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        ) : (
+                                            <p>No pending Invitations.</p>
+                                        )}
+                                        <button
+                                            className="modal-button-gold"
+                                            onClick={() =>
+                                                setIsInvitationsModalOpen(false)
+                                            }
+                                        >
+                                            Close
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                </div>
                     </>
                 )}
-            </div>
+            </>)}
         </div>
     );
 };
