@@ -5,6 +5,7 @@ import { useApi } from "@/hooks/useApi";
 import './leaderboard.css';
 import Image from "next/image";
 import FriendRequests from "@/components/FriendRequests";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 interface User {
     token: string;
@@ -28,6 +29,7 @@ const LeaderboardPage: React.FC = () => {
     const [token, setToken] = useState<string | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
     const router = useRouter();
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         setUsername(localStorage.getItem("username"));
@@ -36,6 +38,7 @@ const LeaderboardPage: React.FC = () => {
     }, []);
 
     const handleButtonClick = () => {
+        setIsLoading(true);
         router.push("/dashboard");
     };
 
@@ -85,7 +88,11 @@ const LeaderboardPage: React.FC = () => {
                 </div>
             </header>
             <div className="leaderboard-container">
-                <div className="leaderboard-section">
+                {isLoading ? (
+                    <LoadingSpinner message="Loading Leaderboard..." />
+                ) : (
+                    <>
+                    <div className="leaderboard-section">
                     <h2>Friends Leaderboard</h2>
                     <table className="leaderboard-table">
                         <thead>
@@ -101,21 +108,21 @@ const LeaderboardPage: React.FC = () => {
                                         <Image
                                             src={
                                                 index === 0
-                                                    ? "/Gold.png"
-                                                    : index === 1
-                                                    ? "/Silver.png"
-                                                    : index === 2
-                                                    ? "/Bronze.png"
-                                                    : "/User_Icon.jpg"
+                                                ? "/Gold.png"
+                                                : index === 1
+                                                ? "/Silver.png"
+                                                : index === 2
+                                                ? "/Bronze.png"
+                                                : "/User_Icon.jpg"
                                             }
                                             alt={
                                                 index === 0
-                                                    ? "Gold Medal"
-                                                    : index === 1
-                                                    ? "Silver Medal"
-                                                    : index === 2
-                                                    ? "Bronze Medal"
-                                                    : "User Icon"
+                                                ? "Gold Medal"
+                                                : index === 1
+                                                ? "Silver Medal"
+                                                : index === 2
+                                                ? "Bronze Medal"
+                                                : "User Icon"
                                             }
                                             width={50}
                                             height={50}
@@ -125,7 +132,7 @@ const LeaderboardPage: React.FC = () => {
                                                 maxWidth: "50px",
                                                 maxHeight: "50px",
                                             }}
-                                        />
+                                            />
                                         <span>{user.username}</span>
                                     </td>
                                     <td>{user.highScore}</td>
@@ -150,21 +157,21 @@ const LeaderboardPage: React.FC = () => {
                                         <Image
                                             src={
                                                 index === 0
-                                                    ? "/Gold.png"
-                                                    : index === 1
-                                                    ? "/Silver.png"
-                                                    : index === 2
-                                                    ? "/Bronze.png"
-                                                    : "/User_Icon.jpg"
+                                                ? "/Gold.png"
+                                                : index === 1
+                                                ? "/Silver.png"
+                                                : index === 2
+                                                ? "/Bronze.png"
+                                                : "/User_Icon.jpg"
                                             }
                                             alt={
                                                 index === 0
-                                                    ? "Gold Medal"
-                                                    : index === 1
-                                                    ? "Silver Medal"
-                                                    : index === 2
-                                                    ? "Bronze Medal"
-                                                    : "User Icon"
+                                                ? "Gold Medal"
+                                                : index === 1
+                                                ? "Silver Medal"
+                                                : index === 2
+                                                ? "Bronze Medal"
+                                                : "User Icon"
                                             }
                                             width={50}
                                             height={50}
@@ -174,7 +181,7 @@ const LeaderboardPage: React.FC = () => {
                                                 maxWidth: "50px",
                                                 maxHeight: "50px",
                                             }}
-                                        />
+                                            />
                                         <span>{user.username}</span>
                                     </td>
                                     <td>{user.highScore}</td>
@@ -183,6 +190,7 @@ const LeaderboardPage: React.FC = () => {
                         </tbody>
                     </table>
                 </div>
+                </>)}
             </div>
         </div>
     );

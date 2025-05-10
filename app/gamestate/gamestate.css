@@ -2,9 +2,17 @@
     border: 2px black solid; 
 }*/
 
-#screen {
+#screen- {
     display: flex;
     flex-direction: row;
+}
+
+#screen-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100vh;
 }
 
 #board-container {

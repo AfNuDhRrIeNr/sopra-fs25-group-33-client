@@ -6,6 +6,9 @@ import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { User } from "@/types/user";
 import "./login.css";
+import React, { useEffect, useState } from "react";
+import LoadingSpinner from "@/components/LoadingSpinner";
+
 
 const Login: React.FC = () => {
   const router = useRouter();
@@ -13,8 +16,11 @@ const Login: React.FC = () => {
   const { set: setToken } = useLocalStorage<string>("token", "");
   const { set: setUserId } = useLocalStorage<string>("userId", "0");
   const { set: setUsername } = useLocalStorage<string>("username", "");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleRegister = async (values: { username: string; password: string }) => {
+    setIsLoading(true); // Start loading state
+
     try {
       const response = await apiService.post<User>("/users/register", values, false);
       if (response.token && response.id && response.username) {
@@ -30,6 +36,7 @@ const Login: React.FC = () => {
   };
 
   const handleLogin = async (values: { username: string; password: string }) => {
+    setIsLoading(true); // Start loading state
     try {
       const response = await apiService.post<User>("/users/login", values, false);
 
@@ -44,6 +51,10 @@ const Login: React.FC = () => {
       }
     };
 
+  useEffect(() => {
+    console.log("Loading: ", isLoading);
+  }, [setIsLoading, isLoading]);
+
   return (
     <div
       style={{
@@ -55,7 +66,10 @@ const Login: React.FC = () => {
         justifyContent: "center",
         alignItems: "center",
       }}
-    >
+    > 
+    {isLoading ? (
+      <LoadingSpinner message="Loading..." />
+    ) : (
       <div className="login-container">
         <h1>Welcome to ScrabbleNow</h1>
         <p>Who are you?</p>
@@ -105,6 +119,7 @@ const Login: React.FC = () => {
           </button>
         </form>
       </div>
+    )}
     </div>
   );
 };

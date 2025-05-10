@@ -61,6 +61,12 @@ main {
     width: 100vw;
 }
 
+.lobby-page.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 #alignmentGuide {
     position: fixed;
     top: 0;

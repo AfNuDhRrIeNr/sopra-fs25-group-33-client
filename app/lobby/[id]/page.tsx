@@ -8,6 +8,7 @@ import "../lobby.css";
 import { useApi } from "@/hooks/useApi";
 import { CustomInputModal } from "@/components/customModal";
 import FriendRequests from "@/components/FriendRequests";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 const Lobby: React.FC = () => {
   const games = 0;
@@ -24,6 +25,7 @@ const Lobby: React.FC = () => {
   const [isHost, setIsHost] = useState(false);
   const { id } = useParams();
   const apiService = useApi();
+  const [isLoading, setIsLoading] = useState(false);
   
   interface Game {
     gameId: number;
@@ -69,9 +71,10 @@ const Lobby: React.FC = () => {
                     setnewPlayerUsername(guest.username);
                 }
                 if (!isHost) {
-                setIsHost(game.host.token === token); // Check if the current user is the host
+                  setIsHost(game.host.token === token); // Check if the current user is the host
                 }
                 if (game.gameStatus === "ONGOING") {
+                  setIsLoading(true); // Set loading state to true
                   router.push(`/gamestate/${id}`); // Redirect if the game has started
                 }
             })
@@ -84,6 +87,7 @@ const Lobby: React.FC = () => {
   }, [token, sentInvitations, apiService, router, id]);
 
   const handleButtonClick = () => {
+    setIsLoading(true);
     router.push("/dashboard");
   };
 
@@ -94,6 +98,7 @@ const Lobby: React.FC = () => {
 
   const startGame = () => {
     // PUT /games/{id}
+    setIsLoading(true);
     apiService.put<Game>(`/games/${id}`, {
       gameStatus: "ONGOING",
     })
@@ -158,8 +163,13 @@ return (
         </div>
     </header>
 
-    <main>
+    <main className = {`lobby-page ${isLoading ? "loading" : ""}`}>
+
       {/* <div id = "alignmentGuide"></div> */}
+      {isLoading ? (
+        <LoadingSpinner message="Loading Game..." />
+      ) : (
+        <>
       <div id= "users_border">
         <div className = "user" style={{marginLeft: "8.1%"}}>
           <Image
@@ -169,7 +179,7 @@ return (
             width={100}
             height={100}
             priority
-          />
+            />
           <div>
             {username}
           </div>
@@ -193,7 +203,7 @@ return (
             width={100}
             height={100}
             priority
-          />
+            />
           <div>
             {isAlone ? "?" : newPlayerUsername}
           </div>
@@ -202,10 +212,10 @@ return (
       <div id = "lowerScreen">
         {(isAlone || isHost) && (
           <button
-            className="nav_button"
-            id="invitePlayer"
-            onClick={isAlone ? openEditModal : startGame}
-            style={{ background: "#4AAC55" }}
+          className="nav_button"
+          id="invitePlayer"
+          onClick={isAlone ? openEditModal : startGame}
+          style={{ background: "#4AAC55" }}
           >
             {isAlone ? "Invite Player" : "Start Game"}
           </button>
@@ -224,9 +234,10 @@ return (
               width={330}
               height={330}
               priority
-            />
+              />
         </div>
       </div>
+    </>)}
       <CustomInputModal
       visible={isModalVisible}
       title="Send Game Invitation"

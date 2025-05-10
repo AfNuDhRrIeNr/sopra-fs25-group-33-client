@@ -18,6 +18,7 @@ import "../top.css";
 import { CustomAlertModal, CustomDecisionModal } from "@/components/customModal"; // Import CustomAlertModal
 import { getApiDomain } from "@/utils/domain";
 import Board from "@/components/Board";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 
 interface GameState {
@@ -93,6 +94,7 @@ const Gamestate: React.FC = () => {
     const alreadySkippedRef = useRef(false);
     const [lastVoteTime, setLastVoteTime] = useState<number | null>(null); // Store the last vote time
     const [voteCooldownRemaining, setVoteCooldownRemaining] = useState<number | null>(null); // Store the vote cooldown time
+    const [isLoading, setIsLoading] = useState(false); // Loading state for the spinner
 
     useEffect(()=> {
         setToken(localStorage.getItem("token"));
@@ -280,6 +282,7 @@ const Gamestate: React.FC = () => {
 
     const handleGameOverClose = () => {
         setAlertModalVisible(false);
+        setIsLoading(true);
         router.push(`/eval/${id}`); // Redirect to the home page or any other page
     }
     
@@ -847,7 +850,8 @@ const Gamestate: React.FC = () => {
     };
 
     return (
-        <div id="screen">
+        <div id={`screen-${isLoading ? "loading" : ""}`}>
+            {isLoading && <LoadingSpinner message="Loading end page..." />}
             <div id="board-container">
                 <Board
                     boardTiles={boardTiles}

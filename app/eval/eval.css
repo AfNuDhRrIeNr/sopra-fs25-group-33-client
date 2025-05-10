@@ -10,6 +10,12 @@ main div {
     border: 2px solid black;
 }*/
 
+#eval-page-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 #left_side {
     display: flex;
     flex-direction: column;

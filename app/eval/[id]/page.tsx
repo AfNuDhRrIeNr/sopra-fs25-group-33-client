@@ -10,6 +10,7 @@ import "../eval.css";
 import Image from "next/image";
 import Board from "@/components/Board";
 import "../../gamestate/boardTilesColor.css";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 
 const Eval: React.FC = () => {
@@ -24,6 +25,7 @@ const Eval: React.FC = () => {
     const { id } = useParams();
     const [playerPoints, setPlayerPoints] = useState< {[key:string]: number | null}>({}); // initialize with 0 points each
     const [surrendered, setSurrendered] = useState(false); // Track if the game was surrendered
+    const [isLoading, setIsLoading] = useState(false);
     
         
     
@@ -94,6 +96,7 @@ const Eval: React.FC = () => {
     };
 
     const handleButtonClick = () => {
+        setIsLoading(true); // Set loading state to true
         router.push("/dashboard");
     };
 
@@ -106,6 +109,7 @@ const Eval: React.FC = () => {
         
             if (response.id) {
                 handleInvite(response.id); // Call the handleInvite function with the new game ID
+                setIsLoading(true); // Set loading state to true
                 router.push(`/lobby/${response.id}`);
             }
             
@@ -148,7 +152,8 @@ const Eval: React.FC = () => {
         </div>
       </header>
 
-      <main>
+      <main id = {`eval-page-${isLoading ? "loading" : ""}`}>
+        {isLoading && <LoadingSpinner message="Loading..." />}
         <div id = "left_side">
             <div id = "end_reason_container">
                 <span id = "end_reason">The game ended with {surrendered ? "somebody" : "nobody"} surrendering.</span>
