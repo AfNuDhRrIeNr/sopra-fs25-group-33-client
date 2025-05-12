@@ -88,6 +88,8 @@ const FriendRequests: React.FC = () => {
                             src="/User_Icon.jpg"
                             alt="User Icon"
                             className="modal-avatar"
+                            width={40}
+                            height={40}
                         />
                         <span className="friend-username">{request.sender.username}</span>
                         <div className="modal-buttons">

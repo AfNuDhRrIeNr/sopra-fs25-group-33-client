@@ -235,6 +235,9 @@ const Gamestate: React.FC = () => {
                             showAlertModal("Your turn!", action === "SKIP" ? "Your opponent skipped their turn." : "Your opponent exchanged some tiles.")
                         }
                         setPlayerAtTurn(prev => prev.id === gameHost.id ? gameGuest : gameHost); 
+                    } else if (action === "TIMER" && responseStatus === "SUCCESS") {
+                        const remainingMinutes = response.gameState.remainingTime;
+                        setRemainingTime(remainingMinutes * 60);
                     }
                 });
 
@@ -789,7 +792,6 @@ const Gamestate: React.FC = () => {
     
     }, [lastVoteTime]);
 
-    // TODO: For a robust solution, use the server-side timer with periodic synchronization
     useEffect(() => {
         if (!token) return;
 
@@ -819,8 +821,27 @@ const Gamestate: React.FC = () => {
         const secs = seconds % 60;
         return `${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
     };
-    // TODO Bug fixes: When exchange then setTurnTimeLeft to 180 (currently the UI timer starts pretty randomly ;) 
 
+    const sendTimerSyncMessage = () => {
+        if (!id || !token || !stompClientRef.current) return;
+        const messageBody: GameState = {
+            id: id.toString(),
+            board: Array(15).fill(Array(15).fill("")),
+            token: token!,
+            userTiles: Array(7).fill(""),
+            action: "TIMER",
+            playerId: localStorage.getItem("userId")!,
+        };
+        sendMessage(JSON.stringify(messageBody));
+    };
+
+    useEffect(() => {
+        if (!token) return;
+        const interval = setInterval(() => {
+            sendTimerSyncMessage();
+        }, 60000); // every 60 seconds
+        return () => clearInterval(interval);
+    }, [token, id]);
 
     useEffect(() => {
         if (playerAtTurn.id.toString() !== userId || !token) return; // Only start the timer if it's the user's turn
