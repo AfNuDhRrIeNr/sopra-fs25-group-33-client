@@ -152,8 +152,9 @@ reason).
 |                    | 13.05.25   |  [Commit 1915188](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/19151882e010f6ba6ffd528627801573b3412d07)   [Commit 7868e53](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/7868e5399b484c518a6d80c0b5e515fc9111a047) [Commit 6b78d70](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/6b78d708e235a0b9b22626af4d5dbfab68b54a35) | Fix last bugs with tile reassignemnts and board updates (reloading in between actions) & start integrating changes into main (back end) |  Enhanced user experience and not loss of state when page is reloaded. |
 | **[@githubUser4]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **[@githubUser5]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **SilvanKasper** | 07.05.25   | n.a. | Clean up project board | [Why this contribution is relevant] |
+|                    | 09.05.25   | [Commit 7948890](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/7948890ffbea22d080e6d52bf0cf57cb15d1f440) [Commit b8048c9](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/b8048c95fca3fa564d8c772bce8adea9b0615ceb)| Refactoring FriendRequests, FriendList, Leaderboard. New hook useAuth to prevent unauthorized access. | Overall makes code more robust and clean |
+|                    | 13.05.25   | [Commit 62f917b](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commits/82-refactor-silvan-and-sync-time-between-users/) | Sync timer once per minute with backend (took a bit of debugging) | Timer only managed on client so far, could differ significantly from actual played time. |
 
 ---
 
