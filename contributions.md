@@ -146,7 +146,7 @@ reason).
 | **Alumen-Eng** | 11.05.25   | [Commit 1627dd0](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/1627dd0) [Commit 505b524](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/505b524) | Added some loading between pages, restrictions to visiting sites, paused since Silvan already did the same | Further feedback whether something is happening or not. |
 |                    | 13.05.25   |  | cleaning up project board | project board is also graded |
 | **AfNuDhRrIeNr** | 07.05.25   |  | clean up the project board | Feedback M3 |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | 08.05.25 - 13.05.25   | [Commit 6bca5b9](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/6bca5b9672cb6fc87e1d283e63e7932ad76aed09) | Timer synchronization backend | Both user should have the same remaining time |
 | **[@githubUser3]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **[@githubUser4]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
