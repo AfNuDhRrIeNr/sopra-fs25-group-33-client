@@ -151,6 +151,11 @@ const Gamestate: React.FC = () => {
             stompClient.onConnect = () => {
                 console.log("Connected to WebSocket");
                 
+                apiService.put(`/games/${id}/starttime`, {
+                }).catch((error) => {
+                    console.error("Failed to update start time:", error);
+                });
+
                 stompClient.subscribe(`/topic/game_states/users/${localStorage.getItem("userId")}`, (message) => {
                     
                     // Assuming the backend sends something like { valid: true/false }
@@ -236,8 +241,8 @@ const Gamestate: React.FC = () => {
                         }
                         setPlayerAtTurn(prev => prev.id === gameHost.id ? gameGuest : gameHost); 
                     } else if (action === "TIMER" && responseStatus === "SUCCESS") {
-                        const remainingMinutes = response.gameState.remainingTime;
-                        setRemainingTime(remainingMinutes * 60);
+                        const remainingSeconds = response.gameState.remainingTime;
+                        setRemainingTime(remainingSeconds);
                     }
                 });
 
