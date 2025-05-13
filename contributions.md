@@ -98,7 +98,7 @@ reason).
 
 ---
 
-## Contributions Week 4 - [16.04.25] to [30.04.25]
+## Contributions Week 4 & 5 - [16.04.25] to [30.04.25]
 
 
 | **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
@@ -110,8 +110,8 @@ reason).
 | **LucKer58** | 18.04.25   | [Commit 0b2e01b](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/0b2e01be6abc272af16fd8e04ef58b3ada87cb07) [Commit 9cf5c1d](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/043659bcea3a16d124fc5c4f3a050a9ac523526d)| Implement the websocket endpoint logic of the submission part and write corresponding test| Point calculation, gameboard persistence, communication to frontend |
 |                    | 20.04.25   | [Commit 9cf5c1d](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/9cf5c1d745fc078d183d02e6cb8190a417037b4c) | Fixing the algorithm for the calculation of the points | To calculate the correct points |
 |                    | 26.04.25   | [Commit b3a19d9](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/b3a19d9e2948e9934f8bc18973f38718344c43f5) | implementing the logic that if a word is evaluated as invalid from the API, I can ask my opponent if the word could be valid (not sure if we want to do this) | Slang words could not be in the dictionary |
-| **[@githubUser4]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **Mex7180** | 23.04.25   | Commit [5d57f56ec29483a2f9338165a8366fa260e1d33c](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/5d57f56ec29483a2f9338165a8366fa260e1d33c), Commit[22356bde011c755455f1c17ca508b8a9e928c04e](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/22356bde011c755455f1c17ca508b8a9e928c04e), Commit[f343d2135bbd11e68e7ecf706fd1ec2a59e74da9](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/f343d2135bbd11e68e7ecf706fd1ec2a59e74da9) | Fix bugs with invitations | Important logic concerning game invitations was missing. As an example a user could invite more than 2 users to a game etc. causing the application to break. |
+|                    | 29.04.25   | Commit[e4bde0c0a9c7f221cae3e78f86dc6a3b4354aa9d](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/e4bde0c0a9c7f221cae3e78f86dc6a3b4354aa9d)    Commit[c6e13addcc68dbf4be209152dfea8bb36f013138](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/c6e13addcc68dbf4be209152dfea8bb36f013138)| Fix bug with reloading page, investigate persistance of tiles | Currently reloading the page would result in losing data and the current state on the board and no call to the backend would be done. |
 | **SilvanKasper** | 19.04.25   | [Commit 6522b48](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/6522b4812600681541fc9d1c14eecbb7cec36419) | Both players in same Lobby, update UI accordingly, Refactoring of CustomModal | Players must join same lobby to play against eachother, CustomModal reduces code redundancy |
 |  | 27.04.25   | [Commit 4253fa3](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/4253fa3c5527748dac4cc599b064647ec0268faa) [Commit 4b3383f](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/4b3383f8c95d064cc135107018d906324b1a252c)| Autostart Timer and New bag design | Time must be started directly when the player enters the GameState, the new design makes the page less overloaded. |
 |  | 29.04.25   | [Commit bd63b09](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/bd63b09d0ff58c1ab18ea4fa0894b2ce1a2f4737) | Implement Turn Timer | If there is no time limit per turn a player that leads can wait until the time is over. That is avoided by a time limit |
@@ -119,10 +119,44 @@ reason).
 
 ---
 
-## Contributions Week 5 - [Begin Date] to [End Date]
+## Contributions Week 6 - [30.04.25] to [07.05.25]
 
 
 
+| **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
+| ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
+| **Alumen-Eng** | 4.5.25   | [Commit e3ea6f6](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/e3ea6f6) | vote to end the game, clickable tiles on the board to return to hand, new custom modal added for decisions, are you sure alert before surrender | Features that add to the experience of playing, vote to end the game is easier than keeping track of number of skips |
+|                    | 2.5.25   | [Commit bdf1737](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/bdf1737) | Design of eval page | The endstate / eval page is for after the game ends, allows for navigation and correct handling for when the game is over. |
+| **AfNuDhRrIeNr** | 02.05.25   | [Commit a69b05a](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/a69b05a7a7d56d96a0680b8eeaa3fe498684b8a9) | Updating the highscore of each user after a game if necessary and differentiate between surrender and game end action. | The highscore needs to be updated for the leaderboard & if a user surrendered the setSurrenderedPlayerId gets set. |
+|                    | 05..05.25-06.05.25   | [Commit edd3c54](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/edd3c54d2fbe75413ca64d1e1fb6f3a6325d3882) | Implementing games deletion endpoint & corresponding tests. | Relevant for the deletion of game entities.|
+| **Mex7180** | 06.05.25   | [Commit 3bb0f59](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/3bb0f59a5134f729d7402623353b291c5fd3b80c) | Improvements concerning userTurn, initial fetch and tile management in frontend. | Resolves issues with reloading the page / losing connection. Enables the game to actually be persistent. |
+|                    | 06.05.25   | [Commit a91f4b0](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/a91f4b0ec3599f32354ac19e0455c69e538b9066)     [Commit b808d49](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/b808d4954c90e721bee930113a61105a500e0542)    [Commit a9c81c5](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/a9c81c576997d674a851b19da115639fb16edb6e) | Fix bug in exchange tiles function & fix naming conventions. Clean up WebSocketController, adds Initial GameState Fetch endpoints & fixes bugs in letter exchange/reassignment logic. Extend WebSocketController tests | Allows for persistent ganme state and no issues with reloading / losing connection to server. |
+| **LucKer58** | 30.04.25   | [Commit 666b6da](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/666b6daa9177b5520db242dd1043eaf23f6f2581) [Commit 7d994dd](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/7d994dd7e59fc6920a52037714dc9fa075070a41)| Set logout the user when he clicks on logout and adjust its status and write corresponding test| Only logged in users should be able to play and important to see status of friends |
+|                    | 02.04.25   | [Commit 31e47cd](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/31e47cd6ddc9078c8f7d4d8812bfac2e2f1c74cc) | Also the word multipliers should only be applied for newly placed tiles | Calculate the correct result |
+|                    | 03.04.25   | [Commit 9c1aa3d](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/9c1aa3d8b12eb699d59f6688ed57b2e1646c93f8) | The friend's username and status should be sent for the friend's list | Needed to display the status of a friend to see if he is ready to be invited to a game |
+| **Silvan Kasper** | 01.05.25  | [Commit 7bc78ca](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/7bc78ca0db6813d7628e2e73b975ef6445802c54) | Design & Logic of Leaderboard page | The leaderboard is the globally persistent part of our game  |
+|                    | 01.05.25   | [Commit 84a86f0](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/84a86f08cb4a4c333293332cb23a19b86c8c813f) | Create FriendRequest component to handle in all headers | Same behaviour for each header and nice to have |
+|                    | 05.05.25   | [Commit f293144](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/f29314409429afe8bca106bc3899357147fbd1f1) | Upgrade Friends List on Dashboard with status dot and play icon | Now one can see if the friends are available and can invite them directly from dashboard |
+
+---
+
+## Contributions Week 7 - [07.05.25] to [14.05.25]
+| **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
+| ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
+| **Alumen-Eng** | 11.05.25   | [Commit 1627dd0](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/1627dd0) [Commit 505b524](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/505b524) | Added some loading between pages, restrictions to visiting sites, paused since Silvan already did the same | Further feedback whether something is happening or not. |
+|                    | 13.05.25   |  | cleaning up project board | project board is also graded |
+| **AfNuDhRrIeNr** | 07.05.25   |  | clean up the project board | Feedback M3 |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@githubUser3]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@githubUser4]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@githubUser5]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+
+---
+
+## Contributions Week 8 - [14.05.25] to [21.05.25]
 | **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
 | **[@githubUser1]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
@@ -136,9 +170,20 @@ reason).
 | **[@githubUser5]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 
-
 ---
 
-## Contributions Week 6 - [Begin Date] to [End Date]
+## Contributions Week 9 - [21.05.25] to [23.05.25]
+| **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
+| ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
+| **[@githubUser1]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@githubUser2]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@githubUser3]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@githubUser4]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@githubUser5]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 
-_Continue with the same table format as above._
+---

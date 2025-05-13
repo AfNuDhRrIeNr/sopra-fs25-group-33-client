@@ -1,6 +1,6 @@
 "use client"; // Required for using React hooks in Next.js
 
-import { useParams } from "next/navigation"; // use NextJS router for navigation
+import { useParams, useRouter } from "next/navigation"; // use NextJS router for navigation
 import React, { useState, useEffect, useRef } from "react";
 import "@ant-design/v5-patch-for-react-19";
 import { Button } from "antd"; 
@@ -15,82 +15,9 @@ import SockJS from "sockjs-client";
 import "../playerHand.css";
 import "../playingButtons.css";
 import "../top.css";
-import { CustomAlertModal } from "@/components/customModal"; // Import CustomAlertModal
+import { CustomAlertModal, CustomDecisionModal } from "@/components/customModal"; // Import CustomAlertModal
 import { getApiDomain } from "@/utils/domain";
-
-// TODO: Replace some alerts with customModal
-
-// Generate specialTiles outside the component to prevent re-execution
-const generateSpecialTiles = () => {
-    const specialTiles: { [key: string]: string } = {};
-    for (let row = 0; row < 15; row++) {
-        for (let col = 0; col < 15; col++) {
-            // Triple Word (Triple-Word-Score)
-            if (
-                (row === 14 && (col === 7 || col === 14)) ||
-                (row === 7 && col === 14) || 
-                (row === 14 && col === 14) || 
-                (row === 0 && col % 7 === 0) || 
-                (col === 0 && row % 7 === 0)
-              ) {
-                const key = `${col}-${row}`;
-                specialTiles[key] = 'Triple-Word-Score';
-                continue;  // Assign 'Triple-Word-Score' class for triple word tiles
-            }
-
-            // Double Letter (Double-Letter-Score)
-            if (
-                ((col === 3 || col === 11) && [0, 7, 14].includes(row)) ||
-                ((col === 6 || col === 8) && [2, 6, 8, 12].includes(row)) ||
-                (col === 7 && [3, 11].includes(row)) ||
-                (([0, 14].includes(col)) && [3, 11].includes(row)) ||
-                (([2, 12].includes(col)) && [6, 8].includes(row))
-
-            ) {
-                const key = `${col}-${row}`;
-                specialTiles[key] = 'Double-Letter-Score';
-                continue; 
-            }
-
-            // Double Word (Double-Word-Score)
-            if (
-                (col === row && [1, 2, 3, 4, 10, 11, 12, 13].includes(row)) ||
-                (col + row === 14 && [1, 2, 3, 4, 10, 11, 12, 13].includes(row))
-            ) {
-                const key = `${col}-${row}`;
-                specialTiles[key] = 'Double-Word-Score';
-                continue; 
-            }
-
-            // Triple Letter (Triple-Letter-Score)
-            if (
-                ((col === 1 || col === 13) && [5, 9].includes(row)) ||
-                ((col === 5 || col === 9) && [1, 5, 9, 13].includes(row))
-
-            ) {
-                const key = `${col}-${row}`;
-                specialTiles[key] = 'Triple-Letter-Score';
-                continue; 
-            }
-
-            // center
-            if (
-                col === 7 && row ===7
-            )
-                {
-                    const key = "7-7";
-                    specialTiles[key] = 'Center';
-                    continue; 
-                }
-            
-            const key = `${col}-${row}`;
-            specialTiles[key] = 'Base'; 
-        }
-    }
-    return specialTiles;
-};
-
-const specialTiles = generateSpecialTiles();
+import Board from "@/components/Board";
 
 
 interface GameState {
@@ -124,9 +51,9 @@ const defaultUser: User = {
 }
 
 const Gamestate: React.FC = () => {
+    const router = useRouter();
     const [letter, setLetter] = useState("");
     const [number, setNumber] = useState<number | null>(null);
-    // const [submittedLetter, setSubmittedLetter] = useState("");
     const apiService = useApi();
     const [userId, setUserId] = useState<string | null>(null);
     const [token, setToken] = useState<string | null>(null);
@@ -139,22 +66,28 @@ const Gamestate: React.FC = () => {
     const [isTileOnBoard, setTileOnBoard] = useState(false);
     const [isMoveVerified, setMoveVerified] = useState(false);
     const [isTileSelected, setTileSelected] = useState(false);
-    // const [messages, setMessages] = useState<string[]>([]);
     const { id } = useParams();
     const stompClientRef = useRef<Client | null>(null);
     const [remainingTime, setRemainingTime] = useState(45 * 60); // 45 minutes in seconds
-    // const [isGameStarted, setIsGameStarted] = useState(false);
-    const [modalVisible, setModalVisible] = useState(false);
-    const [modalTitle, setModalTitle] = useState("");
-    const [modalMessage, setModalMessage] = useState("");
+    const [alertModalVisible, setAlertModalVisible] = useState(false);
+    const [alertModalTitle, setAlertModalTitle] = useState("");
+    const [alertModalMessage, setAlertModalMessage] = useState("");
+    const [decisionModalVisible, setDecisionModalVisible] = useState(false);
+    const [decisionModalTitle, setDecisionModalTitle] = useState("");
+    const [decisionModalMessage, setDecisionModalMessage] = useState("");
     const URL = getApiDomain();
     const [playerPoints, setPlayerPoints] = useState< {[key:string]: number | null}>({}); // initialize with 0 points each
     const [gameHost, setGameHost] = useState<User>(defaultUser);
     const [gameGuest, setGameGuest] = useState<User>(defaultUser);
     const [isInitialized, setIsInitialized] = useState(false);
-    const tilesInHandRef = useRef<(string | null)[]>(tilesInHand); // Create a ref to store the tiles in hand
-    const [showNumber, setShowNumber] = useState(false); // New state to toggle between button and number
-
+    const tilesInHandRef = useRef(tilesInHand); // Create a ref to store the tiles in hand
+    const boardTilesRef = useRef(boardTiles); // Create a ref to store the board tiles
+    const immutableBoardTilesRef = useRef(immutableBoardTiles); // Create a ref to store the immutable board tiles
+    const [showNumber, setShowNumber] = useState(false); // Toggle between button and number
+    const [turnTimeLeft, setTurnTimeLeft] = useState(180);
+    const alreadySkippedRef = useRef(false);
+    const [lastVoteTime, setLastVoteTime] = useState<number | null>(null); // Store the last vote time
+    const [voteCooldownRemaining, setVoteCooldownRemaining] = useState<number | null>(null); // Store the vote cooldown time
 
     useEffect(()=> {
         setToken(localStorage.getItem("token"));
@@ -207,34 +140,6 @@ const Gamestate: React.FC = () => {
                 stompClient.onConnect = () => {
                     console.log("Connected to WebSocket");
 
-                    // Subscribe to the game state topic dynamically using the gameId
-                    stompClient.subscribe(`/topic/game_states/${id}`, (message) => {
-                        const response = JSON.parse(message.body);
-                        const action = response.gameState.action.toString();
-                        const responseStatus = response.messageStatus.toString();
-                        console.log(response);
-                        if (action === "SUBMIT" && responseStatus === "SUCCESS") {
-                            const newBoardTiles = response.gameState.board;
-                            const parsedBoardTiles = dictifyMatrix(newBoardTiles);
-                            setBoardTiles(parsedBoardTiles);
-                            setImmutableBoardTiles(prev => ({ ...prev, ...parsedBoardTiles })); // Store immutable tiles
-                            setPlayerAtTurn(response.hostTurn ? gameHost : gameGuest); // Toggle player at turn
-                            setPlayerPoints((prev) => ({
-                                ...prev,
-                                ...response.gameState.playerScores, // Merge new scores into the existing playerPoints
-                            }));
-                            // Update tiles only for player who submitted the move!
-                            if(response.gameState.playerId.toString() != localStorage.getItem("userId")) {
-                                setTilesInHand(response.gameState.userTiles.map((letter: string) => `/letters/${letter} Tile 70.jpg`));
-                            }
-                        } else if ((action === "SKIP" || action === "EXCHANGE") && responseStatus === "SUCCESS") {
-                            setPlayerAtTurn(response.gameState.playerId == gameHost.id ? gameHost : gameGuest); // Toggle player at turn
-                            if(response.gameState.playerId.toString() != localStorage.getItem("userId")) {
-                                setTilesInHand(response.gameState.userTiles.map((letter: string) => `/letters/${letter} Tile 70.jpg`))
-                                setSelectedTiles([]);
-                            }
-                        }
-                    });
 
                     stompClient.subscribe(`/topic/game_states/users/${localStorage.getItem("userId")}`, (message) => {
 
@@ -244,13 +149,18 @@ const Gamestate: React.FC = () => {
                         const responseStatus = response.messageStatus.toString();
                         console.log(response);
                         //verify
-                        if (response.messageStatus.toString() === "VALIDATION_SUCCESS") {
-                            showModal("Validation", "Validation successful!");
+                        if (responseStatus === "VALIDATION_SUCCESS") {
+                            showAlertModal("Validation", "Validation successful!");
                             setMoveVerified(true);
                         }
-                        else if (response.messageStatus.toString() === "VALIDATION_ERROR") {
-                            showModal("Validation", `Validation failed! Reason: ${response.message.toString().substring(16)}`);
+                        else if (responseStatus === "VALIDATION_ERROR") {
+                            showAlertModal("Validation", `Validation failed! Reason: ${response.message.toString().substring(16)}`);
                         }
+                        else if (responseStatus === "SUCCESS" && action === "VOTE") {
+                        showDecisionModal("Vote", "Your opponent wants to end the game here. Do you agree?");
+                    } else if (responseStatus === "SUCCESS" && action === "NO_VOTE") {
+                        showAlertModal("Vote", "Your opponent declined ending the game.");
+                    }
                         //fetch game state
                         else if (responseStatus === "SUCCESS" && action === "FETCH_GAME_STATE") {
                             console.log(response);
@@ -275,21 +185,48 @@ const Gamestate: React.FC = () => {
                             setImmutableBoardTiles(prev => ({ ...prev, ...parsedBoardTiles })); // Store immutable tiles
                             setPlayerAtTurn(response.gameState.playerId == gameHost.id ? gameHost : gameGuest); // Toggle player at turn
                             setPlayerPoints(response.gameState.playerScores);
-                        }
-                    
+                    }
+                        //submit
+                        /*else if (responseStatus === "SUCCESS" && action === "SUBMIT") {
+                            const newUserLetters = response.gameState.userTiles
+                            const currentHand = tilesInHandRef.current; // Get the current hand
 
-                });
+
+                            let letterIndex = 0; // Track the index of the next letter to use
+                            const updatedHand = currentHand.map((tile) => {
+                                if ((tile === "" || tile === null) && letterIndex < newUserLetters.length) {
+                                    const newLetter = newUserLetters[letterIndex]; // Get the letter at the current index
+                                    letterIndex++; // Increment the index for the next letter
+                                    return `/letters/${newLetter} Tile 70.jpg`;
+                                }
+                                return tile; // Keep the existing tile if it's not empty
+                            });
+
+                            setTilesInHand(updatedHand);
+                            setTileOnBoard(false);
+                        }*/
+
+                    });
                 stompClient.subscribe(`/topic/game_states/${id}`, (message) => {
                     const response = JSON.parse(message.body);
+                    console.log("Response: ", response);
                     const action = response.gameState.action.toString();
                     const responseStatus = response.messageStatus.toString();
-
-                    if (action === "GIVE_UP") {
-                        showModal("Game Over", "Your opponent has surrendered!");
-                        handleGameEnd();
-                    } else if (action === "SUBMIT" && responseStatus === "SUCCESS") {
+                    const moveById = response.gameState.playerId.toString();
+                    const playerUsername = moveById === gameHost.id.toString() ? gameHost.username : gameGuest.username;
+                    if (action === "SUBMIT" && responseStatus === "SUCCESS") {
+                        if (moveById !== localStorage.getItem("userId")) {
+                            handleReturn();
+                        }
+                        const points = response.message.match(/scored (\d+) points/); // Extract the number of points scored from the message
+                        //points = ["scored number points", "number"] ==> points[0] = wanted text
                         const newBoardTiles = response.gameState.board;
                         const parsedBoardTiles = dictifyMatrix(newBoardTiles);
+                        if (moveById === localStorage.getItem("userId")) {
+                            showAlertModal("Points scored", `You ${points[0]}!`)
+                        } else {
+                            showAlertModal("Points scored", `${playerUsername} ${points[0]}!`)
+                        }
                         setBoardTiles(parsedBoardTiles);
                         setImmutableBoardTiles(() => ({ ...parsedBoardTiles }));
                         setPlayerAtTurn(prev => prev.id === gameHost.id ? gameGuest : gameHost);
@@ -297,6 +234,41 @@ const Gamestate: React.FC = () => {
                             ...prev,
                             ...response.gameState.playerScores,
                         }));
+                        //submit
+                    /*else if (responseStatus === "SUCCESS" && action === "SUBMIT") {
+                            const newUserLetters = response.gameState.userTiles
+                            const currentHand = tilesInHandRef.current; // Get the current hand
+
+
+                            let letterIndex = 0; // Track the index of the next letter to use
+                            const updatedHand = currentHand.map((tile) => {
+                                if ((tile === "" || tile === null) && letterIndex < newUserLetters.length) {
+                                    const newLetter = newUserLetters[letterIndex]; // Get the letter at the current index
+                                    letterIndex++; // Increment the index for the next letter
+                                    return `/letters/${newLetter} Tile 70.jpg`;
+                                }
+                                return tile; // Keep the existing tile if it's not empty
+                            });
+
+                            setTilesInHand(updatedHand);
+                            setTileOnBoard(false);
+                        }*/
+
+                    } else if (responseStatus === "SUCCESS" && action === "GAME_END") {
+                        console.log("Game has ended. Reason: time out or vote.");
+                        showAlertModal("Game Over", "The game has ended!");
+
+                    } else if (action === "SURRENDER" && responseStatus === "SUCCESS") {
+                        console.log("Game has ended. Reason: surrender.");
+                        showAlertModal("Game Over", moveById !== localStorage.getItem("userId") ? "Your opponent surrendered." : "You have surrendered.")
+
+
+                    } else if ((action === "SKIP" || action === "EXCHANGE") && responseStatus === "SUCCESS") {
+                        if (moveById !== localStorage.getItem("userId")) {
+                            showAlertModal("Your turn!", action === "SKIP" ? "Your opponent skipped their turn." : "Your opponent exchanged some tiles.")
+                        }
+                        setPlayerAtTurn(prev => prev.id === gameHost.id ? gameGuest : gameHost); 
+
                         setTilesInHand(response.gameState.userTiles.map((letter: string) => `/letters/${letter} Tile 70.jpg`));
                     }/* else if ((action === "SKIP" || action === "EXCHANGE") && responseStatus === "SUCCESS") {
                         setPlayerAtTurn(prev => prev.id === gameHost.id ? gameGuest : gameHost);
@@ -340,13 +312,6 @@ const Gamestate: React.FC = () => {
             }
         };
     }, [isInitialized]); // Add dependencies to useEffect
-    
-    // const disconnectWebSocket = () => {
-    //     if (stompClientRef.current) {
-    //         console.log("Manually disconnecting from WebSocket.");
-    //         stompClientRef.current.deactivate();
-    //     }
-    // };
 
     const sendMessage = (messageBody: string) => {
         if (stompClientRef.current) {
@@ -358,29 +323,35 @@ const Gamestate: React.FC = () => {
 
     };
 
-    const showModal = (title: string, message: string) => {
-        setModalTitle(title);
-        setModalMessage(message);
-        setModalVisible(true);
-      };
+    const showAlertModal = (title: string, message: string) => {
+        setAlertModalTitle(title);
+        setAlertModalMessage(message);
+        setAlertModalVisible(true);
+    };
+
+    const showDecisionModal = (title: string, message: string) => {
+        setDecisionModalTitle(title);
+        setDecisionModalMessage(message);
+        setDecisionModalVisible(true);
+    };
     
     const handleModalClose = () => {
-        setModalVisible(false);
+        setAlertModalVisible(false);
+        setDecisionModalVisible(false);
     };
-    
-    // Function to get the tile class
-    const getTileClass = (row: number, col: number) => {
-        const key = `${col}-${row}`;
-        return specialTiles[key];
-    };
+
+    const handleGameOverClose = () => {
+        setAlertModalVisible(false);
+        router.push(`/eval/${id}`); // Redirect to the home page or any other page
+    }
 
     const handleCheck = async () => {
         if (letter.length !== 1 || !/[a-zA-Z]/.test(letter)) { // ! Never reached since button is disabled
-            showModal("Error", "Please enter a single letter.");
+            showAlertModal("Error", "Please enter a single letter.");
             return;
         }
         setLetter(letter.toUpperCase());
-        try 
+        try
         {                               
             const response = await apiService.get<number>(`/games/${id}/letters/${letter}`); 
             
@@ -393,7 +364,7 @@ const Gamestate: React.FC = () => {
             }
         } catch (error) {
             console.error("Error:", error);
-            showModal("Error", `Failed to retrieve letter count: ${(error as Error).message}`);
+            showAlertModal("Error", `Failed to retrieve letter count: ${(error as Error).message}`);
         }
     };
  
@@ -450,7 +421,7 @@ const Gamestate: React.FC = () => {
         for (let i = 0; i < tilesToExchange.length; i++) {
             exchangeList[i] = selectedTiles.includes(i) ? "" : tilesInHand[i];
         }
-        showModal("Exchange", `${tilesCharOnly} were exchanged.`)
+        showAlertModal("Exchange", `${exchangeList} were exchanged.`)
 
         if (!id) {
             console.error("Game ID is null or undefined.");
@@ -466,16 +437,18 @@ const Gamestate: React.FC = () => {
             playerId: localStorage.getItem("userId")!,
         };
         console.log(messageBody);
-    
+
         // Convert the object to a JSON string before sending
         sendMessage(JSON.stringify(messageBody));
     }
 
     const skipTurn = () => {
-        if (!id) {
+        if (!id || alreadySkippedRef.current) {
             console.error("Game ID is null or undefined.");
             return;
         }
+        setTurnTimeLeft(180); // Reset the timer to 3 minutes
+        alreadySkippedRef.current = true; // Update the ref to indicate the turn has been skipped
         // Create the message body using the GameState interface
         const messageBody: GameState = {
             id: id.toString(),
@@ -489,7 +462,54 @@ const Gamestate: React.FC = () => {
         // Convert the object to a JSON string before sending
         sendMessage(JSON.stringify(messageBody));
     };
-    
+
+    const handleVote = () => {
+
+        const currentTime = Date.now();
+
+        if (lastVoteTime && currentTime - lastVoteTime < 5 * 60 * 1000) {
+            const remainingTime = Math.ceil((5 * 60 * 1000 - (currentTime - lastVoteTime)) / 1000);
+            showAlertModal("Error", `You can only vote once every 5 minutes. Please wait ${remainingTime} seconds.`);
+            return;
+        }
+        if (!id || !stompClientRef.current) {
+            console.error("Game ID or WebSocket client is null or undefined.");
+            return;
+        }
+
+        const messageBody: GameState = {
+            id: id.toString(),
+            board: Array(15).fill(Array(15).fill("")),
+            token: token!,
+            userTiles: Array(7).fill(""),
+            action: "VOTE",
+            playerId: localStorage.getItem("userId")!,
+        };
+
+        sendMessage(JSON.stringify(messageBody));
+        setLastVoteTime(currentTime); // Update the last vote time
+        showAlertModal("Vote", "Vote sent! Waiting for your opponent's response.");
+    }
+
+    const handleDecline = () => {
+        if (!id || !stompClientRef.current) {
+            console.error("Game ID or WebSocket client is null or undefined.");
+            return;
+        }
+
+        const messageBody: GameState = {
+            id: id.toString(),
+            board: Array(15).fill(Array(15).fill("")),
+            token: token!,
+            userTiles: Array(7).fill(""),
+            action: "NO_VOTE",
+            playerId: localStorage.getItem("userId")!,
+        };
+
+        sendMessage(JSON.stringify(messageBody));
+        setDecisionModalVisible(false); // Close the decision modal
+        showAlertModal("Vote", "You declined ending the game.");
+    }
 
     const commitWord = () => {
         setMoveVerified(false);
@@ -503,6 +523,9 @@ const Gamestate: React.FC = () => {
             console.error("Game ID is null or undefined.");
             return;
         }
+
+        setTurnTimeLeft(180); // Reset the timer to 3 minutes
+
         // Create the message body using the GameState interface
         const messageBody: GameState = {
             id: id.toString(),
@@ -521,66 +544,128 @@ const Gamestate: React.FC = () => {
         tilesInHandRef.current = tilesInHand; // Update the ref whenever tilesInHand changes
     }, [tilesInHand])
 
+    useEffect (() => {
+        boardTilesRef.current = boardTiles; // Update the ref whenever boardTiles changes
+    }, [boardTiles]);
+
+    useEffect (() => {
+        immutableBoardTilesRef.current = immutableBoardTiles; // Update the ref whenever immutableBoardTiles changes)
+    }, [immutableBoardTiles]);
+
     const handleSurrender = () => {
-        showModal("Surrender", "You have surrendered!");
-        // Handle surrender logic here
-    }
-
-    const handleGameEnd = async () => {
-        showModal("Game Over", "The game has ended.");
-
-        try {
-            await apiService.put(`/games/${id}`, { gameStatus: "TERMINATED" });
-            console.log("Game status updated to TERMINATED.");
-        } catch (error) {
-            console.error("Error terminating the game:", error);
+        setDecisionModalVisible(false); // Close the decision modal
+        if (!id || !stompClientRef.current) {
+            console.error("Game ID or WebSocket client is null or undefined.");
+            showAlertModal("Error", "Cannot surrender. Game ID or WebSocket connection is missing.");
+            return;
         }
-        // Redirect to GameEval page
+        const messageBody: GameState = {
+            id: id.toString(),
+            board: Array(15).fill(Array(15).fill("")),
+            token: token!,
+            userTiles: Array(7).fill(""),
+            action: "SURRENDER",
+            playerId: localStorage.getItem("userId")!,
+        };
+
+        sendMessage(JSON.stringify(messageBody));
+    };
+
+    const handleGameEnd = () => {
+        setDecisionModalVisible(false); // Close the decision modal
+        if (!id || !stompClientRef.current) {
+            console.error("Game ID or WebSocket client is null or undefined.");
+            showAlertModal("Error", "The game cannot be ended since the game cannot be found or the WebSocket client has an error.");
+            return;
+        }
+        const messageBody: GameState = {
+            id: id.toString(),
+            board: Array(15).fill(Array(15).fill("")),
+            token: token!,
+            userTiles: Array(7).fill(""),
+            action: "GAME_END",
+            playerId: localStorage.getItem("userId")!,
+        };
+
+        sendMessage(JSON.stringify(messageBody));
     };
 
     const handleReturn = () => {
-        // Make copies so we can mutate them safely
-        const updatedHand = [...tilesInHand];
-        const updatedBoard = { ...boardTiles };
+        const updatedHand = [...tilesInHandRef.current];
+        const updatedBoard = { ...boardTilesRef.current };
+        const tempImmutables = { ...immutableBoardTilesRef.current };
+        let hasChanges = false;
 
-        for (const key in boardTiles) {
-            if (immutableBoardTiles[key]) continue; // Skip immutable tiles
+        for (const key in boardTilesRef.current) {
 
+            if (tempImmutables[key]) {
 
-            const image = boardTiles[key];
+                continue; // Skip immutable tiles
+            }
+
+            const image = updatedBoard[key];
             const emptyIndex = updatedHand.findIndex(tile => tile === null);
-
             if (emptyIndex !== -1 && image) {
                 updatedHand[emptyIndex] = image;
                 delete updatedBoard[key];
+                hasChanges = true;
             } else {
                 // Optional: alert or handle situation where hand is full
                 console.warn(`No space in hand to return tile from board position ${key}`);
             }
         }
 
+        if (hasChanges) {
+            setTilesInHand(updatedHand);
+            setBoardTiles(updatedBoard);
+        } else {
+            console.log("No changes made to hand or board.");
+        }
+    }
+
+    const handleTileClick = (col: number, row: number) => {
+        const key = `${col}-${row}`;
+        const tileImage = boardTilesRef.current[key];
+        if (!tileImage) {
+            console.warn(`No tile found at position ${key}`);
+            return;
+        }
+        const emptyIndex = tilesInHandRef.current.findIndex(tile => tile === null);
+
+        if (emptyIndex === -1) {
+            console.warn("No empty space in hand to return the tile.");
+            return;
+        }
+        const updatedHand = [...tilesInHandRef.current];
+        updatedHand[emptyIndex] = tileImage; // Add the tile to the hand
+        const updatedBoard = { ...boardTilesRef.current };
+        delete updatedBoard[key]; // Remove the tile from the board
         setTilesInHand(updatedHand);
         setBoardTiles(updatedBoard);
     }
 
-    // const setHandImageAt = (index: number, imagePath: string | null) => {
-    //     setTilesInHand(prev => {
-    //         const updated = [...prev];
-    //         updated[index] = imagePath;
-    //         return updated;
-    //     })
-    // }
+    const handleHandDragStart = (e: React.DragEvent, index: number) => {
+        e.dataTransfer.setData("index", index.toString());
+        e.dataTransfer.setData("imageSrc", tilesInHand[index] || "");
+
+        const target = e.target as HTMLImageElement;
+        target.classList.add("dragging");
+
+        // Keep the dragged image visible since reference opacity is now 0
+        const dragPreview = document.createElement("img");
+        dragPreview.src = target.src;
+        dragPreview.style.width = target.width + "px";
+        dragPreview.style.height = target.height + "px";
+
+        e.dataTransfer.setDragImage(dragPreview, target.width / 2, target.height / 2);
+    };
 
       // Handle drag start
-    const handleDragStart = (e: React.DragEvent, index: number | null, col: number | null, row: number | null) => {
-        if (index !== null) {
-            e.dataTransfer.setData("index", index.toString()); // Store the image index from inside the hand
-            e.dataTransfer.setData("imageSrc", tilesInHand[index] || ''); // Store the image source
-        } else if (col !== null && row !== null) {
-            e.dataTransfer.setData("col", col.toString());
-            e.dataTransfer.setData("row", row.toString());
-            e.dataTransfer.setData("imageSrc", boardTiles[`${col}-${row}`] || '');
-        }
+    const handleDragStart = (e: React.DragEvent, col: number, row: number) => {
+        e.dataTransfer.setData("col", col.toString());
+        e.dataTransfer.setData("row", row.toString());
+        e.dataTransfer.setData("imageSrc", boardTiles[`${col}-${row}`] || '');
+
         const target = e.target as HTMLImageElement; //set original e (e meaning event) (e.target) type as htmlimage
         target.classList.add('dragging');
         
@@ -604,7 +689,7 @@ const Gamestate: React.FC = () => {
         console.log(draggedIndex)
         if (tilesInHand[index] !== null) {
             if (!draggedIndex) {
-                showModal("Error", "Space is not free! \nSwapping is only possible between two tiles in Hand.");
+                showAlertModal("Error", "Space is not free! \nSwapping is only possible between two tiles in Hand.");
                 return;
             }
             const newTilesInHand = [...tilesInHand]; //copy so useEffect registers a change
@@ -654,7 +739,7 @@ const Gamestate: React.FC = () => {
 
 
         if (boardTiles[keyTo] || immutableBoardTiles[keyTo]) {
-            showModal("Error", "Space is not free!");
+            showAlertModal("Error", "Space is not free!");
         }
         else {
         // Handling dropping an image from the hand to the board
@@ -707,7 +792,31 @@ const Gamestate: React.FC = () => {
 
     useEffect(() => {
         setUserTurn(userId === playerAtTurn.id.toString()); // Update user turn based on the current player at turn
-    }, [setPlayerAtTurn, playerAtTurn, userId]); // Add playerAtTurn as a dependency
+        console.log("User Turn: ", userId === playerAtTurn.id.toString()); //necessary log so that ui correctly updates.
+    }, [playerAtTurn, userId]); // Add playerAtTurn as a dependency
+
+
+    useEffect(() => {
+        if (!lastVoteTime) {
+            setVoteCooldownRemaining(null); // No vote has been sent yet
+            return;
+        }
+
+        const interval = setInterval(() => {
+            const currentTime = Date.now();
+            const timeSinceLastVote = currentTime - lastVoteTime;
+            const cooldownRemaining = Math.max(0, 5 * 60 * 1000 - timeSinceLastVote); // 5 minutes in milliseconds
+
+            setVoteCooldownRemaining(cooldownRemaining);
+
+            if (cooldownRemaining === 0) {
+                clearInterval(interval); // Stop the interval when the cooldown ends
+            }
+        }, 1000);
+
+        return () => clearInterval(interval); // Cleanup the interval on unmount
+
+    }, [lastVoteTime]);
 
     // TODO: For a robust solution, use the server-side timer with periodic synchronization
     useEffect(() => {
@@ -737,44 +846,43 @@ const Gamestate: React.FC = () => {
         const secs = seconds % 60;
         return `${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
     };
+    // TODO Bug fixes: When exchange then setTurnTimeLeft to 180 (currently the UI timer starts pretty randomly ;)
+
+
+    useEffect(() => {
+        if (playerAtTurn.id.toString() !== userId) return; // Only start the timer if it's the user's turn
+
+        const countdownTimer = setInterval(() => {
+          setTurnTimeLeft((prev) => {
+            if (prev > 0) {
+                if (alreadySkippedRef.current) alreadySkippedRef.current = false; // Reset alreadySkipped when the timer is running
+                return prev - 1;
+            } else {
+                if (alreadySkippedRef.current) {return 0;} // Prevent skipping if already skipped
+                clearInterval(countdownTimer); // Stop the timer when it reaches 1
+                skipTurn(); // Call the skipTurn function
+                return 0;
+            }
+          });
+        }, 1000);
+
+        return () => clearInterval(countdownTimer); // Cleanup on unmount
+      }, [playerAtTurn]);
 
 
     return (
         <div id="screen">
             <div id="board-container">
-                <div id="game-board" style={{
-                    gridTemplateColumns: 'repeat(15, 1fr)',
-                    gridTemplateRows: 'repeat(15, 1fr)',
-                }}>
-                    {[...Array(15)].map((_, row) => (
-                        [...Array(15)].map((_, col) => {
-                            const tileClass = getTileClass(row, col);
-                            return (
-                                <div key={`${col}-${row}`} 
-                                    id={`tile-${col}-${row}`} 
-                                    data-coordinates={`(${col},${row})`} 
-                                    className={tileClass}
-                                    onDragOver={handleDragOver}
-                                    title = {tileClass}
-                                    onDrop={(e) => handleBoardDrop(e, col, row)}
-                                    >
-                                       {boardTiles[`${col}-${row}`] && (
-                                        <Image 
-                                            src={boardTiles[`${col}-${row}`] || "/letters/empty tile 70.jpg"} 
-                                            alt={`Tile at ${col}-${row}`} 
-                                            className={`board-tiles ${immutableBoardTiles[`${col}-${row}`] ? 'immutable-tile' : ''}`}
-                                            width={100} 
-                                            height={100}
-                                            draggable = {!immutableBoardTiles[`${col}-${row}`]} // Disable dragging for immutable tiles
-                                            onDragStart={(e) => handleDragStart(e, null, col, row)} 
-                                            onDragEnd = {handleDragEnd}
-                                        /> 
-                                        )}
-                                </div>
-                            );
-                        })
-                    ))}
-                </div>
+                <Board
+                    boardTiles={boardTiles}
+                    immutableBoardTiles={immutableBoardTiles}
+                    isInteractive={true} // Enable interactivity
+                    onDragOver={handleDragOver}
+                    onDrop={handleBoardDrop}
+                    onDragStart={handleDragStart}
+                    onDragEnd={handleDragEnd}
+                    onTileClick={handleTileClick}
+                />
             </div>
             <div id="rest-container">
                 <div id="top">
@@ -782,13 +890,34 @@ const Gamestate: React.FC = () => {
                         <div id="timer">
                             {formatTime(remainingTime)}
                         </div>
-                        <div id="surrender">
-                            <button 
-                            id="surrender-button" 
-                            className="nav_button"
-                            onClick={handleSurrender}>
-                                Give Up
-                            </button>
+                        <div id="turn-timer">
+                        {isUserTurn && (
+                            <div className="timer-bar-container">
+                                <div
+                                className="timer-bar"
+                                style={{ width: `${(turnTimeLeft / 180) * 100}%` }}
+                                ></div>
+                            </div>)}
+                        </div>
+                        <div id = "end_buttons">
+                            <div id="end_vote">
+                                <button
+                                id="end_vote_button"
+                                className="nav_button"
+                                onClick={handleVote}>
+                                    {voteCooldownRemaining !== null && voteCooldownRemaining > 0
+                                        ? `Vote in ${Math.max(0, Math.floor(voteCooldownRemaining / 1000))}s`
+                                        : "Vote to end"}
+                                </button>
+                            </div>
+                            <div id="surrender">
+                                <button
+                                id="surrender-button"
+                                className="nav_button"
+                                onClick={() => showDecisionModal("Surrender", "Are you sure you want to surrender?")}>
+                                    Give Up
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div id="turn-points">
@@ -899,7 +1028,7 @@ const Gamestate: React.FC = () => {
                         width={100}
                         height={100} 
                         draggable
-                        onDragStart={(e)=>handleDragStart(e, index, null, null)}
+                        onDragStart={(e)=>handleHandDragStart(e, index)}
                         onDragEnd = {handleDragEnd}
                         />
                     )}
@@ -961,10 +1090,17 @@ const Gamestate: React.FC = () => {
                         </div>
                     </div>
                     <CustomAlertModal
-                    visible={modalVisible}
-                    title={modalTitle}
-                    message={modalMessage}
-                    onClose={handleModalClose}
+                    visible={alertModalVisible}
+                    title={alertModalTitle}
+                    message={alertModalMessage}
+                    onClose={alertModalTitle === "Game Over" ? handleGameOverClose : handleModalClose}
+                    />
+                    <CustomDecisionModal
+                    visible={decisionModalVisible}
+                    title={decisionModalTitle}
+                    message={decisionModalMessage}
+                    onConfirm={decisionModalTitle === "Vote" ? handleGameEnd : handleSurrender}
+                    onCancel={decisionModalTitle === "Vote" ? handleDecline : handleModalClose}
                     />
                 </div>
             </div>

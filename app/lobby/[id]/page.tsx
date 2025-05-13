@@ -3,12 +3,11 @@
 import { useParams, useRouter } from "next/navigation"; // use NextJS router for navigation
 import React, { useState, useEffect } from "react";
 import "@ant-design/v5-patch-for-react-19";
-//import { useRouter } from "next/navigation";
 import Image from "next/image";
 import "../lobby.css";
 import { useApi } from "@/hooks/useApi";
 import { CustomInputModal } from "@/components/customModal";
-
+import FriendRequests from "@/components/FriendRequests";
 
 const Lobby: React.FC = () => {
   const games = 0;
@@ -18,10 +17,10 @@ const Lobby: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [newPlayerUsername, setnewPlayerUsername] = useState("");
   const [sentInvitations, setSentInvitations] = useState<SentInvitation[]>([]);
+  const [friends, setFriends] = useState<User[]>([]);
   
   const [username, setUsername] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
-  // const [userId, setUserId] = useState<string | null>(null);
   const [isHost, setIsHost] = useState(false);
   const { id } = useParams();
   const apiService = useApi();
@@ -37,12 +36,20 @@ const Lobby: React.FC = () => {
     token: string;
     id: number;
     username: string;
-}
+    status: string; // ONLINE, OFFLINE, IN_GAME
+    highScore: number;
+    friends: Friend[];
+  }
+  
+  interface Friend {
+    username: string;
+    status: string; // ONLINE, OFFLINE, IN_GAME
+  }
 
   interface SentInvitation {
     gameId: number;
     targetUsername: string;
-}
+  }
 
   useEffect(()=> {
       setUsername(localStorage.getItem("username"));
@@ -78,10 +85,6 @@ const Lobby: React.FC = () => {
 
   const handleButtonClick = () => {
     router.push("/dashboard");
-  };
-
-  const handleIconClick = () => {
-    alert("Icon clicked!");
   };
 
   /* opens the Modal*/
@@ -130,40 +133,29 @@ const Lobby: React.FC = () => {
             alert("Failed to send the invitation. Please try again.");
         });
 };
-
+// this is where the page is updated when a friend is added, not needed on some pages
+  const handleFriendAdded = (friend: User) => {
+    setFriends([...friends, friend]); // Update friends list
+  };
 
 return (
     <div>
 
     <header>
-      <button 
-      className = "nav_button"
-      onClick={handleButtonClick}
-      style = {{ backgroundColor: '#D04949', left: 0, marginLeft: '1vw'}}
-      >
-        Leave
-      </button>
-
-      <div className = "Title">
-        ScrabbleNow
-      </div>
-
-      <div className="userSnippet">
-        <span className="username">
-          {username}
-        </span>
-
-        <Image
-          className = "icon"
-          src="/User_Icon.jpg"
-          alt="User Icon"
-          width={100}
-          height={100}
-          priority
-          onClick={handleIconClick}
-          style = {{cursor: "pointer"}}
-          />
-      </div>
+        <button 
+            className="nav_button"
+            onClick={handleButtonClick}
+            style={{ backgroundColor: '#D04949', left: 0, marginLeft: '1vw' }}
+        >
+            Back
+        </button>
+        <div className="Title">ScrabbleNow</div>
+        <div className="userSnippet">
+            <span className="username">{username}</span>
+            <FriendRequests 
+                onFriendAdded={handleFriendAdded} 
+            />
+        </div>
     </header>
 
     <main>

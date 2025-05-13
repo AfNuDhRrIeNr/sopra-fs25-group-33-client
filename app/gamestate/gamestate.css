@@ -1,6 +1,6 @@
-div {
-    /* border: 2px black solid; */
-}
+/*div {
+    border: 2px black solid; 
+}*/
 
 #screen {
     display: flex;
@@ -16,6 +16,7 @@ div {
 
 #rest-container {
     margin-left: 1vw;
+    margin-right: 1vw;
     width: 100%;
     height: 100vh;
     /* border: 2px red solid; */
