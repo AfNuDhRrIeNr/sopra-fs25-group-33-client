@@ -1,6 +1,6 @@
 "use client"; // Required for using React hooks in Next.js
 
-import { useParams, useRouter } from "next/navigation"; // use NextJS router for navigation
+import { useParams, useRouter } from "next/navigation";
 import React, { useState, useEffect, useRef } from "react";
 import "@ant-design/v5-patch-for-react-19";
 import { Button } from "antd"; 
@@ -15,7 +15,7 @@ import SockJS from "sockjs-client";
 import "../playerHand.css";
 import "../playingButtons.css";
 import "../top.css";
-import { CustomAlertModal, CustomDecisionModal } from "@/components/customModal"; // Import CustomAlertModal
+import { CustomAlertModal, CustomDecisionModal } from "@/components/customModal";
 import { getApiDomain } from "@/utils/domain";
 import Board from "@/components/Board";
 import useAuth from "@/hooks/useAuth";
@@ -75,7 +75,7 @@ const Gamestate: React.FC = () => {
     const [isTileSelected, setTileSelected] = useState(false);
     const { id } = useParams();
     const stompClientRef = useRef<Client | null>(null);
-    const [remainingTime, setRemainingTime] = useState(45 * 60); // 45 minutes in seconds
+    const [remainingTime, setRemainingTime] = useState(45 * 60);
     const [alertModalVisible, setAlertModalVisible] = useState(false);
     const [alertModalTitle, setAlertModalTitle] = useState("");
     const [alertModalMessage, setAlertModalMessage] = useState("");
@@ -87,14 +87,14 @@ const Gamestate: React.FC = () => {
     const [gameHost, setGameHost] = useState<User>(defaultUser);
     const [gameGuest, setGameGuest] = useState<User>(defaultUser);
     const [isInitialized, setIsInitialized] = useState(false);
-    const tilesInHandRef = useRef(tilesInHand); // Create a ref to store the tiles in hand
-    const boardTilesRef = useRef(boardTiles); // Create a ref to store the board tiles
-    const immutableBoardTilesRef = useRef(immutableBoardTiles); // Create a ref to store the immutable board tiles
-    const [showNumber, setShowNumber] = useState(false); // Toggle between button and number
+    const tilesInHandRef = useRef(tilesInHand);
+    const boardTilesRef = useRef(boardTiles);
+    const immutableBoardTilesRef = useRef(immutableBoardTiles);
+    const [showNumber, setShowNumber] = useState(false); // Toggle between ask button and number
     const [turnTimeLeft, setTurnTimeLeft] = useState(180);
     const alreadySkippedRef = useRef(false);
-    const [lastVoteTime, setLastVoteTime] = useState<number | null>(null); // Store the last vote time
-    const [voteCooldownRemaining, setVoteCooldownRemaining] = useState<number | null>(null); // Store the vote cooldown time
+    const [lastVoteTime, setLastVoteTime] = useState<number | null>(null);
+    const [voteCooldownRemaining, setVoteCooldownRemaining] = useState<number | null>(null);
 
     useEffect(()=> {
             setUserId(localStorage.getItem("userId"));
@@ -102,7 +102,6 @@ const Gamestate: React.FC = () => {
         }, []);
 
     useEffect(()=> {
-        //if (!token) return;
         assignTilesToPlayer(7);
         
         apiService.get<Game>(`/games/${id}`)
@@ -116,7 +115,7 @@ const Gamestate: React.FC = () => {
                 });
 
                 setPlayerAtTurn(game.host);
-                setIsInitialized(true); // Set initialized to true after fetching game data
+                setIsInitialized(true);
             })
             .catch((error) => console.error("Error retrieving game information:", error));
     }, [id]); 
@@ -137,11 +136,9 @@ const Gamestate: React.FC = () => {
     
     useEffect(() => {
         if (!isInitialized) return;
-        //if (!isInitialized || !token) return; // Wait until the game data is fetched
-
 
         const connectWebSocket = () => {
-            const socket = new SockJS(URL + "/connections"); // Your WebSocket URL
+            const socket = new SockJS(URL + "/connections");
             const stompClient = new Client({
                 webSocketFactory: () => socket,
                 reconnectDelay: 5000,
@@ -154,7 +151,6 @@ const Gamestate: React.FC = () => {
 
                 stompClient.subscribe(`/topic/game_states/users/${localStorage.getItem("userId")}`, (message) => {
                     
-                    // Assuming the backend sends something like { valid: true/false }
                     const response = JSON.parse(message.body);
                     const action = response.gameState.action.toString();
                     const responseStatus = response.messageStatus.toString();
@@ -174,7 +170,7 @@ const Gamestate: React.FC = () => {
                     //submit
                     else if (responseStatus === "SUCCESS" && action === "SUBMIT") {
                         const newUserLetters = response.gameState.userTiles
-                        const currentHand = tilesInHandRef.current; // Get the current hand
+                        const currentHand = tilesInHandRef.current;
                         
                         
                         let letterIndex = 0; // Track the index of the next letter to use
@@ -206,7 +202,6 @@ const Gamestate: React.FC = () => {
                             handleReturn();
                         }
                         const points = response.message.match(/scored (\d+) points/); // Extract the number of points scored from the message
-                        //points = ["scored number points", "number"] ==> points[0] = wanted text
                         const newBoardTiles = response.gameState.board;
                         const parsedBoardTiles = dictifyMatrix(newBoardTiles);
                         if (moveById === localStorage.getItem("userId")) {
@@ -259,7 +254,7 @@ const Gamestate: React.FC = () => {
                 stompClientRef.current.deactivate();
             }
         };
-    }, [isInitialized]); // Add dependencies to useEffect
+    }, [isInitialized]);
 
     const sendMessage = (messageBody: string) => {
         if (stompClientRef.current) {
@@ -290,11 +285,11 @@ const Gamestate: React.FC = () => {
 
     const handleGameOverClose = () => {
         setAlertModalVisible(false);
-        router.push(`/eval/${id}`); // Redirect to the home page or any other page
+        router.push(`/eval/${id}`);
     }
     
     const handleCheck = async () => {
-        if (letter.length !== 1 || !/[a-zA-Z]/.test(letter)) { // ! Never reached since button is disabled
+        if (letter.length !== 1 || !/[a-zA-Z]/.test(letter)) {
             showAlertModal("Error", "Please enter a single letter.");
             return;
         }
@@ -331,14 +326,13 @@ const Gamestate: React.FC = () => {
     };
     
     const verifyWord = () => {
-        const matrix = constructMatrix(); // Get the constructed matrix
+        const matrix = constructMatrix();
         const newTilesArray = tilesInHand.map(tile => tile ? tile[9] : "");
         
         if (!id) {
             console.error("Game ID is null or undefined.");
             return;
         }
-        // Create the message body using the GameState interface
         const messageBody: GameState = {
             id: id.toString(),
             board: matrix,
@@ -348,7 +342,6 @@ const Gamestate: React.FC = () => {
             playerId: localStorage.getItem("userId")!,
         };
     
-        // Convert the object to a JSON string before sending
         sendMessage(JSON.stringify(messageBody));
     };
     
@@ -384,9 +377,9 @@ const Gamestate: React.FC = () => {
                         updatedHand[index] = newUserHand[i]; // Set exchanged tiles to null
                 });
                 setTilesInHand(updatedHand);
-                setSelectedTiles([]); // Clear selected tiles after exchange
-                setTurnTimeLeft(180); // Reset the timer to 3 minutes
-                setUserTurn(false); // Toggle user turn after exchange
+                setSelectedTiles([]);
+                setTurnTimeLeft(180);
+                setUserTurn(false);
             }
         }
         catch (error) {
@@ -397,7 +390,6 @@ const Gamestate: React.FC = () => {
             console.error("Game ID is null or undefined.");
             return;
         }
-        // Create the message body using the GameState interface
         const messageBody: GameState = {
             id: id.toString(),
             board: Array(15).fill(Array(15).fill("")),
@@ -407,7 +399,6 @@ const Gamestate: React.FC = () => {
             playerId: localStorage.getItem("userId")!,
         };
     
-        // Convert the object to a JSON string before sending
         sendMessage(JSON.stringify(messageBody));
     }
 
@@ -416,9 +407,8 @@ const Gamestate: React.FC = () => {
             console.error("Game ID is null or undefined.");
             return;
         }
-        setTurnTimeLeft(180); // Reset the timer to 3 minutes
+        setTurnTimeLeft(180);
         alreadySkippedRef.current = true; // Update the ref to indicate the turn has been skipped
-        // Create the message body using the GameState interface
         const messageBody: GameState = {
             id: id.toString(),
             board: Array(15).fill(Array(15).fill("")),
@@ -428,7 +418,6 @@ const Gamestate: React.FC = () => {
             playerId: localStorage.getItem("userId")!,
         };
     
-        // Convert the object to a JSON string before sending
         sendMessage(JSON.stringify(messageBody));
     };
 
@@ -456,7 +445,7 @@ const Gamestate: React.FC = () => {
         };
 
         sendMessage(JSON.stringify(messageBody));
-        setLastVoteTime(currentTime); // Update the last vote time
+        setLastVoteTime(currentTime);
         showAlertModal("Vote", "Vote sent! Waiting for your opponent's response.");
     }
     
@@ -476,26 +465,25 @@ const Gamestate: React.FC = () => {
         };
 
         sendMessage(JSON.stringify(messageBody));
-        setDecisionModalVisible(false); // Close the decision modal
+        setDecisionModalVisible(false);
         showAlertModal("Vote", "You declined ending the game.");
     }
 
     const commitWord = () => {
         setMoveVerified(false);
-        const matrix = constructMatrix(); // Get the constructed matrix
+        const matrix = constructMatrix();
         const newTilesArray = tilesInHand.map(tile => tile ? tile[9] : "");
         const updatedTilesArray = tilesInHand.map(tile => tile ? tile : "");
-        setTilesInHand(updatedTilesArray); // Update the tiles in hand
-        setImmutableBoardTiles(prev => ({ ...prev, ...boardTiles })); // Store the current board state
+        setTilesInHand(updatedTilesArray);
+        setImmutableBoardTiles(prev => ({ ...prev, ...boardTiles }));
         
         if (!id) {
             console.error("Game ID is null or undefined.");
             return;
         }
 
-        setTurnTimeLeft(180); // Reset the timer to 3 minutes
+        setTurnTimeLeft(180);
 
-        // Create the message body using the GameState interface
         const messageBody: GameState = {
             id: id.toString(),
             board: matrix,
@@ -505,27 +493,23 @@ const Gamestate: React.FC = () => {
             playerId: localStorage.getItem("userId")!,
         };
     
-        // Convert the object to a JSON string before sending
         sendMessage(JSON.stringify(messageBody));
     };
 
     useEffect (() => {
-        //if (!token) return;
-        tilesInHandRef.current = tilesInHand; // Update the ref whenever tilesInHand changes
+        tilesInHandRef.current = tilesInHand;
     }, [tilesInHand])
 
     useEffect (() => {
-        //if (!token) return;
-        boardTilesRef.current = boardTiles; // Update the ref whenever boardTiles changes
+        boardTilesRef.current = boardTiles;
     }, [boardTiles]);
 
     useEffect (() => {
-        //if (!token) return;
-        immutableBoardTilesRef.current = immutableBoardTiles; // Update the ref whenever immutableBoardTiles changes)
+        immutableBoardTilesRef.current = immutableBoardTiles;
     }, [immutableBoardTiles]);
 
     const handleSurrender = () => {
-        setDecisionModalVisible(false); // Close the decision modal
+        setDecisionModalVisible(false);
         if (!id || !stompClientRef.current) {
             console.error("Game ID or WebSocket client is null or undefined.");
             showAlertModal("Error", "Cannot surrender. Game ID or WebSocket connection is missing.");
@@ -544,7 +528,7 @@ const Gamestate: React.FC = () => {
     };
 
     const handleGameEnd = () => {
-        setDecisionModalVisible(false); // Close the decision modal
+        setDecisionModalVisible(false);
         if (!id || !stompClientRef.current) {
             console.error("Game ID or WebSocket client is null or undefined.");
             showAlertModal("Error", "The game cannot be ended since the game cannot be found or the WebSocket client has an error.");
@@ -571,8 +555,7 @@ const Gamestate: React.FC = () => {
         for (const key in boardTilesRef.current) {
 
             if (tempImmutables[key]) {
-
-                continue; // Skip immutable tiles
+                continue;
             }
 
             const image = updatedBoard[key];
@@ -632,13 +615,12 @@ const Gamestate: React.FC = () => {
         e.dataTransfer.setDragImage(dragPreview, target.width / 2, target.height / 2);
     };
 
-      // Handle drag start
     const handleDragStart = (e: React.DragEvent, col: number, row: number) => {
         e.dataTransfer.setData("col", col.toString());
         e.dataTransfer.setData("row", row.toString());
         e.dataTransfer.setData("imageSrc", boardTiles[`${col}-${row}`] || '');
         
-        const target = e.target as HTMLImageElement; //set original e (e meaning event) (e.target) type as htmlimage
+        const target = e.target as HTMLImageElement; //set original e (e meaning event) (e.target) type as htmlImage
         target.classList.add('dragging');
         
         //keep the dragged Image visible since reference opacity is now 0
@@ -650,10 +632,8 @@ const Gamestate: React.FC = () => {
         e.dataTransfer.setDragImage(dragPreview, target.width/2, target.height/2);
     };
 
-    // Handle drop
     const handleHandDrop = (e: React.DragEvent, index: number) => {
         e.preventDefault(); //prevent default dropping logic and apply custom logic
-        //get stored info of the image
         const draggedIndex = e.dataTransfer.getData("index");
         const draggedImage = e.dataTransfer.getData("imageSrc");
         const draggedCol = parseInt(e.dataTransfer.getData("col"));
@@ -713,7 +693,7 @@ const Gamestate: React.FC = () => {
             showAlertModal("Error", "Space is not free!");
         }
         else {
-        // Handling dropping an image from the hand to the board
+            // Handling dropping an image from the hand to the board
             if (draggedIndex !== null && isNaN(draggedCol) && isNaN(draggedRow)) {
                 const newTilesInHand = [...tilesInHand];
                 newTilesInHand[draggedIndex] = null;
@@ -744,7 +724,6 @@ const Gamestate: React.FC = () => {
         }
     };
     
-    // Handle drag over (to allow dropping)
     const handleDragOver = (e: React.DragEvent) => {
         e.preventDefault(); // Allow drop
     };
@@ -755,7 +734,6 @@ const Gamestate: React.FC = () => {
     }
     
     useEffect(() => {
-        //if (!token) return;
         const mutableTiles = Object.keys(boardTiles).filter(key => !immutableBoardTiles[key]);
         setTileOnBoard(mutableTiles.length > 0);
         setMoveVerified(false);
@@ -763,15 +741,12 @@ const Gamestate: React.FC = () => {
     }, [boardTiles, selectedTiles, tilesInHand, playerPoints, immutableBoardTiles]);
 
     useEffect(() => {
-        //if (!token) return;
-        setUserTurn(userId === playerAtTurn.id.toString()); // Update user turn based on the current player at turn
+        setUserTurn(userId === playerAtTurn.id.toString());
         console.log("User Turn: ", userId === playerAtTurn.id.toString()); //necessary log so that ui correctly updates.
-    }, [playerAtTurn, userId]); // Add playerAtTurn as a dependency
+    }, [playerAtTurn, userId]);
 
 
     useEffect(() => {
-        //if (!token) return;
-
         if (!lastVoteTime) {
             setVoteCooldownRemaining(null); // No vote has been sent yet
             return;
@@ -780,29 +755,25 @@ const Gamestate: React.FC = () => {
         const interval = setInterval(() => {
             const currentTime = Date.now();
             const timeSinceLastVote = currentTime - lastVoteTime;
-            const cooldownRemaining = Math.max(0, 5 * 60 * 1000 - timeSinceLastVote); // 5 minutes in milliseconds
+            const cooldownRemaining = Math.max(0, 5 * 60 * 1000 - timeSinceLastVote); // 5 minutes
     
             setVoteCooldownRemaining(cooldownRemaining);
     
             if (cooldownRemaining === 0) {
-                clearInterval(interval); // Stop the interval when the cooldown ends
+                clearInterval(interval);
             }
         }, 1000);
     
-        return () => clearInterval(interval); // Cleanup the interval on unmount
+        return () => clearInterval(interval);
     
     }, [lastVoteTime]);
 
     useEffect(() => {
-        //if (!token) return;
-
         const startTime = Date.now(); // Simulate server start time
         const endTime = startTime + 45 * 60 * 1000; // 45 minutes later
         const timeLeft = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
         setRemainingTime(timeLeft);
-    
-        //setIsGameStarted(true); // Automatically start the game    
-    
+
         const timer = setInterval(() => {
             setRemainingTime((prev) => {
                 if (prev <= 1) {
@@ -810,12 +781,12 @@ const Gamestate: React.FC = () => {
                     handleGameEnd(); // End the game
                     return 0;
                 }
-                return prev - 1; // Decrease remainingTime by 1
+                return prev - 1; // Decrease remainingTime
             });
         }, 1000);
     
-        return () => clearInterval(timer); // Cleanup the timer when the component unmounts
-    }, []); // Empty dependency array ensures this runs only once
+        return () => clearInterval(timer);
+    }, []); // Runs only once
 
     const formatTime = (seconds: number) => {
         const minutes = Math.floor(seconds / 60);
@@ -840,28 +811,28 @@ const Gamestate: React.FC = () => {
         if (!token) return;
         const interval = setInterval(() => {
             sendTimerSyncMessage();
-        }, 60000); // every 60 seconds
+        }, 60000); // 60 seconds
         return () => clearInterval(interval);
     }, [token, id]);
 
     useEffect(() => {
-        if (playerAtTurn.id.toString() !== userId) return; // Only start the timer if it's the user's turn // || !token
+        if (playerAtTurn.id.toString() !== userId) return; // Only start the timer if it's the user's turn
 
         const countdownTimer = setInterval(() => {
           setTurnTimeLeft((prev) => {
             if (prev > 0) {
-                if (alreadySkippedRef.current) alreadySkippedRef.current = false; // Reset alreadySkipped when the timer is running
+                if (alreadySkippedRef.current) alreadySkippedRef.current = false; // Reset alreadySkipped
                 return prev - 1;
             } else {
                 if (alreadySkippedRef.current) {return 0;} // Prevent skipping if already skipped
-                clearInterval(countdownTimer); // Stop the timer when it reaches 1
+                clearInterval(countdownTimer);
                 skipTurn(); // Call the skipTurn function
                 return 0;
             }
           });
         }, 1000);
       
-        return () => clearInterval(countdownTimer); // Cleanup on unmount
+        return () => clearInterval(countdownTimer);
       }, [playerAtTurn]);
 
     const assignTilesToPlayer = async (count: number) => {
@@ -874,7 +845,6 @@ const Gamestate: React.FC = () => {
                 const startingTiles = response.newTiles.map(
                     (letter: string) => `/letters/${letter} Tile 70.jpg`
                 );
-                // Update the tiles for the specific user
                 setTilesInHand(startingTiles);
             }
         } catch (error) {
@@ -994,7 +964,7 @@ const Gamestate: React.FC = () => {
                                     placeholder="// Letter"
                                 />
                             </div>
-                            {!showNumber ? ( // Show the button if `showNumber` is false
+                            {!showNumber ? ( // Show the button
                                 <div id="bag-button-container">
                                         <button 
                                             id="bag-button" 
