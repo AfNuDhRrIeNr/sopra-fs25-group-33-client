@@ -18,7 +18,7 @@ import "../top.css";
 import { CustomAlertModal, CustomDecisionModal } from "@/components/customModal"; // Import CustomAlertModal
 import { getApiDomain } from "@/utils/domain";
 import Board from "@/components/Board";
-//import useAuth from "@/hooks/useAuth";
+import useAuth from "@/hooks/useAuth";
 
 
 interface GameState {
@@ -63,7 +63,7 @@ const Gamestate: React.FC = () => {
     const apiService = useApi();
     const [userId, setUserId] = useState<string | null>(null);
     const [token, setToken] = useState<string | null>(null);
-    // const { isAuthenticated, isLoading } = useAuth();
+    const { isAuthenticated, isLoading } = useAuth();
     const [tilesInHand, setTilesInHand] = useState <(string | null)[]>(new Array(7).fill(null));
     const [selectedTiles, setSelectedTiles ] = useState<number[]>([]);
     const [boardTiles, setBoardTiles] = useState<{ [key:string]: string | null }>({});
@@ -151,7 +151,7 @@ const Gamestate: React.FC = () => {
 
             stompClient.onConnect = () => {
                 console.log("Connected to WebSocket");
-                
+
                 stompClient.subscribe(`/topic/game_states/users/${localStorage.getItem("userId")}`, (message) => {
                     
                     // Assuming the backend sends something like { valid: true/false }
@@ -883,13 +883,13 @@ const Gamestate: React.FC = () => {
         }
     };
 
-    // if (isLoading) {
-    //     return <div>Loading...</div>;
-    // }
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
 
-    // if (!isAuthenticated) {
-    //     return null;
-    // }
+    if (!isAuthenticated || !token) {
+        return null;
+    }
 
     return (
         <div id="screen">
