@@ -145,7 +145,7 @@ reason).
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
 | **Alumen-Eng** | 11.05.25   | [Commit 1627dd0](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/1627dd0) [Commit 505b524](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/505b524) | Added some loading between pages, restrictions to visiting sites, paused since Silvan already did the same | Further feedback whether something is happening or not. |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **[@githubUser2]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+| **AfNuDhRrIeNr** | 07.05.25   |  | clean up the project board | Feedback M3 |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **[@githubUser3]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
