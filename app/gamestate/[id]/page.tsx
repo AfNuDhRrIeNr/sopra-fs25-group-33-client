@@ -223,10 +223,16 @@ const Gamestate: React.FC = () => {
                                 ...prev,
                                 ...response.gameState.playerScores, // Merge new scores into the existing playerPoints
                             }));
-                            setTilesInHand(response.gameState.userTiles);
-                        } else if ((action === "SKIP" ||
-                            action === "EXCHANGE") && responseStatus === "SUCCESS") {
-                            setPlayerAtTurn(response.hostTurn ? gameHost : gameGuest); // Toggle player at turn
+                            // Update tiles only for player who submitted the move!
+                            if(response.gameState.playerId.toString() != localStorage.getItem("userId")) {
+                                setTilesInHand(response.gameState.userTiles.map((letter: string) => `/letters/${letter} Tile 70.jpg`));
+                            }
+                        } else if ((action === "SKIP" || action === "EXCHANGE") && responseStatus === "SUCCESS") {
+                            setPlayerAtTurn(response.gameState.playerId == gameHost.id ? gameHost : gameGuest); // Toggle player at turn
+                            if(response.gameState.playerId.toString() != localStorage.getItem("userId")) {
+                                setTilesInHand(response.gameState.userTiles.map((letter: string) => `/letters/${letter} Tile 70.jpg`))
+                                setSelectedTiles([]);
+                            }
                         }
                     });
 
@@ -245,10 +251,9 @@ const Gamestate: React.FC = () => {
                         else if (response.messageStatus.toString() === "VALIDATION_ERROR") {
                             showModal("Validation", `Validation failed! Reason: ${response.message.toString().substring(16)}`);
                         }
-                        //submit
-                        else if (responseStatus === "SUCCESS" && action === "SUBMIT") {
                         //fetch game state
                         else if (responseStatus === "SUCCESS" && action === "FETCH_GAME_STATE") {
+                            console.log(response);
                             const newUserLetters = response.gameState.userTiles
                             const currentHand = tilesInHandRef.current; // Get the current hand
 
@@ -263,13 +268,14 @@ const Gamestate: React.FC = () => {
                                 return tile; // Keep the existing tile if it's not empty
                             });
 
-                        setTilesInHand(updatedHand);
-                        setTileOnBoard(false);
-                        const parsedBoardTiles = dictifyMatrix(response.gameState.board)
-                        setBoardTiles(parsedBoardTiles);
-                        setImmutableBoardTiles(prev => ({ ...prev, ...parsedBoardTiles })); // Store immutable tiles
-                        setPlayerAtTurn(response.id===gameHost.id ? gameHost : gameGuest)
-                    }
+                            setTilesInHand(updatedHand);
+                            setTileOnBoard(false);
+                            const parsedBoardTiles = dictifyMatrix(response.gameState.board)
+                            setBoardTiles(parsedBoardTiles);
+                            setImmutableBoardTiles(prev => ({ ...prev, ...parsedBoardTiles })); // Store immutable tiles
+                            setPlayerAtTurn(response.gameState.playerId == gameHost.id ? gameHost : gameGuest); // Toggle player at turn
+                            setPlayerPoints(response.gameState.playerScores);
+                        }
                     
 
                 });
@@ -285,15 +291,16 @@ const Gamestate: React.FC = () => {
                         const newBoardTiles = response.gameState.board;
                         const parsedBoardTiles = dictifyMatrix(newBoardTiles);
                         setBoardTiles(parsedBoardTiles);
-                        setImmutableBoardTiles(prev => ({ ...prev, ...parsedBoardTiles }));
+                        setImmutableBoardTiles(() => ({ ...parsedBoardTiles }));
                         setPlayerAtTurn(prev => prev.id === gameHost.id ? gameGuest : gameHost);
                         setPlayerPoints((prev) => ({
                             ...prev,
                             ...response.gameState.playerScores,
                         }));
-                    } else if ((action === "SKIP" || action === "EXCHANGE") && responseStatus === "SUCCESS") {
+                        setTilesInHand(response.gameState.userTiles.map((letter: string) => `/letters/${letter} Tile 70.jpg`));
+                    }/* else if ((action === "SKIP" || action === "EXCHANGE") && responseStatus === "SUCCESS") {
                         setPlayerAtTurn(prev => prev.id === gameHost.id ? gameGuest : gameHost);
-                    }
+                    }*/
                 });
                 resolve();
             };
@@ -303,22 +310,26 @@ const Gamestate: React.FC = () => {
             })
 
         };
+        const sendFetchGameStateMessage = () => {
+            if(id == undefined) return;
+            // Create the message body using the GameState interface
+            const messageBody: GameState = {
+                id: id.toString(),
+                board: constructMatrix(),
+                token: token!,
+                userTiles: [],
+                action: "FETCH_GAME_STATE",
+                playerId: localStorage.getItem("userId")!,
+            };
+
+            // Convert the object to a JSON string before sending
+            sendMessage(JSON.stringify(messageBody));
+        }
 
         // Call the function to connect the WebSocket
         if (gameHost.id && gameGuest.id && playerAtTurn.id && id && tilesInHand) {
             connectWebSocket().then(() => {
-                // Create the message body using the GameState interface
-                const messageBody: GameState = {
-                    id: id.toString(),
-                    board: constructMatrix(),
-                    token: token!,
-                    userTiles: [],
-                    action: "FETCH_GAME_STATE",
-                    playerId: localStorage.getItem("userId")!,
-                };
-
-                // Convert the object to a JSON string before sending
-                sendMessage(JSON.stringify(messageBody));
+                sendFetchGameStateMessage();
             });
         }
         // Cleanup WebSocket connection when the component unmounts
@@ -368,6 +379,7 @@ const Gamestate: React.FC = () => {
             showModal("Error", "Please enter a single letter.");
             return;
         }
+        setLetter(letter.toUpperCase());
         try 
         {                               
             const response = await apiService.get<number>(`/games/${id}/letters/${letter}`); 
@@ -430,38 +442,16 @@ const Gamestate: React.FC = () => {
     );
     };
 
-    interface ExchangeResponse {
-        gameStatus: string | null;
-        newTiles: string[];
-    }
-
     const exchangeTiles = async () => {
         const tilesToExchange = selectedTiles.map((i) => tilesInHand[i]);
-        const exchangeList = tilesToExchange.map(tile => tile ? tile[9] : "");
-        showModal("Exchange", `${exchangeList} were exchanged.`)
+        if(tilesToExchange === null || tilesToExchange.length === 0) return;
+        const exchangeList = [];
+        const tilesCharOnly = tilesToExchange.filter((tile): tile is string => tile !== null).map((tileSource) => tileSource[9]);
+        for (let i = 0; i < tilesToExchange.length; i++) {
+            exchangeList[i] = selectedTiles.includes(i) ? "" : tilesInHand[i];
+        }
+        showModal("Exchange", `${tilesCharOnly} were exchanged.`)
 
-        try {
-            const response = await apiService.put<ExchangeResponse>(
-                `/games/${id}/users/${localStorage.getItem("userId")}/exchange`,
-                exchangeList,
-            );
-            if (response != null) {
-                const newUserLetters = response.newTiles;        
-                const newUserHand = newUserLetters.map((letter: string) => `/letters/${letter} Tile 70.jpg`);
-                const updatedHand = [...tilesInHand];
-                selectedTiles.forEach((index, i) => {
-                    if (newUserHand[i])
-                        updatedHand[index] = newUserHand[i]; // Set exchanged tiles to null
-                });
-                setTilesInHand(updatedHand);
-                setSelectedTiles([]); // Clear selected tiles after exchange
-                setUserTurn(false); // Toggle user turn after exchange
-            }
-        }
-        catch (error) {
-            console.error("Exchange Error:", error);
-            showModal("Error", `Exchange failed: ${(error as Error).message}`);
-        }
         if (!id) {
             console.error("Game ID is null or undefined.");
             return;
@@ -471,10 +461,11 @@ const Gamestate: React.FC = () => {
             id: id.toString(),
             board: Array(15).fill(Array(15).fill("")),
             token: token!,
-            userTiles: Array(7).fill(""),
+            userTiles: tilesCharOnly,
             action: "EXCHANGE",
             playerId: localStorage.getItem("userId")!,
         };
+        console.log(messageBody);
     
         // Convert the object to a JSON string before sending
         sendMessage(JSON.stringify(messageBody));
@@ -490,7 +481,7 @@ const Gamestate: React.FC = () => {
             id: id.toString(),
             board: Array(15).fill(Array(15).fill("")),
             token: token!,
-            userTiles: Array(7).fill(""),
+            userTiles: tilesInHand.map(tile => tile ? tile[9] : ""),
             action: "SKIP",
             playerId: localStorage.getItem("userId")!,
         };
@@ -746,6 +737,7 @@ const Gamestate: React.FC = () => {
         const secs = seconds % 60;
         return `${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
     };
+
 
     return (
         <div id="screen">
