@@ -3,11 +3,6 @@ import Image from "next/image";
 import { useApi } from "@/hooks/useApi";
 import { CustomListModal } from "./customModal"; // Import CustomListModal
 
-
-interface FriendRequestsProps {
-    onFriendAdded?: (friend: User) => void; // Callback when a friend is added
-}
-
 interface User {
     token: string;
     id: number;
@@ -28,12 +23,13 @@ interface Friend {
         status: string; // ONLINE, OFFLINE, IN_GAME
 }
 
-const FriendRequests: React.FC<FriendRequestsProps> = ({ onFriendAdded }) => {
+const FriendRequests: React.FC = () => {
     const [pendingRequests, setPendingRequests] = useState<FriendRequest[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const apiService = useApi();
 
     useEffect(() => {
+        if (!localStorage.getItem("token")) return;
         const fetchFriendRequests = () => {
             apiService.get<FriendRequest[]>('/users/friendRequests')
                 .then((data) => {
@@ -58,10 +54,7 @@ const FriendRequests: React.FC<FriendRequestsProps> = ({ onFriendAdded }) => {
         apiService.put<string>(`/users/friendRequests/${requestId}`, { status })
             .then(() => {
                 if (action === 'accept') {
-                    const acceptedRequest = pendingRequests.find((req) => req.id === requestId);
-                    if (acceptedRequest && onFriendAdded) {
-                        onFriendAdded(acceptedRequest.sender); // Notify parent component
-                    }
+                    // Removed onFriendAdded callback
                 }
             })
             .catch((error) => {
@@ -91,10 +84,12 @@ const FriendRequests: React.FC<FriendRequestsProps> = ({ onFriendAdded }) => {
                 items={pendingRequests}
                 renderItem={(request) => (
                     <div className="friend-request-row">
-                        <img
+                        <Image
                             src="/User_Icon.jpg"
                             alt="User Icon"
                             className="modal-avatar"
+                            width={40}
+                            height={40}
                         />
                         <span className="friend-username">{request.sender.username}</span>
                         <div className="modal-buttons">
