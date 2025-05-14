@@ -56,6 +56,8 @@ interface GamePutDTO {
     newTiles: string[];
 }
 
+const GAME_DURATION_SECONDS = 45*60; // 45 min in seconds
+
 const Gamestate: React.FC = () => {
     const router = useRouter();
     const [letter, setLetter] = useState("");
@@ -75,7 +77,7 @@ const Gamestate: React.FC = () => {
     const [isTileSelected, setTileSelected] = useState(false);
     const { id } = useParams();
     const stompClientRef = useRef<Client | null>(null);
-    const [remainingTime, setRemainingTime] = useState(45 * 60);
+    const [remainingTime, setRemainingTime] = useState(GAME_DURATION_SECONDS);
     const [alertModalVisible, setAlertModalVisible] = useState(false);
     const [alertModalTitle, setAlertModalTitle] = useState("");
     const [alertModalMessage, setAlertModalMessage] = useState("");
@@ -529,7 +531,7 @@ const Gamestate: React.FC = () => {
 
     const handleGameEnd = () => {
         setDecisionModalVisible(false);
-        if (!id || !stompClientRef.current) {
+        if (!id || !stompClientRef.current || !token) {
             console.error("Game ID or WebSocket client is null or undefined.");
             showAlertModal("Error", "The game cannot be ended since the game cannot be found or the WebSocket client has an error.");
             return;
@@ -770,23 +772,23 @@ const Gamestate: React.FC = () => {
 
     useEffect(() => {
         const startTime = Date.now(); // Simulate server start time
-        const endTime = startTime + 45 * 60 * 1000; // 45 minutes later
+        const endTime = startTime + GAME_DURATION_SECONDS * 1000; // GAME_DURATION_SECONDS later
         const timeLeft = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
         setRemainingTime(timeLeft);
 
         const timer = setInterval(() => {
             setRemainingTime((prev) => {
                 if (prev <= 1) {
-                    clearInterval(timer); // Stop the timer when it reaches 0
-                    handleGameEnd(); // End the game
+                    clearInterval(timer);
+                    handleGameEnd();
                     return 0;
                 }
-                return prev - 1; // Decrease remainingTime
+                return prev - 1 > 0 ? prev - 1 : 0;
             });
         }, 1000);
-    
+
         return () => clearInterval(timer);
-    }, []); // Runs only once
+    }, [token]);
 
     const formatTime = (seconds: number) => {
         const minutes = Math.floor(seconds / 60);
