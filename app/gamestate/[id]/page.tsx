@@ -97,6 +97,7 @@ const Gamestate: React.FC = () => {
     const alreadySkippedRef = useRef(false);
     const [lastVoteTime, setLastVoteTime] = useState<number | null>(null);
     const [voteCooldownRemaining, setVoteCooldownRemaining] = useState<number | null>(null);
+    const [rulesModalVisible, setRulesModalVisible] = useState(false);
 
     useEffect(()=> {
             setUserId(localStorage.getItem("userId"));
@@ -892,61 +893,65 @@ const Gamestate: React.FC = () => {
                                 ></div>
                             </div>)}
                         </div>
-                        <div id = "end_buttons">
-                            <div id="end_vote">
-                                <button 
-                                id="end_vote_button" 
-                                className="nav_button"
-                                onClick={handleVote}>
-                                    {voteCooldownRemaining !== null && voteCooldownRemaining > 0
-                                        ? `Vote in ${Math.max(0, Math.floor(voteCooldownRemaining / 1000))}s`
-                                        : "Vote to end"}
-                                </button>
-                            </div>
-                            <div id="surrender">
-                                <button 
-                                id="surrender-button" 
-                                className="nav_button"
-                                onClick={() => showDecisionModal("Surrender", "Are you sure you want to surrender?")}>
-                                    Give Up
-                                </button>
+                        <div id="end_vote">
+                            <button 
+                            id="end_vote_button" 
+                            className="nav_button"
+                            onClick={handleVote}>
+                                {voteCooldownRemaining !== null && voteCooldownRemaining > 0
+                                    ? `Vote in ${Math.max(0, Math.floor(voteCooldownRemaining / 1000))}s`
+                                    : "Vote to end"}
+                            </button>
+                        </div>
+                        <div id="surrender">
+                            <button 
+                            id="surrender-button" 
+                            className="nav_button"
+                            onClick={() => showDecisionModal("Surrender", "Are you sure you want to surrender?")}>
+                                Give Up
+                            </button>
+                        </div>
+                        <div id="help-icon-container" title="Show Rules" onClick={() => setRulesModalVisible(true)}>
+                            <div className="help-icon-outer">
+                                <span className="help-icon">?</span>
                             </div>
                         </div>
                     </div>
-                    <div id="turn-points">
-                        <div id="t-p-container">
-                            <div className="player-container" id="left-player">
-                                <div className="name-and-dot-container">
-                                    <div className="player-name">
-                                        {gameHost.username ? gameHost.username : "Host"}
-                                    </div>
-                                    <div className="dot-container">                                
-                                        <div className={`turn-dot ${playerAtTurn === gameHost ? 'active-dot' : ''}`}>
-                                        </div>
-                                    </div>
+                <div id="turn-points">
+                    <div id="t-p-container">
+                        <div className="player-container" id="left-player">
+                            <div className="name-and-dot-container">
+                                <div className="player-name">
+                                    {gameHost.username ? gameHost.username : "Host"}
                                 </div>
-                                <div className="player-points">
-                                    {playerPoints[gameHost.id]}
+                                <div className="dot-container">                                
+                                    <div className={`turn-dot ${playerAtTurn === gameHost ? 'active-dot' : ''}`}>
+                                    </div>
                                 </div>
                             </div>
-                            <div className="player-container">
-                                <div className="name-and-dot-container">
-                                    <div className="player-name">
-                                        {gameGuest.username ? gameGuest.username : "Guest"}
-                                    </div>
-                                    <div className="dot-container">                                
-                                        <div className={`turn-dot ${playerAtTurn === gameGuest ? 'active-dot' : ''}`}>
+                            <div className="player-points">
+                                {playerPoints[gameHost.id]}
+                            </div>
+                        </div>
+                        <div className="player-container">
+                            <div className="name-and-dot-container">
+                                <div className="player-name">
+                                    {gameGuest.username ? gameGuest.username : "Guest"}
+                                </div>
+                                <div className="dot-container">                                
+                                    <div className={`turn-dot ${playerAtTurn === gameGuest ? 'active-dot' : ''}`}>
 
-                                        </div>
                                     </div>
                                 </div>
-                                <div className="player-points">
-                                    {playerPoints[gameGuest.id]}
-                                </div>
+                            </div>
+                            <div className="player-points">
+                                {playerPoints[gameGuest.id]}
                             </div>
                         </div>
                     </div>
                 </div>
+                </div>
+                
                 <div id="bag-stuff">
                     <div id="bag-image">
                         <Image id="bag-jpg" src="/BagWithTiles.png" alt="Letters Bag" width={222} height={168} priority /> {/* without tiles: /TilesBag.png*/}
@@ -1095,7 +1100,24 @@ const Gamestate: React.FC = () => {
                     onConfirm={decisionModalTitle === "Vote" ? handleGameEnd : handleSurrender}
                     onCancel={decisionModalTitle === "Vote" ? handleDecline : handleModalClose}
                     />
-                </div>
+                    <CustomAlertModal
+                        visible={rulesModalVisible}
+                        title="Rules"
+                        message={
+                            <div style={{ fontSize: '1.1em', padding: '0.5em 0' }}>
+                                <ul style={{ paddingLeft: '1.2em', margin: 0 }}>
+                                    <li>Place tiles on the board to form valid words.</li>
+                                    <li>Each turn, you can verify and play a word, exchange tiles, or skip your turn.</li>
+                                    <li>Use the "Ask" feature to check how many tiles of a letter remain in the bag.</li>
+                                    <li>Vote to end the game early if both players agree.</li>
+                                    <li>Surrender if you wish to forfeit the game.</li>
+                                    <li>The game ends when all tiles are played or both players pass consecutively.</li>
+                                </ul>
+                            </div>
+                        }
+                        onClose={() => setRulesModalVisible(false)}
+                    />
+                    </div>
             </div>
         </div>
     );
