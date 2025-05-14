@@ -16,6 +16,7 @@ const Eval: React.FC = () => {
     const [username, setUsername] = useState<string | null>(null);
     const [opponentUsername, setOpponentUsername] = useState<string | null>(null);
     const [token, setToken] = useState<string | null>(null);
+    const [userId, setuserId] = useState<string | null>(null);
     const { isAuthenticated, isLoading } = useAuth();
     const apiService = useApi();
     const [immutableBoardTiles, setImmutableBoardTiles] = useState<{ [key:string]: string | null }>({});
@@ -70,6 +71,7 @@ const Eval: React.FC = () => {
     useEffect(()=> {
         setUsername(localStorage.getItem("username"));
         setToken(localStorage.getItem("token"));
+        setuserId(localStorage.getItem("userId"));
     }, []);
 
     useEffect(() => {
@@ -88,8 +90,17 @@ const Eval: React.FC = () => {
             .catch((error) => console.error("Error retrieving game information:", error));
     }, []);
 
-    const handleButtonClick = () => {
-        router.push("/dashboard");
+    const handleDashboardNavigation = () => {
+        apiService.put(`/users?userId=${userId}`, {
+            status: "ONLINE"
+        })
+        .then(() => {
+            router.push("/dashboard");
+        })
+        .catch((error) => {
+            console.error("Error updating user status:", error);
+            alert("Failed to update user status. Please try again.");
+        });
     };
 
     const handleRematch = async () => {
@@ -137,7 +148,7 @@ const Eval: React.FC = () => {
       <header>
         <button 
             className="nav_button"
-            onClick={handleButtonClick}
+            onClick={handleDashboardNavigation}
             style={{ backgroundColor: '#D04949', left: 0, marginLeft: '1vw' }}
         >
             Dashboard
