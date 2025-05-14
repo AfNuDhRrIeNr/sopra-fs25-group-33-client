@@ -172,3 +172,12 @@
     background-color: #9A9CF5;
     transition: width 1s linear; /* Smooth transition for the width */
   }
+
+.rules-feature-list {
+    list-style-type: none; /* Remove bullets */
+    padding-left: 0;      /* Remove default left padding */
+    text-align: justify;  /* Blocksatz (justified text) */
+    margin: 0 0 1em 0;    /* Optional: add some margin below the list */
+    max-height: 30vh;      /* Limit height to 50% of viewport */
+    overflow-y: auto;      /* Enable vertical scrolling if needed */
+}

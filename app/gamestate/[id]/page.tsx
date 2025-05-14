@@ -1102,16 +1102,32 @@ const Gamestate: React.FC = () => {
                     />
                     <CustomAlertModal
                         visible={rulesModalVisible}
-                        title="Rules"
+                        title="Rules & Features"
                         message={
                             <div style={{ fontSize: '1.1em', padding: '0.5em 0' }}>
-                                <ul style={{ paddingLeft: '1.2em', margin: 0 }}>
-                                    <li>Place tiles on the board to form valid words.</li>
-                                    <li>Each turn, you can verify and play a word, exchange tiles, or skip your turn.</li>
-                                    <li>Use the "Ask" feature to check how many tiles of a letter remain in the bag.</li>
-                                    <li>Vote to end the game early if both players agree.</li>
-                                    <li>Surrender if you wish to forfeit the game.</li>
-                                    <li>The game ends when all tiles are played or both players pass consecutively.</li>
+                                <div style={{ marginBottom: '0.7em', fontWeight: 600 }}>
+                                    Scrabble Boardgame Rules: 
+                                    <br />{" "}
+                                    <a
+                                        href="https://en.wikipedia.org/wiki/Scrabble#Rules"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{ color: '#1976d2', textDecoration: 'underline', fontWeight: 500 }}
+                                    >
+                                        Official Rules (Wikipedia)
+                                    </a>
+                                </div>
+                                <div style={{ marginBottom: '0.7em', fontWeight: 600 }}>
+                                    Online Features in ScrabbleNow:
+                                </div>
+                                <ul className="rules-feature-list">
+                                    <li><b>Verify</b>: Check if the word you formed is valid before playing it. This does not commit your move.</li>
+                                    <li><b>Exchange</b>: Select one or more tiles in your hand and exchange them for new ones from the bag. Only possible on your turn and if there are enough tiles left in the bag.</li>
+                                    <li><b>Skip</b>: Skip your turn without making a move. Useful if you can't play or want to wait for a better opportunity.</li>
+                                    <li><b>Play Word</b>: Commit your verified word to the board and end your turn. Only enabled after a successful verification.</li>
+                                    <li><b>Vote to end</b>: Propose to end the game early. If both players agree, the game ends and scores are calculated.</li>
+                                    <li><b>Give Up</b>: Surrender the game immediately. Your opponent will be declared the winner.</li>
+                                    <li><b>Ask</b>: Enter a letter and click "Ask" to see how many tiles of that letter remain in the bag.</li>
                                 </ul>
                             </div>
                         }
