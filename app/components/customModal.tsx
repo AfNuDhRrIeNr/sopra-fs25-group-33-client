@@ -1,11 +1,12 @@
 "use client";
 
+import React from "react";
 import "./customModal.css"; // Import centralized modal styles
 
 interface CustomAlertModalProps {
   visible: boolean;
   title: string;
-  message: string;
+  message: React.ReactNode; // Changed from string to React.ReactNode
   onClose: () => void;
 }
 
@@ -21,7 +22,7 @@ export const CustomAlertModal: React.FC<CustomAlertModalProps> = ({
     <div className="modal-overlay">
       <div className="modal">
         <h2>{title}</h2>
-        <p>{message}</p>
+        <div>{message}</div> {/* Changed from <p> to <div> to support ReactNode */}
         <div className="modal-buttons">
           <button className="modal-button-gold" onClick={onClose}>
             OK

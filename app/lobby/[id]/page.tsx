@@ -11,8 +11,6 @@ import FriendRequests from "@/components/FriendRequests";
 import useAuth from "@/hooks/useAuth";
 
 const Lobby: React.FC = () => {
-  const games = 0;
-  const rank = 0;
   const router = useRouter();
   const [isAlone, setIsAlone] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -22,6 +20,9 @@ const Lobby: React.FC = () => {
   const [token, setToken] = useState<string | null>(null);
   const { isAuthenticated, isLoading } = useAuth();
   const [isHost, setIsHost] = useState(false);
+  const [highScore, setHighScore] = useState<number | null>(null);
+  const [rank, setRank] = useState<number | null>(null);
+  const [leaderboard, setLeaderboard] = useState<User[]>([]);
   const { id } = useParams();
   const apiService = useApi();
   
@@ -51,9 +52,25 @@ const Lobby: React.FC = () => {
     targetUsername: string;
   }
 
-  useEffect(()=> {
-      setUsername(localStorage.getItem("username"));
-      setToken(localStorage.getItem("token"));
+  useEffect(() => {
+    if (!token) return;
+    // Fetch leaderboard for rank
+    apiService.get<User[]>(`/users?leaderboard=true`)
+      .then((users) => {
+        setLeaderboard(users);
+        if (username) {
+          const userIndex = users.findIndex(u => u.username === username);
+          if (userIndex !== -1) {
+            setRank(userIndex + 1);
+          }
+        }
+      })
+      .catch((error) => console.error("Error fetching leaderboard:", error));
+  }, [token, username, apiService]);
+
+  useEffect(() => {
+    setUsername(localStorage.getItem("username"));
+    setToken(localStorage.getItem("token"));
   }, []);
 
   useEffect(() => {
@@ -64,15 +81,19 @@ const Lobby: React.FC = () => {
             .then((game) => {
                 const guest = game.users.length > 1 ? game.users.find((user) => user.token !== token) : null;
                 if (guest) {
-                    // User is in the game, update state accordingly
                     setIsAlone(false);
                     setnewPlayerUsername(guest.username);
                 }
                 if (!isHost) {
-                setIsHost(game.host.token === token); // Check if the current user is the host
+                  setIsHost(game.host.token === token);
+                }
+                // Set highscore for current user
+                if (username) {
+                  const me = game.users.find(u => u.username === username);
+                  if (me) setHighScore(me.highScore);
                 }
                 if (game.gameStatus === "ONGOING") {
-                  router.push(`/gamestate/${id}`); // Redirect if the game has started
+                  router.push(`/gamestate/${id}`);
                 }
             })
             .catch((error) => console.error("Error polling game status:", error));
@@ -161,7 +182,6 @@ return (
     </header>
 
     <main>
-      {/* <div id = "alignmentGuide"></div> */}
       <div id= "users_border">
         <div className = "user" style={{marginLeft: "8.1%"}}>
           <Image
@@ -177,15 +197,19 @@ return (
           </div>
         </div>
         <div className = "userInfo" style = {{marginLeft: "-1.5vw"}}>
-          <span>Rank: <span>{rank}</span></span>
-
-          <span>Games: <span>{games}</span></span>
+          <span><b>Rank:</b> <span>{rank !== null ? rank : "-"}</span></span>
+          <span><b>Highscore:</b> <span>{highScore !== null ? highScore : "-"}</span></span>
         </div>
 
         <div className = "userInfo" style = {{marginLeft: "18vw", opacity: isAlone ? 0 : 1}}>
-          <span><span>{rank}</span>:Rank</span>
-        
-          <span><span>{games}</span>:Games</span>
+          <span><b>Rank:</b> <span>{!isAlone && newPlayerUsername && leaderboard.length > 0 ? (() => {
+            const idx = leaderboard.findIndex(u => u.username === newPlayerUsername);
+            return idx !== -1 ? idx + 1 : "-";
+          })() : "-"}</span></span>
+          <span><b>Highscore:</b> <span>{!isAlone && newPlayerUsername && leaderboard.length > 0 ? (() => {
+            const user = leaderboard.find(u => u.username === newPlayerUsername);
+            return user ? user.highScore : "-";
+          })() : "-"}</span></span>
         </div>
         <div className = "user" style={{opacity: isAlone ? 0.5 : 1, marginLeft:"-1.5vw", marginRight: "8.1%"}}>
           <Image
@@ -213,10 +237,10 @@ return (
           </button>
         )}
         <div id= "settings">          
-          <span>Game Information:</span>
-          <span>Players: <span>2</span></span>
-          <span>Time: <span>45</span></span>
-          <span>Board: <span>classic</span></span>
+          <span><b>Game Information</b></span>
+          <span>Players<span>2</span></span>
+          <span>Time<span>45</span></span>
+          <span>Board<span>classic</span></span>
         </div>
         <div id= "boardImage">
           <Image

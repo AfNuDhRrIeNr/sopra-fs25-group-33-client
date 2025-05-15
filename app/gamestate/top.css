@@ -1,4 +1,3 @@
-
 #time-surrender {
     height: 33.33%;
     width: 100%;
@@ -8,26 +7,18 @@
 
 #timer {
     height: 100%;
-    width: 15%;
+    width: 10%;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: left;
     font-size: 4.5vh;
-    /* border: 2px solid black; */
-}
-
-#end_buttons {
-    height: 100%;
-    width: 40%;
-    display: flex;
-    align-items: center;
-    justify-content: end;
+    margin-right: 2.5%;
     /* border: 2px solid black; */
 }
 
 #end_vote {
     height: 100%;
-    width: 50%;
+    width: 20%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -37,12 +28,16 @@
     background-color: #DCBB73;
 }
 
+#end_vote_button:hover {
+    background-color: #C6A65E;
+}
+
 #surrender {
     height: 100%;
-    width: 50%;
+    width: 20%;
     display: flex;
     align-items: center;
-    justify-content: right;
+    justify-content: center;
 }
 
 #surrender-button {
@@ -52,6 +47,38 @@
 #surrender-button:hover {
     color: inherit;
     background-color: #B74A4A;
+}
+
+#help-icon-container {
+    height: 100%;
+    width: 5%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.help-icon-outer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid black;
+    border-radius: 50%;
+    width: clamp(1rem, 4.7vh, 100%);
+    height: clamp(1rem, 4.7vh, 100%);
+}
+.help-icon-outer:hover {
+    background: #f5f5f5;
+}
+
+.help-icon {
+    font-weight: bold;
+    font-size: 1.2em;
+    color: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    /* No height/width here, let outer div control */
 }
 
 #turn-points {
@@ -125,19 +152,15 @@
 #turn-timer {
     height: 100%;
     width: 45%;
-    padding: 0 10px;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
     /* border:2px solid black; */
   }
-  
-  .timer {
-    margin-top: 10px;
-  }
-  
+
   .timer-bar-container {
-    width: 90%; /* Adjust width as needed */
+    width: 80%; /* Adjust width as needed */
     height: 20px; /* Height of the timer bar */
     background-color: #e0e0e0; /* Background color of the bar */
     border-radius: 10px; /* Rounded corners */
@@ -149,3 +172,16 @@
     background-color: #9A9CF5;
     transition: width 1s linear; /* Smooth transition for the width */
   }
+
+.rules-feature-list {
+    list-style-type: none; /* Remove bullets */
+    padding-left: 0;      /* Remove default left padding */
+    text-align: justify;  /* Blocksatz (justified text) */
+    margin: 0 0 1em 0;    /* Optional: add some margin below the list */
+    max-height: 30vh;      /* Limit height to 50% of viewport */
+    overflow-y: auto;      /* Enable vertical scrolling if needed */
+}
+
+.rules-feature-list li {
+    padding-right: 1em; /* Add space so scrollbar does not overlap text */
+}

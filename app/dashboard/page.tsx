@@ -325,13 +325,13 @@ const DashboardPage: React.FC = () => {
                           {pendingInvitations.length > 0 ? (
                              <ul>
                                  {pendingInvitations.map((invitation) => (
-                                     <li key={invitation.id} className='invitations-row'>
-                                         <span className='friend-username'>{invitation.sender.username}</span>
-                                         <div className='modal-buttons'>
-                                         <button className='modal-button-green' onClick={() => handleInvitation(invitation.id, 'play')}>
+                                     <li key={invitation.id} className="invitations-row">
+                                         <span className="friend-username">{invitation.sender.username}</span>
+                                         <div className="modal-buttons">
+                                         <button className="modal-button-green" onClick={() => handleInvitation(invitation.id, 'play')}>
                                              Play
                                          </button>
-                                            <button className='modal-button-red' onClick={() => handleInvitation(invitation.id, 'decline')}>
+                                            <button className="modal-button-red" onClick={() => handleInvitation(invitation.id, 'decline')}>
                                                 Decline
                                             </button>
                                         </div>
@@ -341,7 +341,7 @@ const DashboardPage: React.FC = () => {
                             ) : (
                                 <p>No pending Invitations.</p>
                             )}
-                            <button className='modal-button-gold' onClick={() => setIsInvitationsModalOpen(false)}>Close</button>
+                            <button className="modal-button-gold" onClick={() => setIsInvitationsModalOpen(false)}>Close</button>
                        </div>
                  </div>
                 )}
