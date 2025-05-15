@@ -386,7 +386,7 @@ const Gamestate: React.FC = () => {
     );
     };
 
-    const exchangeTiles = async () => {
+    const exchangeTiles = () => {
         const tilesToExchange = selectedTiles.map((i) => tilesInHand[i]);
         if(tilesToExchange === null || tilesToExchange.length === 0) return;
         const exchangeList = [];
