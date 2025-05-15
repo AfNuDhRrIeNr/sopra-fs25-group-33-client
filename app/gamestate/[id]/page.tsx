@@ -1112,11 +1112,11 @@ const Gamestate: React.FC = () => {
                                 </div>
                                 <ul className="rules-feature-list">
                                     <li><b>Verify</b>: Check if the word you formed is valid before playing it. This does not commit your move.</li>
-                                    <li><b>Exchange</b>: Select one or more tiles in your hand and exchange them for new ones from the bag. Only possible on your turn and if there are enough tiles left in the bag.</li>
+                                    <li><b>Exchange</b>: Select one or more tiles in your hand and exchange them for new ones from the bag.</li>
                                     <li><b>Skip</b>: Skip your turn without making a move. Useful if you can't play or want to wait for a better opportunity.</li>
                                     <li><b>Play Word</b>: Commit your verified word to the board and end your turn. Only enabled after a successful verification.</li>
-                                    <li><b>Vote to end</b>: Propose to end the game early. If both players agree, the game ends and scores are calculated.</li>
-                                    <li><b>Give Up</b>: Surrender the game immediately. Your opponent will be declared the winner.</li>
+                                    <li><b>Vote to end</b>: Propose to end the game early. If both players agree, the game ends.</li>
+                                    <li><b>Give Up</b>: Surrender the game. Your opponent will be declared the winner.</li>
                                     <li><b>Ask</b>: Enter a letter and click "Ask" to see how many tiles of that letter remain in the bag.</li>
                                 </ul>
                             </div>

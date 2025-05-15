@@ -181,3 +181,7 @@
     max-height: 30vh;      /* Limit height to 50% of viewport */
     overflow-y: auto;      /* Enable vertical scrolling if needed */
 }
+
+.rules-feature-list li {
+    padding-right: 1em; /* Add space so scrollbar does not overlap text */
+}
