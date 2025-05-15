@@ -51,11 +51,6 @@ const defaultUser: User = {
     username: "Unknown",
 }
 
-interface GamePutDTO {
-    gameStatus: string | null;
-    newTiles: string[];
-}
-
 const GAME_DURATION_SECONDS = 45*60; // 45 min in seconds
 
 const Gamestate: React.FC = () => {
@@ -105,7 +100,7 @@ const Gamestate: React.FC = () => {
         }, []);
 
     useEffect(()=> {
-        assignTilesToPlayer(7);
+        //assignTilesToPlayer(7);
         
         apiService.get<Game>(`/games/${id}`)
             .then((game) => {
@@ -140,115 +135,147 @@ const Gamestate: React.FC = () => {
     useEffect(() => {
         if (!isInitialized) return;
 
-        const connectWebSocket = () => {
-            const socket = new SockJS(URL + "/connections");
-            const stompClient = new Client({
-                webSocketFactory: () => socket,
-                reconnectDelay: 5000,
-                debug: (str) => console.log(str),
-            });
-            
+        const connectWebSocket = (): Promise<void> => {
+            return new Promise((resolve) => {
+                const socket = new SockJS(URL + "/connections");
+                const stompClient = new Client({
+                    webSocketFactory: () => socket,
+                    reconnectDelay: 5000,
+                    debug: (str) => console.log(str),
+                });
 
-            stompClient.onConnect = () => {
-                console.log("Connected to WebSocket");
 
-                stompClient.subscribe(`/topic/game_states/users/${localStorage.getItem("userId")}`, (message) => {
-                    
-                    const response = JSON.parse(message.body);
-                    const action = response.gameState.action.toString();
-                    const responseStatus = response.messageStatus.toString();
-                    
-                    //verify
-                    if (responseStatus === "VALIDATION_SUCCESS") {
-                        showAlertModal("Validation", "Validation successful!");
-                        setMoveVerified(true);
-                    } 
-                    else if (responseStatus === "VALIDATION_ERROR") {
-                        showAlertModal("Validation", `Validation failed! Reason: ${response.message.toString().substring(16)}`);
-                    } else if (responseStatus === "SUCCESS" && action === "VOTE") {
-                        showDecisionModal("Vote", "Your opponent wants to end the game here. Do you agree?");
-                    } else if (responseStatus === "SUCCESS" && action === "NO_VOTE") {
-                        showAlertModal("Vote", "Your opponent declined ending the game.");
-                    }
-                    //submit
-                    else if (responseStatus === "SUCCESS" && action === "SUBMIT") {
-                        const newUserLetters = response.gameState.userTiles
-                        const currentHand = tilesInHandRef.current;
-                        
-                        
-                        let letterIndex = 0; // Track the index of the next letter to use
-                        const updatedHand = currentHand.map((tile) => {
-                            if ((tile === "" || tile === null) && letterIndex < newUserLetters.length) {
-                                const newLetter = newUserLetters[letterIndex]; // Get the letter at the current index
-                                letterIndex++; // Increment the index for the next letter
-                                return `/letters/${newLetter} Tile 70.jpg`;
+                stompClient.onConnect = () => {
+                    console.log("Connected to WebSocket");
+
+                    stompClient.subscribe(`/topic/game_states/users/${localStorage.getItem("userId")}`, (message) => {
+
+                        const response = JSON.parse(message.body);
+                        const action = response.gameState.action.toString();
+                        const responseStatus = response.messageStatus.toString();
+
+                        //verify
+                        if (responseStatus === "VALIDATION_SUCCESS") {
+                            showAlertModal("Validation", "Validation successful!");
+                            setMoveVerified(true);
+                        } else if (responseStatus === "VALIDATION_ERROR") {
+                            showAlertModal("Validation", `Validation failed! Reason: ${response.message.toString().substring(16)}`);
+                        } else if (responseStatus === "SUCCESS" && action === "VOTE") {
+                            showDecisionModal("Vote", "Your opponent wants to end the game here. Do you agree?");
+                        } else if (responseStatus === "SUCCESS" && action === "NO_VOTE") {
+                            showAlertModal("Vote", "Your opponent declined ending the game.");
+                        }
+                        //submit
+                        else if (responseStatus === "SUCCESS" && (action === "SUBMIT" || action === "FETCH_GAME_STATE")) {
+                            const newUserLetters = response.gameState.userTiles
+                            const currentHand = tilesInHandRef.current;
+
+
+                            let letterIndex = 0; // Track the index of the next letter to use
+                            const updatedHand = currentHand.map((tile) => {
+                                if ((tile === "" || tile === null) && letterIndex < newUserLetters.length) {
+                                    const newLetter = newUserLetters[letterIndex]; // Get the letter at the current index
+                                    letterIndex++; // Increment the index for the next letter
+                                    return `/letters/${newLetter} Tile 70.jpg`;
+                                }
+                                return tile; // Keep the existing tile if it's not empty
+                            });
+
+                            setTilesInHand(updatedHand);
+                            setTileOnBoard(false);
+                            // Additional steps for fetch game state
+                            if (action === "FETCH_GAME_STATE") {
+                                console.log(response);
+                                const parsedBoardTiles = dictifyMatrix(response.gameState.board)
+                                setBoardTiles(parsedBoardTiles);
+                                setImmutableBoardTiles(prev => ({ ...prev, ...parsedBoardTiles })); // Store immutable tiles
+                                setPlayerAtTurn(response.gameState.playerId == gameHost.id ? gameHost : gameGuest); // Toggle player at turn
+                                setPlayerPoints(prev => ({...prev, ...response.gameState.playerScores}));
                             }
-                            return tile; // Keep the existing tile if it's not empty
-                        });
-
-                        setTilesInHand(updatedHand);
-                        setTileOnBoard(false);
-                    } 
-                    
-
-                });
-                stompClient.subscribe(`/topic/game_states/${id}`, (message) => {
-                    
-                    const response = JSON.parse(message.body);
-                    console.log("Response: ", response);
-                    const action = response.gameState.action.toString();
-                    const responseStatus = response.messageStatus.toString();
-                    const moveById = response.gameState.playerId.toString();
-                    const playerUsername = moveById === gameHost.id.toString() ? gameHost.username : gameGuest.username;
-                    if (action === "SUBMIT" && responseStatus === "SUCCESS") {
-                        if (moveById !== localStorage.getItem("userId")) {
-                            handleReturn();
                         }
-                        const points = response.message.match(/scored (\d+) points/); // Extract the number of points scored from the message
-                        const newBoardTiles = response.gameState.board;
-                        const parsedBoardTiles = dictifyMatrix(newBoardTiles);
-                        if (moveById === localStorage.getItem("userId")) {
-                            showAlertModal("Points scored", `You ${points[0]}!`)
-                        } else {
-                            showAlertModal("Points scored", `${playerUsername} ${points[0]}!`)
-                        }
-                        setBoardTiles(parsedBoardTiles);
-                        setImmutableBoardTiles(prev => ({ ...prev, ...parsedBoardTiles })); 
-                        setPlayerAtTurn(prev => prev.id === gameHost.id ? gameGuest : gameHost);
-                        setPlayerPoints((prev) => ({
-                            ...prev,
-                            ...response.gameState.playerScores, 
-                        }));
-                                                                                                                                    
-                    } else if (responseStatus === "SUCCESS" && action === "GAME_END") {
-                        console.log("Game has ended. Reason: time out or vote.");
-                        showAlertModal("Game Over", "The game has ended!");
-                        
-                    } else if (action === "SURRENDER" && responseStatus === "SUCCESS") {
-                        console.log("Game has ended. Reason: surrender.");
-                        showAlertModal("Game Over", moveById !== localStorage.getItem("userId") ? "Your opponent surrendered." : "You have surrendered.")
-                        
+                    });
+                    stompClient.subscribe(`/topic/game_states/${id}`, (message) => {
 
-                    } else if ((action === "SKIP" || action === "EXCHANGE") && responseStatus === "SUCCESS") {
-                        if (moveById !== localStorage.getItem("userId")) {
-                            showAlertModal("Your turn!", action === "SKIP" ? "Your opponent skipped their turn." : "Your opponent exchanged some tiles.")
-                        }
-                        setPlayerAtTurn(prev => prev.id === gameHost.id ? gameGuest : gameHost); 
-                    } else if (action === "TIMER" && responseStatus === "SUCCESS") {
-                        const remainingSeconds = response.gameState.remainingTime;
-                        setRemainingTime(remainingSeconds);
-                    }
-                });
+                        const response = JSON.parse(message.body);
+                        console.log("Response: ", response);
+                        const action = response.gameState.action.toString();
+                        const responseStatus = response.messageStatus.toString();
+                        const moveById = response.gameState.playerId.toString();
+                        const playerUsername = moveById === gameHost.id.toString() ? gameGuest.username : gameHost.username;
+                        if (action === "SUBMIT" && responseStatus === "SUCCESS") {
+                            if (moveById === localStorage.getItem("userId")) {
+                                handleReturn();
+                            }
+                            const points = response.message.match(/scored (\d+) points/); // Extract the number of points scored from the message
+                            const newBoardTiles = response.gameState.board;
+                            const parsedBoardTiles = dictifyMatrix(newBoardTiles);
+                            if (moveById === localStorage.getItem("userId")) {
+                                showAlertModal("Points scored", `${playerUsername} ${points[0]}!`)
+                            } else {
+                                setTilesInHand(response.gameState.userTiles.map((letter: string) => `/letters/${letter} Tile 70.jpg`));
+                                showAlertModal("Points scored", `You ${points[0]}!`)
+                            }
+                            setBoardTiles(parsedBoardTiles);
+                            setImmutableBoardTiles(prev => ({...prev, ...parsedBoardTiles}));
+                            setPlayerAtTurn(prev => prev.id === gameHost.id ? gameGuest : gameHost);
+                            setPlayerPoints((prev) => ({
+                                ...prev,
+                                ...response.gameState.playerScores,
+                            }));
 
-            };
-            
-            stompClient.activate();
-            stompClientRef.current = stompClient;
+                        } else if (responseStatus === "SUCCESS" && action === "GAME_END") {
+                            console.log("Game has ended. Reason: time out or vote.");
+                            showAlertModal("Game Over", "The game has ended!");
+
+                        } else if (action === "SURRENDER" && responseStatus === "SUCCESS") {
+                            console.log("Game has ended. Reason: surrender.");
+                            showAlertModal("Game Over", moveById !== localStorage.getItem("userId") ? "Your opponent surrendered." : "You have surrendered.")
+
+
+                        } else if ((action === "SKIP" || action === "EXCHANGE") && responseStatus === "SUCCESS") {
+                            if (moveById === localStorage.getItem("userId")) {
+                                showAlertModal("Your turn!", action === "SKIP" ? "Your opponent skipped their turn." : "Your opponent exchanged some tiles.")
+                            } else if(action == "EXCHANGE") {
+                                setTilesInHand(response.gameState.userTiles.map((letter:string) => `/letters/${letter} Tile 70.jpg`));
+                                setSelectedTiles([]);
+                            }
+                            setPlayerAtTurn(moveById == gameHost.id ? gameHost : gameGuest);
+                        } else if (action === "TIMER" && responseStatus === "SUCCESS") {
+                            const remainingSeconds = response.gameState.remainingTime;
+                            setRemainingTime(remainingSeconds);
+                        }
+                    });
+                    resolve();
+                };
+
+                stompClient.activate();
+                stompClientRef.current = stompClient;
+            });
         };
+
+        const sendFetchGameStateMessage = () => {
+            if(id == undefined) return;
+            // Create the message body using the GameState interface
+            const messageBody: GameState = {
+                id: id.toString(),
+                board: constructMatrix(),
+                token: token!,
+                userTiles: [],
+                action: "FETCH_GAME_STATE",
+                playerId: localStorage.getItem("userId")!,
+            };
+
+            // Convert the object to a JSON string before sending
+            sendMessage(JSON.stringify(messageBody));
+        }
+
+
 
         // Call the function to connect the WebSocket
         if (gameHost.id && gameGuest.id && playerAtTurn.id && id && tilesInHand) {
-            connectWebSocket();
+            connectWebSocket().then(() => {
+                sendFetchGameStateMessage();
+            });
         }
         // Cleanup WebSocket connection when the component unmounts
         return () => {
@@ -296,9 +323,12 @@ const Gamestate: React.FC = () => {
             showAlertModal("Error", "Please enter a single letter.");
             return;
         }
+        // Set letter for visual
+        setLetter(letter.toUpperCase());
         try 
-        {                               
-            const response = await apiService.get<number>(`/games/${id}/letters/${letter}`); 
+        {
+            //set letter to upper case again because state might be slower
+            const response = await apiService.get<number>(`/games/${id}/letters/${letter.toUpperCase()}`);
             
             if (response != null) {
                 setNumber(response);
@@ -356,39 +386,16 @@ const Gamestate: React.FC = () => {
     );
     };
 
-    interface ExchangeResponse {
-        gameStatus: string | null;
-        newTiles: string[];
-    }
-
     const exchangeTiles = async () => {
         const tilesToExchange = selectedTiles.map((i) => tilesInHand[i]);
-        const exchangeList = tilesToExchange.map(tile => tile ? tile[9] : "");
-        showAlertModal("Exchange", `${exchangeList} were exchanged.`)
+        if(tilesToExchange === null || tilesToExchange.length === 0) return;
+        const exchangeList = [];
+        const tilesCharOnly = tilesToExchange.filter((tile): tile is string => tile !== null).map((tileSource) => tileSource[9]);
+        for (let i = 0; i < tilesToExchange.length; i++) {
+            exchangeList[i] = selectedTiles.includes(i) ? "" : tilesInHand[i];
+        }
+        showAlertModal("Exchange", `${tilesCharOnly} ${tilesCharOnly.length == 1 ? "was":"were"} exchanged.`)
 
-        try {
-            const response = await apiService.put<ExchangeResponse>(
-                `/games/${id}/exchange`,
-                exchangeList,
-            );
-            if (response != null) {
-                const newUserLetters = response.newTiles;        
-                const newUserHand = newUserLetters.map((letter: string) => `/letters/${letter} Tile 70.jpg`);
-                const updatedHand = [...tilesInHand];
-                selectedTiles.forEach((index, i) => {
-                    if (newUserHand[i])
-                        updatedHand[index] = newUserHand[i]; // Set exchanged tiles to null
-                });
-                setTilesInHand(updatedHand);
-                setSelectedTiles([]);
-                setTurnTimeLeft(180);
-                setUserTurn(false);
-            }
-        }
-        catch (error) {
-            console.error("Exchange Error:", error);
-            showAlertModal("Error", `Exchange failed: ${(error as Error).message}`);
-        }
         if (!id) {
             console.error("Game ID is null or undefined.");
             return;
@@ -397,11 +404,11 @@ const Gamestate: React.FC = () => {
             id: id.toString(),
             board: Array(15).fill(Array(15).fill("")),
             token: token!,
-            userTiles: Array(7).fill(""),
+            userTiles: tilesCharOnly,
             action: "EXCHANGE",
             playerId: localStorage.getItem("userId")!,
         };
-    
+
         sendMessage(JSON.stringify(messageBody));
     }
 
@@ -475,8 +482,9 @@ const Gamestate: React.FC = () => {
     const commitWord = () => {
         setMoveVerified(false);
         const matrix = constructMatrix();
-        const newTilesArray = tilesInHand.map(tile => tile ? tile[9] : "");
-        const updatedTilesArray = tilesInHand.map(tile => tile ? tile : "");
+        const nonEmptyTilesInHand: string[] = tilesInHand.filter((tile): tile is string =>
+            tile !== null && tile !== "").map((tileSource) => tileSource[9]);
+        const updatedTilesArray = tilesInHand.filter(tile => tile ? tile : "");
         setTilesInHand(updatedTilesArray);
         setImmutableBoardTiles(prev => ({ ...prev, ...boardTiles }));
         
@@ -491,7 +499,7 @@ const Gamestate: React.FC = () => {
             id: id.toString(),
             board: matrix,
             token: token!,
-            userTiles: newTilesArray,
+            userTiles: nonEmptyTilesInHand,
             action: "SUBMIT",
             playerId: localStorage.getItem("userId")!,
         };
@@ -837,24 +845,6 @@ const Gamestate: React.FC = () => {
       
         return () => clearInterval(countdownTimer);
       }, [playerAtTurn]);
-
-    const assignTilesToPlayer = async (count: number) => {
-        try {
-            const response = await apiService.put<GamePutDTO>(
-                `/games/${id}/assign?count=${count}`,
-                {}
-            );
-            if (response && response.newTiles) {
-                const startingTiles = response.newTiles.map(
-                    (letter: string) => `/letters/${letter} Tile 70.jpg`
-                );
-                setTilesInHand(startingTiles);
-            }
-        } catch (error) {
-            console.error("Error assigning tiles:", error);
-            showAlertModal(`${(error as Error).message}`, "Failed to assign tiles.")
-        }
-    };
 
     if (isLoading) {
         return <div>Loading...</div>;
