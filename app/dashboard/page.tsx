@@ -7,6 +7,8 @@ import useLocalStorage from "@/hooks/useLocalStorage";
 import { CustomInputModal } from "@/components/customModal";
 import FriendRequests from "@/components/FriendRequests";
 import useAuth from "@/hooks/useAuth";
+import LoadingCubes from "@/components/loadingCubes";
+import { CustomAlertModal } from "@/components/customModal";
 
 
 interface FriendRequest {
@@ -43,7 +45,7 @@ interface User {
 
 const DashboardPage: React.FC = () => {
     const router = useRouter();
-    const { isAuthenticated, isLoading } = useAuth();
+    const { isAuthenticated, isFetching } = useAuth();
     const [token, setToken] = useState<string | null>(null);
     const [username, setUsername] = useState<string | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
@@ -55,6 +57,7 @@ const DashboardPage: React.FC = () => {
     const [isInvitationsModalOpen, setIsInvitationsModalOpen] = useState(false);
     const [newFriendUsername, setNewFriendUsername] = useState<string>('');
     const apiService = useApi();
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(()=> {
         setToken(localStorage.getItem("token"));
@@ -119,6 +122,7 @@ const DashboardPage: React.FC = () => {
     };
 
     const createGamestate = async () => {
+        setIsLoading(true);
         try {
             const response = await apiService.post<Game>(
                 "/games",
@@ -135,6 +139,7 @@ const DashboardPage: React.FC = () => {
     };
 
     const handlePlayWithFriend = async (friendUsername: string) => {
+        setIsLoading(true);
         try {
             // Create a new game lobby
             const response = await apiService.post<Game>("/games", {});
@@ -166,6 +171,7 @@ const DashboardPage: React.FC = () => {
                 { "status": status }
             );
             if (action === 'play' && response.game.id) {
+                setIsLoading(true);
                 // Redirect to the correct lobby
                 router.push(`/lobby/${response.game.id}`);
             }
@@ -193,6 +199,7 @@ const DashboardPage: React.FC = () => {
     // Function to handle logout
     const handleLogoutClick = async () => {
         try {
+            setIsLoading(true);
             await apiService.put<User>(
                 "/users/logout", 
                 {}
@@ -207,12 +214,24 @@ const DashboardPage: React.FC = () => {
 
     };
 
-    if (isLoading) {
-        return <div>Loading...</div>;
+    const handlePushToLeaderboard = () => {
+        setIsLoading(true);
+        router.push("/leaderboard");
+    }
+
+    if (isFetching) {
+        return <div>Fetching...</div>;
     }
     
     if (!isAuthenticated) {
-        return null;
+        return <>
+        <CustomAlertModal
+                visible={true}
+                title={"Account needed"}
+                message={"An account is needed to visit this page. Please log in or register to continue."}
+                onClose={() => router.push("/")}
+        />
+        </>
     }
 
     return (
@@ -240,6 +259,11 @@ const DashboardPage: React.FC = () => {
 
 
             <div className="dashboard-container">
+                {isLoading && (
+                    <div className="loading-cubes-overlay">
+                        <LoadingCubes message="Loading..." />
+                    </div>
+                )}
                 <div className="dashboard-section">
                     <h2>Friends List</h2>
                     <div className="friends-list">
@@ -315,7 +339,7 @@ const DashboardPage: React.FC = () => {
                     </div>
                     <button 
                         className="show-more-button"
-                        onClick={() => router.push("/leaderboard")}
+                        onClick={handlePushToLeaderboard}
                     >Show more</button>
                 </div>
                 {isInvitationsModalOpen && (

@@ -20,6 +20,7 @@ import { getApiDomain } from "@/utils/domain";
 import Board from "@/components/Board";
 import useAuth from "@/hooks/useAuth";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import LoadingCubes from "@/components/loadingCubes";
 
 
 
@@ -62,7 +63,7 @@ const Gamestate: React.FC = () => {
     const apiService = useApi();
     const [userId, setUserId] = useState<string | null>(null);
     const [token, setToken] = useState<string | null>(null);
-    const { isAuthenticated, isLoading } = useAuth();
+    const { isAuthenticated, isFetching } = useAuth();
     const [tilesInHand, setTilesInHand] = useState <(string | null)[]>(new Array(7).fill(null));
     const [selectedTiles, setSelectedTiles ] = useState<number[]>([]);
     const [boardTiles, setBoardTiles] = useState<{ [key:string]: string | null }>({});
@@ -96,6 +97,7 @@ const Gamestate: React.FC = () => {
     const [voteCooldownRemaining, setVoteCooldownRemaining] = useState<number | null>(null);
     const [rulesModalVisible, setRulesModalVisible] = useState(false);
     const { set: setSurrenderedId } = useLocalStorage<number>("SurrenderedId", 0);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(()=> {
             setUserId(localStorage.getItem("userId"));
@@ -149,6 +151,7 @@ const Gamestate: React.FC = () => {
 
 
                 stompClient.onConnect = () => {
+                    setIsLoading(false);
                     console.log("Connected to WebSocket");
 
                     stompClient.subscribe(`/topic/game_states/users/${localStorage.getItem("userId")}`, (message) => {
@@ -317,6 +320,7 @@ const Gamestate: React.FC = () => {
     };
 
     const handleGameOverClose = () => {
+        setIsLoading(true);
         setAlertModalVisible(false);
         router.push(`/eval/${id}`);
     }
@@ -849,16 +853,28 @@ const Gamestate: React.FC = () => {
         return () => clearInterval(countdownTimer);
       }, [playerAtTurn]);
 
-    if (isLoading) {
-        return <div>Loading...</div>;
+    if (isFetching) {
+        return <div>Fetching...</div>;
     }
 
-    if (!isAuthenticated || !token) {
-        return null;
+    if (!isAuthenticated) {
+        return <>
+            <CustomAlertModal
+                    visible={true}
+                    title={"Account needed"}
+                    message={"An account is needed to visit this page. Please log in or register to continue."}
+                    onClose={() => router.push("/")}
+            />
+            </>
     }
 
     return (
         <div id="screen">
+            {isLoading && (
+                    <div className="loading-cubes-overlay">
+                        <LoadingCubes message="Loading..." />
+                    </div>
+            )}
             <div id="board-container">
                 <Board
                     boardTiles={boardTiles}

@@ -9,6 +9,8 @@ import { useApi } from "@/hooks/useApi";
 import { CustomInputModal } from "@/components/customModal";
 import FriendRequests from "@/components/FriendRequests";
 import useAuth from "@/hooks/useAuth";
+import LoadingCubes from "@/components/loadingCubes";
+import { CustomAlertModal } from "@/components/customModal";
 
 const Lobby: React.FC = () => {
   const router = useRouter();
@@ -18,13 +20,14 @@ const Lobby: React.FC = () => {
   const [sentInvitations, setSentInvitations] = useState<SentInvitation[]>([]);  
   const [username, setUsername] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isFetching } = useAuth();
   const [isHost, setIsHost] = useState(false);
   const [highScore, setHighScore] = useState<number | null>(null);
   const [rank, setRank] = useState<number | null>(null);
   const [leaderboard, setLeaderboard] = useState<User[]>([]);
   const { id } = useParams();
   const apiService = useApi();
+  const [isLoading, setIsLoading] = useState(false);
   
   interface Game {
     gameId: number;
@@ -53,7 +56,6 @@ const Lobby: React.FC = () => {
   }
 
   useEffect(() => {
-    if (!token) return;
     // Fetch leaderboard for rank
     apiService.get<User[]>(`/users?leaderboard=true`)
       .then((users) => {
@@ -74,15 +76,17 @@ const Lobby: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!token) return;
-
     const pollGame = () => {
         apiService.get<Game>(`/games/${id}`)
             .then((game) => {
+              console.log("Game data:", game);
                 const guest = game.users.length > 1 ? game.users.find((user) => user.token !== token) : null;
                 if (guest) {
                     setIsAlone(false);
                     setnewPlayerUsername(guest.username);
+                } else {
+                    setIsAlone(true);
+                    setnewPlayerUsername("");
                 }
                 if (!isHost) {
                   setIsHost(game.host.token === token);
@@ -104,8 +108,18 @@ const Lobby: React.FC = () => {
     return () => clearInterval(intervalId); // Cleanup on unmount
   }, [token, sentInvitations, apiService, router, id]);
 
-  const handleButtonClick = () => {
-    router.push("/dashboard");
+  const handleButtonClick = async () => {
+    setIsLoading(true);
+    try {
+      await apiService.put(
+        `/games/${id}/users/${localStorage.getItem("userId")}/leave`,
+        {},
+      );
+      router.push("/dashboard");
+    } catch (error) {
+      console.error("Error leaving game:", error);
+      alert("Failed to leave the game. Please try again.");
+    }
   };
 
   /* opens the Modal*/
@@ -114,6 +128,7 @@ const Lobby: React.FC = () => {
   }
 
   const startGame = () => {
+    setIsLoading(true);
     // PUT /games/{id}
     apiService.put<Game>(`/games/${id}`, {
       gameStatus: "ONGOING",
@@ -155,12 +170,19 @@ const Lobby: React.FC = () => {
         });
 };
 
-if (isLoading) {
-  return <div>Loading...</div>;
+if (isFetching) {
+  return <div>Fetching...</div>;
 }
 
 if (!isAuthenticated) {
-  return null;
+  return <>
+    <CustomAlertModal
+            visible={true}
+            title={"Account needed"}
+            message={"An account is needed to visit this page. Please log in or register to continue."}
+            onClose={() => router.push("/")}
+    />
+    </>
 }
 
 return (
@@ -182,6 +204,11 @@ return (
     </header>
 
     <main>
+      {isLoading && (
+                    <div className="loading-cubes-overlay">
+                        <LoadingCubes message="Loading..." />
+                    </div>
+                )}
       <div id= "users_border">
         <div className = "user" style={{marginLeft: "8.1%"}}>
           <Image

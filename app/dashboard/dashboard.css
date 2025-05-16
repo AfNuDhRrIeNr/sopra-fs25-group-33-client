@@ -11,11 +11,11 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-top: 11vh;
+    margin-top: clamp(2rem, 11vh, 11vh);
     padding: 20px;
     background-color: var(--background);
   }
-  
+ 
   .dashboard-section {
     display: flex;
     flex-direction: column;
