@@ -100,7 +100,29 @@ const Eval: React.FC = () => {
                 setWinner(game.users[0]);
                 setLoser(game.users[1]);
                 setImmutableBoardTiles(dictifyMatrix(game.board));
-                setSurrendered(game.gameStatus === "TERMINATED" && game.users.length > 1); // Check if the game was surrendered
+                if (localStorage.getItem("SurrenderedId")!="0") {
+                    setSurrendered(true); // Check if the game was surrendered
+                    if (game.users[0].id.toString() == localStorage.getItem("SurrenderedId")) {
+                        setWinner(game.users[1]);
+                        setLoser(game.users[0]);
+                    } else {
+                        setWinner(game.users[0]);
+                        setLoser(game.users[1]);
+                    }
+                } else {
+                    if (
+                        playerPoints[game.users[0].id] !== null && playerPoints[game.users[0].id] !== undefined &&
+                        playerPoints[game.users[1].id] !== null && playerPoints[game.users[1].id] !== undefined
+                        ) {
+                            if (playerPoints[game.users[0].id]! > playerPoints[game.users[1].id]!) {
+                                setWinner(game.users[0]);
+                                setLoser(game.users[1]);
+                            } else {
+                                setWinner(game.users[1]);
+                                setLoser(game.users[0]);
+                            }
+                        }
+                }
             })
             .catch((error) => console.error("Error retrieving game information:", error));
     }, []);
@@ -140,10 +162,10 @@ const Eval: React.FC = () => {
         apiService.post<SentInvitation>(
             "/games/invitations",
             {
-                gameId: id, // Use the game ID from the URL
+                gameId: id, 
                 targetUsername: localStorage.getItem("username") == winner.username 
                 ? loser.username 
-                : winner.username, // The username entered in the modal
+                : winner.username,
             }
           )
             .catch((error) => {
@@ -201,7 +223,7 @@ const Eval: React.FC = () => {
                 </div>
                 <div className = "userInfo">
                     <span>Score:</span>
-                    <span className = "points">{playerPoints[0]}</span>
+                    <span className = "points">{playerPoints[winner.id]}</span>
                 </div>
             </div>
             <div className = "user_quarter">
@@ -223,7 +245,7 @@ const Eval: React.FC = () => {
                 </div>
                 <div className = "userInfo">
                     <span>Score:</span>
-                    <span className = "points">{playerPoints[1]}</span>
+                    <span className = "points">{playerPoints[loser.id]}</span>
                 </div>
             </div>
         </div>

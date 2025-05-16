@@ -19,6 +19,8 @@ import { CustomAlertModal, CustomDecisionModal } from "@/components/customModal"
 import { getApiDomain } from "@/utils/domain";
 import Board from "@/components/Board";
 import useAuth from "@/hooks/useAuth";
+import useLocalStorage from "@/hooks/useLocalStorage";
+
 
 
 interface GameState {
@@ -93,6 +95,7 @@ const Gamestate: React.FC = () => {
     const [lastVoteTime, setLastVoteTime] = useState<number | null>(null);
     const [voteCooldownRemaining, setVoteCooldownRemaining] = useState<number | null>(null);
     const [rulesModalVisible, setRulesModalVisible] = useState(false);
+    const { set: setSurrenderedId } = useLocalStorage<number>("SurrenderedId", 0);
 
     useEffect(()=> {
             setUserId(localStorage.getItem("userId"));
@@ -229,12 +232,12 @@ const Gamestate: React.FC = () => {
 
                         } else if (action === "SURRENDER" && responseStatus === "SUCCESS") {
                             console.log("Game has ended. Reason: surrender.");
-                            showAlertModal("Game Over", moveById !== localStorage.getItem("userId") ? "Your opponent surrendered." : "You have surrendered.")
-
+                            showAlertModal("Game Over", moveById !== localStorage.getItem("userId") ? "Your opponent surrendered." : "You have surrendered.");
+                            setSurrenderedId(moveById);
 
                         } else if ((action === "SKIP" || action === "EXCHANGE") && responseStatus === "SUCCESS") {
                             if (moveById === localStorage.getItem("userId")) {
-                                showAlertModal("Your turn!", action === "SKIP" ? "Your opponent skipped their turn." : "Your opponent exchanged some tiles.")
+                                showAlertModal("Your turn!", action === "SKIP" ? "Your opponent skipped their turn." : "Your opponent exchanged some tiles.");
                             } else if(action == "EXCHANGE") {
                                 setTilesInHand(response.gameState.userTiles.map((letter:string) => `/letters/${letter} Tile 70.jpg`));
                                 setSelectedTiles([]);
