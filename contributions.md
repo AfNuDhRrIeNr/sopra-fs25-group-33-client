@@ -98,7 +98,7 @@ reason).
 
 ---
 
-## Contributions Week 4 - [16.04.25] to [30.04.25]
+## Contributions Week 4 & 5 - [16.04.25] to [30.04.25]
 
 
 | **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
@@ -119,14 +119,14 @@ reason).
 
 ---
 
-## Contributions Week 5 - [Begin Date] to [End Date]
+## Contributions Week 6 - [30.04.25] to [07.05.25]
 
 
 
 | **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
 | ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
 | **Alumen-Eng** | 4.5.25   | [Commit e3ea6f6](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/e3ea6f6) | vote to end the game, clickable tiles on the board to return to hand, new custom modal added for decisions, are you sure alert before surrender | Features that add to the experience of playing, vote to end the game is easier than keeping track of number of skips |
-|                    | 2.5.25   | [Commit bdf1737](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/bdf1737) |  | The endstate / eval page is for after the game ends, allows for navigation and correct handling for when the game is over. |
+|                    | 2.5.25   | [Commit bdf1737](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/bdf1737) | Design of eval page | The endstate / eval page is for after the game ends, allows for navigation and correct handling for when the game is over. |
 | **AfNuDhRrIeNr** | 02.05.25   | [Commit a69b05a](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/a69b05a7a7d56d96a0680b8eeaa3fe498684b8a9) | Updating the highscore of each user after a game if necessary and differentiate between surrender and game end action. | The highscore needs to be updated for the leaderboard & if a user surrendered the setSurrenderedPlayerId gets set. |
 |                    | 05..05.25-06.05.25   | [Commit edd3c54](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/edd3c54d2fbe75413ca64d1e1fb6f3a6325d3882) | Implementing games deletion endpoint & corresponding tests. | Relevant for the deletion of game entities.|
 | **Mex7180** | 06.05.25   | [Commit 3bb0f59](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/3bb0f59a5134f729d7402623353b291c5fd3b80c) | Improvements concerning userTurn, initial fetch and tile management in frontend. | Resolves issues with reloading the page / losing connection. Enables the game to actually be persistent. |
@@ -140,6 +140,52 @@ reason).
 
 ---
 
-## Contributions Week 6 - [Begin Date] to [End Date]
+## Contributions Week 7 - [07.05.25] to [14.05.25]
+| **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
+| ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
+| **Alumen-Eng** | 11.05.25   | [Commit 1627dd0](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/1627dd0) [Commit 505b524](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/505b524) | Added some loading between pages, restrictions to visiting sites, paused since Silvan already did the same | Further feedback whether something is happening or not. |
+|                    | 13.05.25   |  | cleaning up project board | project board is also graded |
+| **AfNuDhRrIeNr** | 07.05.25   |  | clean up the project board | Feedback M3 |
+|                    | 08.05.25 - 13.05.25   | [Commit 6bca5b9](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/6bca5b9672cb6fc87e1d283e63e7932ad76aed09) | Timer synchronization backend | Both user should have the same remaining time |
+| **Mex7180** | 07.05.25   | n.a. | Clean up project board & enhance traceability | Room for improvement after M3 evaluation. |
+|                    | 13.05.25   |  [Commit e81f125](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/e81f125567f4c4bd37ced8f2203d536133e750ca)          [Commit e69444a](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/e69444af4f5ee1dc3c34884bcf539b02894d4ced)| Fix last bugs with tile reassignemnts and board updates (reloading in between actions) & start integrating changes into main (front end)| Enhanced user experience and not loss of state when page is reloaded. |
+|                    | 13.05.25   |  [Commit 1915188](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/19151882e010f6ba6ffd528627801573b3412d07)   [Commit 7868e53](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/7868e5399b484c518a6d80c0b5e515fc9111a047) [Commit 6b78d70](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/6b78d708e235a0b9b22626af4d5dbfab68b54a35) | Fix last bugs with tile reassignemnts and board updates (reloading in between actions) & start integrating changes into main (back end) |  Enhanced user experience and not loss of state when page is reloaded. |
+| **[@githubUser4]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **SilvanKasper** | 07.05.25   | n.a. | Clean up project board | [Why this contribution is relevant] |
+|                    | 09.05.25   | [Commit 7948890](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/7948890ffbea22d080e6d52bf0cf57cb15d1f440) [Commit b8048c9](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/b8048c95fca3fa564d8c772bce8adea9b0615ceb)| Refactoring FriendRequests, FriendList, Leaderboard. New hook useAuth to prevent unauthorized access. | Overall makes code more robust and clean |
+|                    | 13.05.25   | [Commit 62f917b](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commits/82-refactor-silvan-and-sync-time-between-users/) | Sync timer once per minute with backend (took a bit of debugging) | Timer only managed on client so far, could differ significantly from actual played time. |
 
-_Continue with the same table format as above._
+---
+
+## Contributions Week 8 - [14.05.25] to [21.05.25]
+| **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
+| ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
+| **[@githubUser1]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@githubUser2]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@githubUser3]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@githubUser4]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@githubUser5]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+
+---
+
+## Contributions Week 9 - [21.05.25] to [23.05.25]
+| **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
+| ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
+| **[@githubUser1]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@githubUser2]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@githubUser3]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@githubUser4]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@githubUser5]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+
+---

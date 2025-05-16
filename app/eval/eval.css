@@ -1,4 +1,4 @@
-main {
+.eval-page main {
     padding-top: 11vh;
     width: 100vw;
     height: 100vh;
@@ -140,19 +140,19 @@ main div {
     /* border: 2px solid green; */
 }
 
-.board-tiles {
+.eval-page .board-tiles {
     width: 85%;
     height: 85%;
 }
 
-#game-board {
+.eval-page #game-board {
     height: 60vh;
     width: 60vh;
     display: grid;
     margin: auto;
 }
 
-#game-board div {
+.eval-page #game-board div {
     cursor: default;
     border: 2px solid black;
 }

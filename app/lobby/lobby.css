@@ -26,21 +26,15 @@
 }
 
 .userInfo {
-    /* position: absolute; */
-    /* justify-content: center; */
     height: 50%;
     width: 20vw;
-    /* border: 2px solid black; */
     z-index: 1;
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
-    /* margin-left: 13%; */
     border-radius: 30px;
-    /* padding-left: 7%; */
     background-color: #9A9CF5;
-    padding: 0 1.5vw;
-    /* margin-left: -2vw; */
+    padding: 0 2vw;
 }
 
 .userInfo span {
@@ -49,7 +43,6 @@
     padding: 0 2%;
     display: flex;
     justify-content: space-between;
-    /* border: 2px solid pink; */
 }
 
 .userinfo span span {
@@ -61,23 +54,11 @@ main {
     width: 100vw;
 }
 
-#alignmentGuide {
-    position: fixed;
-    top: 0;
-    left: 50%;
-    width: 2px;
-    height: 100vh;
-    background-color: red;
-    z-index: 9999;
-    pointer-events: none;
-}
-
 .user div {
-    /* border: 2px solid black; */
+    font-size: clamp(1rem, 2vw, 2vw); /* Match dashboard username font size */
+    font-weight: bold;
     height: fit-content;
     margin: auto 0 auto 0;
-    font-size: 140%;
-    font-weight: bold;
 }
 
 .bigger_icon {
@@ -90,7 +71,7 @@ main {
 
 #lowerScreen {
     display: flex;
-    align-items: center; /* vertical */
+    align-items: center;
     width: 100vw;
     height: 47.6vh;
     /* border: 2px solid black; */
@@ -117,18 +98,16 @@ main {
     flex-direction: column;
     width: 28vw;
     height:fit-content;
-    /* border: 2px solid black; */
     margin-left: 4.4vw;
 }
 
 #settings span {
-    /* border: 2px solid black; */
     height: fit-content;
     display: flex;
     justify-content: space-between;
     font-size: clamp(1rem, 2vw, 2vw);
     padding: 1% 0;
-    font-weight: bold;
+    /* font-weight: bold; */
 }
 
 #invitePlayer {
