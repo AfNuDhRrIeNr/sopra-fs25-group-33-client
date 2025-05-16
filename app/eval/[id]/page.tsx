@@ -52,11 +52,8 @@ interface SentInvitation {
 const Eval: React.FC = () => {
     const router = useRouter();
     const [username, setUsername] = useState<string | null>(null);
-    const [opponentUsername, setOpponentUsername] = useState<string | null>(null);
-    const [token, setToken] = useState<string | null>(null);
     const [userId, setuserId] = useState<string | null>(null);
     const { isAuthenticated, isLoading } = useAuth();
-
     const apiService = useApi();
     const [immutableBoardTiles, setImmutableBoardTiles] = useState<{ [key:string]: string | null }>({});
     const { id } = useParams();
@@ -85,7 +82,7 @@ const Eval: React.FC = () => {
 
     useEffect(()=> {
         setUsername(localStorage.getItem("username"));
-        setToken(localStorage.getItem("token"));
+
         setuserId(localStorage.getItem("userId"));
     }, []);
 
