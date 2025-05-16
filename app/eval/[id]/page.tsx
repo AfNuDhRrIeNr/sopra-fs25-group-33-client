@@ -11,11 +11,47 @@ import Board from "@/components/Board";
 import "../../gamestate/boardTilesColor.css";
 import useAuth from "@/hooks/useAuth";
 
+
+const defaultUser: User = {
+    token: "",
+    id: 0,
+    username: "Unknown",
+    status: "",
+    highScore: 0,
+    friends: [],
+}
+
+interface Game {
+    id: number;
+    users: User[];
+    host: User;
+    gameStatus: string; // CREATED, ONGOING, TERMINATED
+    board: string[][]; // 2D array representing the board
+    playerScores: { [key: string]: number }; // Points for each user
+}
+
+interface User {
+    token: string;
+    id: number;
+    username: string;
+    status: string; // ONLINE, OFFLINE, IN_GAME
+    highScore: number;
+    friends: Friend[];
+}
+
+interface Friend {
+username: string;
+status: string; // ONLINE, OFFLINE, IN_GAME
+}
+
+interface SentInvitation {
+    gameId: number;
+    targetUsername: string;
+}
+
 const Eval: React.FC = () => {
     const router = useRouter();
     const [username, setUsername] = useState<string | null>(null);
-    const [opponentUsername, setOpponentUsername] = useState<string | null>(null);
-    const [token, setToken] = useState<string | null>(null);
     const [userId, setuserId] = useState<string | null>(null);
     const { isAuthenticated, isLoading } = useAuth();
     const apiService = useApi();
@@ -23,35 +59,11 @@ const Eval: React.FC = () => {
     const { id } = useParams();
     const [playerPoints, setPlayerPoints] = useState< {[key:string]: number | null}>({}); // initialize with 0 points each
     const [surrendered, setSurrendered] = useState(false); // Track if the game was surrendered
+    const [winner, setWinner] = useState<User>(defaultUser);
+    const [loser, setLoser] = useState<User>(defaultUser);
+
     
     
-    interface Game {
-        id: number;
-        users: User[];
-        host: User;
-        gameStatus: string; // CREATED, ONGOING, TERMINATED
-        board: string[][]; // 2D array representing the board
-        playerScores: { [key: string]: number }; // Points for each user
-    }
-
-    interface User {
-        token: string;
-        id: number;
-        username: string;
-        status: string; // ONLINE, OFFLINE, IN_GAME
-        highScore: number;
-        friends: Friend[];
-    }
-
-    interface Friend {
-    username: string;
-    status: string; // ONLINE, OFFLINE, IN_GAME
-    }
-
-    interface SentInvitation {
-        gameId: number;
-        targetUsername: string;
-    }
 
     //? Removed polling of friends as we don't use it here jet
 
@@ -70,12 +82,11 @@ const Eval: React.FC = () => {
 
     useEffect(()=> {
         setUsername(localStorage.getItem("username"));
-        setToken(localStorage.getItem("token"));
+
         setuserId(localStorage.getItem("userId"));
     }, []);
 
     useEffect(() => {
-        if (!token) return;
         apiService.get<Game>(`/games/${id}`)
             .then((game) => {
                 console.log("Game data:", game);
@@ -83,9 +94,32 @@ const Eval: React.FC = () => {
                     ...prev,
                     ...game.playerScores, 
                 }));
-                setOpponentUsername(game.users[1].username);
+                setWinner(game.users[0]);
+                setLoser(game.users[1]);
                 setImmutableBoardTiles(dictifyMatrix(game.board));
-                setSurrendered(game.gameStatus === "TERMINATED" && game.users.length > 1); // Check if the game was surrendered
+                if (localStorage.getItem("SurrenderedId")!="0") {
+                    setSurrendered(true); // Check if the game was surrendered
+                    if (game.users[0].id.toString() == localStorage.getItem("SurrenderedId")) {
+                        setWinner(game.users[1]);
+                        setLoser(game.users[0]);
+                    } else {
+                        setWinner(game.users[0]);
+                        setLoser(game.users[1]);
+                    }
+                } else {
+                    if (
+                        playerPoints[game.users[0].id] !== null && playerPoints[game.users[0].id] !== undefined &&
+                        playerPoints[game.users[1].id] !== null && playerPoints[game.users[1].id] !== undefined
+                        ) {
+                            if (playerPoints[game.users[0].id]! > playerPoints[game.users[1].id]!) {
+                                setWinner(game.users[0]);
+                                setLoser(game.users[1]);
+                            } else {
+                                setWinner(game.users[1]);
+                                setLoser(game.users[0]);
+                            }
+                        }
+                }
             })
             .catch((error) => console.error("Error retrieving game information:", error));
     }, []);
@@ -125,8 +159,10 @@ const Eval: React.FC = () => {
         apiService.post<SentInvitation>(
             "/games/invitations",
             {
-                gameId: id, // Use the game ID from the URL
-                targetUsername: opponentUsername, // The username entered in the modal
+                gameId: id, 
+                targetUsername: localStorage.getItem("username") == winner.username 
+                ? loser.username 
+                : winner.username,
             }
           )
             .catch((error) => {
@@ -179,12 +215,12 @@ const Eval: React.FC = () => {
                     priority
                 />
                     <div>
-                        Stand In 
+                        {winner.username} 
                     </div>
                 </div>
                 <div className = "userInfo">
                     <span>Score:</span>
-                    <span className = "points">{playerPoints[0]}</span>
+                    <span className = "points">{playerPoints[winner.id]}</span>
                 </div>
             </div>
             <div className = "user_quarter">
@@ -201,12 +237,12 @@ const Eval: React.FC = () => {
                         priority
                     />
                     <div>
-                        Stand In 
+                        {loser.username} 
                     </div>
                 </div>
                 <div className = "userInfo">
                     <span>Score:</span>
-                    <span className = "points">{playerPoints[1]}</span>
+                    <span className = "points">{playerPoints[loser.id]}</span>
                 </div>
             </div>
         </div>
