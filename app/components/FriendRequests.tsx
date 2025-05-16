@@ -67,10 +67,11 @@ const FriendRequests: React.FC = () => {
 
     return (
         <>
+        <div className="icon-container">
             <Image
                 className="icon"
-                src="/User_Icon.jpg"
-                alt="User Icon"
+                src="/bell.png"
+                alt="Bell Icon"
                 width={100}
                 height={100}
                 priority
@@ -110,6 +111,7 @@ const FriendRequests: React.FC = () => {
                 )}
                 onClose={() => setIsModalOpen(false)}
             />
+        </div>
         </>
     );
 };

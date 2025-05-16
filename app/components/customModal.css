@@ -86,13 +86,21 @@
     overflow: hidden;
   }
   
+  .icon-container {
+    position: relative;
+    display: inline-block;
+    height: 5vh;
+    width: auto;
+    /* border:2px solid black; */
+  }
+
   /* Red notification dot */
   .notification-dot {
     position: absolute;
-    top: 5px;
-    right: 5px;
-    width: 15px;
-    height: 15px;
+    top: 4;
+    right: 4;
+    width: 10px;
+    height: 10px;
     background-color: var(--Button-red);
     border-radius: 50%;
     z-index: 10;

@@ -37,12 +37,12 @@ header {
 }
 
 .icon {
-  height: clamp(1rem, min(73vh, 7vw), 100%);
+  height: 5vh;
   width: auto;
 }
 
 .username {
-  font-size: clamp(1rem, 4vh, 100%);
+  font-size: 4vh;
 }
 
 .nav_button {
