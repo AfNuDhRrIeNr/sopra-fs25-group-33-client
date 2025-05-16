@@ -10,6 +10,9 @@ import Image from "next/image";
 import Board from "@/components/Board";
 import "../../gamestate/boardTilesColor.css";
 import useAuth from "@/hooks/useAuth";
+import LoadingCubes from "@/components/loadingCubes";
+import { CustomAlertModal } from "@/components/customModal";
+
 
 
 const defaultUser: User = {
@@ -53,7 +56,7 @@ const Eval: React.FC = () => {
     const router = useRouter();
     const [username, setUsername] = useState<string | null>(null);
     const [userId, setuserId] = useState<string | null>(null);
-    const { isAuthenticated, isLoading } = useAuth();
+    const { isAuthenticated, isFetching } = useAuth();
     const apiService = useApi();
     const [immutableBoardTiles, setImmutableBoardTiles] = useState<{ [key:string]: string | null }>({});
     const { id } = useParams();
@@ -61,6 +64,7 @@ const Eval: React.FC = () => {
     const [surrendered, setSurrendered] = useState(false); // Track if the game was surrendered
     const [winner, setWinner] = useState<User>(defaultUser);
     const [loser, setLoser] = useState<User>(defaultUser);
+    const [isLoading, setIsLoading] = useState(false);
 
     
     
@@ -90,10 +94,18 @@ const Eval: React.FC = () => {
         apiService.get<Game>(`/games/${id}`)
             .then((game) => {
                 console.log("Game data:", game);
-                setPlayerPoints((prev) => ({
-                    ...prev,
-                    ...game.playerScores, 
-                }));
+                setPlayerPoints((prev) => {
+                    const updated = { ...prev, ...game.playerScores };
+                    // Ensure both users have a score entry
+                    if (Object.keys(updated).length < 2) {
+                        game.users.forEach(user => {
+                            if (!(user.id in updated)) {
+                                updated[user.id] = 0;
+                            }
+                        });
+                    }
+                    return updated;
+                });
                 setWinner(game.users[0]);
                 setLoser(game.users[1]);
                 setImmutableBoardTiles(dictifyMatrix(game.board));
@@ -125,6 +137,7 @@ const Eval: React.FC = () => {
     }, []);
 
     const handleDashboardNavigation = () => {
+        setIsLoading(true);
         apiService.put(`/users?userId=${userId}`, {
             status: "ONLINE"
         })
@@ -138,6 +151,7 @@ const Eval: React.FC = () => {
     };
 
     const handleRematch = async () => {
+        setIsLoading(true);
         try {
             const response = await apiService.post<Game>(
                 "/games",
@@ -171,12 +185,19 @@ const Eval: React.FC = () => {
             });
     };
     
-    if (isLoading) {
-        return <div>Loading...</div>;
+    if (isFetching) {
+        return <div>Fetching...</div>;
     }
 
     if (!isAuthenticated) {
-        return null;
+        return <>
+            <CustomAlertModal
+                    visible={true}
+                    title={"Account needed"}
+                    message={"An account is needed to visit this page. Please log in or register to continue."}
+                    onClose={() => router.push("/")}
+            />
+        </>
     }
 
     return (
@@ -197,6 +218,11 @@ const Eval: React.FC = () => {
       </header>
 
       <main>
+        {isLoading && (
+                    <div className="loading-cubes-overlay">
+                        <LoadingCubes message="Loading..." />
+                    </div>
+                )}
         <div id = "left_side">
             <div id = "end_reason_container">
                 <span id = "end_reason">The game ended with {surrendered ? "somebody" : "nobody"} surrendering.</span>

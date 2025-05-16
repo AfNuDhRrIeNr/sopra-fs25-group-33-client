@@ -6,6 +6,8 @@ import './leaderboard.css';
 import Image from "next/image";
 import FriendRequests from "@/components/FriendRequests";
 import useAuth from "@/hooks/useAuth";
+import LoadingCubes from "@/components/loadingCubes";
+import { CustomAlertModal } from "@/components/customModal";
 
 interface User {
     token: string;
@@ -26,25 +28,23 @@ const LeaderboardPage: React.FC = () => {
     const [friends, setFriends] = useState<Friend[]>([]);
     const apiService = useApi();
     const [username, setUsername] = useState<string | null>(null);
-    const [token, setToken] = useState<string | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
-    const { isAuthenticated, isLoading } = useAuth();
+    const { isAuthenticated, isFetching } = useAuth();
     const maxLeaderboardSize = 20;
     const router = useRouter();
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         setUsername(localStorage.getItem("username"));
         setUserId(localStorage.getItem("userId"));
-        setToken(localStorage.getItem("token"));
     }, []);
 
     const handleButtonClick = () => {
+        setIsLoading(true);
         router.push("/dashboard");
     };
 
     useEffect(() => {
-        if (!token) return;
-
         apiService.get<User[]>('/users?leaderboard=true')
             .then((data) => setUsers(data))
             .catch((error) => console.error('Error fetching leaderboard data:', error));
@@ -116,12 +116,19 @@ const LeaderboardPage: React.FC = () => {
         </table>
     );
 
-    if (isLoading) {
-        return <div>Loading...</div>;
+    if (isFetching) {
+        return <div>Fetching...</div>;
     }
 
     if (!isAuthenticated) {
-        return null;
+        return <>
+                <CustomAlertModal
+                        visible={true}
+                        title={"Account needed"}
+                        message={"An account is needed to visit this page. Please log in or register to continue."}
+                        onClose={() => router.push("/")}
+                />
+            </>
     }
 
     return (
@@ -141,6 +148,11 @@ const LeaderboardPage: React.FC = () => {
                 </div>
             </header>
             <div className="leaderboard-container">
+                {isLoading && (
+                    <div className="loading-cubes-overlay">
+                        <LoadingCubes message="Loading..." />
+                    </div>
+                )}
                 <div className="leaderboard-section">
                     <h2>Friends Leaderboard</h2>
                     {renderLeaderboardTable(friendsLeaderboard)}

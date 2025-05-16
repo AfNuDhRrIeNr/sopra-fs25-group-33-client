@@ -97,3 +97,16 @@ a {
   min-height: 100vh;
   background-color: rgb(41, 44, 59);
 }
+
+.loading-cubes-overlay {
+  position: fixed;
+  /* top: clamp(2rem, 11vh, 11vh); */
+  left: 0;
+  width: 100vw;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000; 
+}
