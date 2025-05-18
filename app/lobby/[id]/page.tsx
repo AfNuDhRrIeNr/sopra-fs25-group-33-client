@@ -86,7 +86,9 @@ const Lobby: React.FC = () => {
                     setnewPlayerUsername(guest.username);
                 } else {
                     setIsAlone(true);
-                    setnewPlayerUsername("");
+                    if (!isModalVisible) {
+                        setnewPlayerUsername("");
+                    }
                 }
                 if (!isHost) {
                   setIsHost(game.host.token === token);
@@ -106,7 +108,7 @@ const Lobby: React.FC = () => {
     const intervalId = setInterval(pollGame, 5000); // Poll every 5 seconds
 
     return () => clearInterval(intervalId); // Cleanup on unmount
-  }, [token, sentInvitations, apiService, router, id]);
+  }, [token, sentInvitations, apiService, router, id, isModalVisible]);
 
   const handleButtonClick = async () => {
     setIsLoading(true);
@@ -285,7 +287,10 @@ return (
       title="Send Game Invitation"
       placeholder="Enter username"
       onSubmit={handleInvite}
-      onCancel={() => setIsModalVisible(false)}
+      onCancel={() => {
+        setIsModalVisible(false);
+        setnewPlayerUsername("");
+      }}
       inputValue={newPlayerUsername}
       onInputChange={(e) => setnewPlayerUsername(e.target.value)}
       />
