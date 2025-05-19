@@ -164,7 +164,7 @@ reason).
 | **[@githubUser1]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **AfNuDhRrIeNr** | 15.05.25   | [Commit dbcf633](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/dbcf633306044f7033e2435f6e9430fbaeed9930) | adding tests (addtional commit: 546d6bf)| code coverage |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+|                    | 18.05.25   | [Commit 91401a3](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/commit/91401a3e1bb6888c44c6b627d11e3341f7453192) | surrender id gets saved in the game entity | retrieve information on whether a player has given up on the game eval page|
 | **[@githubUser3]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **[@githubUser4]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
