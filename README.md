@@ -47,10 +47,10 @@ On this page they can start a rematch with the same opponent or go back to the d
 
 ### Authors and acknowledgment
 * Eng Manuel - [Alumen-Eng](https://github.com/Alumen-Eng)
-* Luca Zanetti - [Mex7180](https://github.com/Mex7180)
-* Lucien Kern - [LucKer58](https://github.com/LucKer58)
-* Silvan Kasper - [SilvanKasper](https:://github.com/SilvanKasper)
-* Andrin Fuhrer - [AfNuDhRrIeNr](https://github.com/AfNuDhRrIeNr)
+* Zanetti Luca - [Mex7180](https://github.com/Mex7180)
+* Kern Lucien- [LucKer58](https://github.com/LucKer58)
+* Kasper Silvan - [SilvanKasper](https:://github.com/SilvanKasper)
+* Fuhrer Andrin- [AfNuDhRrIeNr](https://github.com/AfNuDhRrIeNr)
 
 We would like to thank Lukas Niederhart, our TA, for providing useful guidance and input.
 
