@@ -44,8 +44,8 @@
     /* position: absolute; */
     display: flex;
     height: 4vh;
-    width: 4vh;
-    /* padding-right: 2vh; */
-    padding-left: -2vh;
+    width: 5vh;
+    padding-right: 1vh;
+    /* padding-left: 2vh; */
     cursor: pointer;
 }

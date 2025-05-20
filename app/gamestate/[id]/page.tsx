@@ -166,7 +166,9 @@ const Gamestate: React.FC = () => {
                             setMoveVerified(true);
                         } else if (responseStatus === "VALIDATION_ERROR") {
                             showAlertModal("Validation", `Validation failed! Reason: ${response.message.toString().substring(16)}`);
-                        } else if (responseStatus === "SUCCESS" && action === "VOTE") {
+                        }
+                        //vote
+                        else if (responseStatus === "SUCCESS" && action === "VOTE") {
                             showDecisionModal("Vote", "Your opponent wants to end the game here. Do you agree?");
                         } else if (responseStatus === "SUCCESS" && action === "NO_VOTE") {
                             showAlertModal("Vote", "Your opponent declined ending the game.");

@@ -31,6 +31,7 @@ interface Game {
     gameStatus: string; // CREATED, ONGOING, TERMINATED
     board: string[][]; // 2D array representing the board
     playerScores: { [key: string]: number }; // Points for each user
+    surrenderId: number | null;
 }
 
 interface User {
@@ -109,7 +110,7 @@ const Eval: React.FC = () => {
                 setWinner(game.users[0]);
                 setLoser(game.users[1]);
                 setImmutableBoardTiles(dictifyMatrix(game.board));
-                if (localStorage.getItem("SurrenderedId")!="0") {
+                if (game.surrenderId !== null) {
                     setSurrendered(true); // Check if the game was surrendered
                     if (game.users[0].id.toString() == localStorage.getItem("SurrenderedId")) {
                         setWinner(game.users[1]);
