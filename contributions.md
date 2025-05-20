@@ -169,8 +169,8 @@ reason).
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
 | **[@githubUser4]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
 |                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
-| **[@githubUser5]** | [date]   | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date]   | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **SilvanKasper** | 14.05.25   | [Commit 0f7e823](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/0f7e823235569c7ad91ffda9cba7fda1cb0ce9de) [Commit 27616c2](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/27616c2a60000c9f00132aa3c4286696cad6d4b9) | Bugfixes for Timer, User status and highscore | Data has to be updated in order to display it later |
+|                    | 15.05.25   | [Commit 3e557d0](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-client/commit/3e557d06cf9559c63d95c0fc12f84db5e5ba6d54) | The help icon links to the Scrabble Rules and explains how the buttons work | This makes our application easier to learn and increases usability |
 
 ---
 
