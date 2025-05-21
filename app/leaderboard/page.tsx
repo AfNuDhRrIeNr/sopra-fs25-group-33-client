@@ -51,7 +51,7 @@ const LeaderboardPage: React.FC = () => {
         console.error("Error fetching leaderboard data:", error)
       );
 
-    apiService.get<User[]>(`/users?userId=${userId}`)
+    apiService.get<User[]>(`/users?userId=${localStorage.getItem("userId")}`)
       .then((data) => {
         const user = (data[0] || {}) as User;
         const friendsList = (user.friends || []).map((friend) => ({
@@ -61,7 +61,7 @@ const LeaderboardPage: React.FC = () => {
         setFriends(friendsList);
       })
       .catch((error) => console.error("Error fetching friends:", error));
-  }, [apiService, userId, friends]);
+  }, [apiService, userId]);
 
   const friendsLeaderboard = users
     .filter((user) =>
