@@ -50,8 +50,9 @@ export default function useLocalStorage<T>(
     setValue(newVal);
     if (typeof window !== "undefined") {
       // Check if the value is a string and prevent adding extra quotes
-      const valueToStore =
-        typeof newVal === "string" ? newVal : JSON.stringify(newVal); // Only stringify non-string values
+      const valueToStore = typeof newVal === "string"
+        ? newVal
+        : JSON.stringify(newVal); // Only stringify non-string values
       globalThis.localStorage.setItem(key, valueToStore);
     }
   };

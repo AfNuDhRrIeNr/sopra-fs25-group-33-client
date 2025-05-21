@@ -1,10 +1,10 @@
 :root {
-  --background: #C0D7E7;
+  --background: #c0d7e7;
   --foreground: #000000;
-  --Box-purple: #9A9CF5;
-  --Button-green: #4AAC55;
-  --Button-red: #D04949;
-  --Button-gold: #DCBB73;
+  --Box-purple: #9a9cf5;
+  --Button-green: #4aac55;
+  --Button-red: #d04949;
+  --Button-gold: #dcbb73;
 }
 
 html,
@@ -19,7 +19,7 @@ header {
   height: clamp(2rem, 11vh, 11vh);
   background-color: rgb(255, 255, 255);
   align-items: center;
-  justify-content: center; 
+  justify-content: center;
   position: fixed;
   top: 0;
   z-index: 1000; /* higher z => higher layer */
@@ -33,7 +33,6 @@ header {
   align-items: center;
   gap: 10px;
   height: 100%;
-
 }
 
 .icon {
@@ -53,7 +52,7 @@ header {
   cursor: pointer;
   padding: 3px 30px;
   border: none;
-  border-radius:30px;
+  border-radius: 30px;
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -108,5 +107,5 @@ a {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 2000; 
+  z-index: 2000;
 }

@@ -1,79 +1,79 @@
 #bag-image {
-    width: 33%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    /* border: 2px yellow solid; */
+  width: 33%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* border: 2px yellow solid; */
 }
 
 #bag-jpg {
-    width: 100%;
-    height: auto;
+  width: 100%;
+  height: auto;
 }
 
 #bag-info {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    justify-content: center;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  justify-content: center;
 }
 
 #bag-interaction {
-    height: 33.33%;
-    display: flex; 
-    flex-direction: row;
-    justify-content: space-between; /* Add spacing between input and button/number */
-    gap: 1vw; /* Add gap between elements */
+  height: 33.33%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between; /* Add spacing between input and button/number */
+  gap: 1vw; /* Add gap between elements */
 }
 
 #bag-input-container {
-    width: 65%;
-    display: flex;
-    justify-content: right;
-    align-items: center;
+  width: 65%;
+  display: flex;
+  justify-content: right;
+  align-items: center;
 }
 
 #bag-input {
-    width: 90%;
-    height: 80%;
-    border-radius: 10px;
-    border: none;
-    font-size: 4vh;
-    padding-left: 1vw;
-    box-sizing: border-box; /* Ensure padding doesn't affect height */
-    margin-bottom: 0px; /* Add margin to separate from button */
+  width: 90%;
+  height: 80%;
+  border-radius: 10px;
+  border: none;
+  font-size: 4vh;
+  padding-left: 1vw;
+  box-sizing: border-box; /* Ensure padding doesn't affect height */
+  margin-bottom: 0px; /* Add margin to separate from button */
 }
 
 #bag-button-container,
 #bag-number-container {
-    width: 35%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  width: 35%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 #bag-button,
 #bag-number {
-    height: 80%;
-    width: 100%;
-    border-radius: 10px;
-    border: none;
-    font-size: 4.5vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: 550;
-    background-color: #9A9CF5;
-    cursor: pointer;
+  height: 80%;
+  width: 100%;
+  border-radius: 10px;
+  border: none;
+  font-size: 4.5vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 550;
+  background-color: #9a9cf5;
+  cursor: pointer;
 }
 
 #bag-button:hover {
-    background-color: #7F81D9;
+  background-color: #7f81d9;
 }
 
 #bag-number {
-    background-color: #9A9CF5; /* Match the button's background color */
-    font-size: 4.5vh; /* Match the button's font size */
-    padding: 0; /* Remove padding for consistency */
+  background-color: #9a9cf5; /* Match the button's background color */
+  font-size: 4.5vh; /* Match the button's font size */
+  padding: 0; /* Remove padding for consistency */
 }

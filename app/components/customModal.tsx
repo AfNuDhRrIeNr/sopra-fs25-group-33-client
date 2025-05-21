@@ -22,7 +22,8 @@ export const CustomAlertModal: React.FC<CustomAlertModalProps> = ({
     <div className="modal-overlay">
       <div className="modal">
         <h2>{title}</h2>
-        <div>{message}</div> {/* Changed from <p> to <div> to support ReactNode */}
+        <div>{message}</div>{" "}
+        {/* Changed from <p> to <div> to support ReactNode */}
         <div className="modal-buttons">
           <button className="modal-button-gold" onClick={onClose}>
             OK
@@ -103,15 +104,15 @@ export const CustomListModal = <T,>({
     <div className="modal-overlay">
       <div className="modal">
         <h2>{title}</h2>
-        {items.length > 0 ? (
-          <ul className="friend-requests-list">
-            {items.map((item, index) => (
-              <li key={index}>{renderItem(item)}</li>
-            ))}
-          </ul>
-        ) : (
-          <p>No items available.</p>
-        )}
+        {items.length > 0
+          ? (
+            <ul className="friend-requests-list">
+              {items.map((item, index) => (
+                <li key={index}>{renderItem(item)}</li>
+              ))}
+            </ul>
+          )
+          : <p>No items available.</p>}
         <button className="modal-button-gold" onClick={onClose}>
           Close
         </button>

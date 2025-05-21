@@ -1,6 +1,6 @@
 "use client";
 
-import '@ant-design/v5-patch-for-react-19';
+import "@ant-design/v5-patch-for-react-19";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
@@ -14,9 +14,15 @@ const Login: React.FC = () => {
   const { set: setUserId } = useLocalStorage<string>("userId", "0");
   const { set: setUsername } = useLocalStorage<string>("username", "");
 
-  const handleRegister = async (values: { username: string; password: string }) => {
+  const handleRegister = async (
+    values: { username: string; password: string },
+  ) => {
     try {
-      const response = await apiService.post<User>("/users/register", values, false);
+      const response = await apiService.post<User>(
+        "/users/register",
+        values,
+        false,
+      );
       if (response.token && response.id && response.username) {
         setToken(response.token);
         setUserId(response.id);
@@ -29,20 +35,27 @@ const Login: React.FC = () => {
     }
   };
 
-  const handleLogin = async (values: { username: string; password: string }) => {
+  const handleLogin = async (
+    values: { username: string; password: string },
+  ) => {
     try {
-      const response = await apiService.post<User>("/users/login", values, false);
+      const response = await apiService.post<User>(
+        "/users/login",
+        values,
+        false,
+      );
 
       if (response.token && response.id && response.username) {
         setToken(response.token);
         setUserId(response.id);
         setUsername(response.username);
         router.push("/dashboard");
-    }} catch (error) {
-        console.error("Registration Error:", error);
-        alert(`Registration failed: ${(error as Error).message}`);
       }
-    };
+    } catch (error) {
+      console.error("Registration Error:", error);
+      alert(`Registration failed: ${(error as Error).message}`);
+    }
+  };
 
   return (
     <div

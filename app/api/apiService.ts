@@ -17,14 +17,14 @@ export class ApiService {
     const headers = new Headers(this.defaultHeaders); // Use a Headers object for consistency
 
     if (includeAuth) {
-        const token = localStorage.getItem("token");
-        if (token) {
-            headers.append("Authorization", token); // Add Authorization header only if token exists
-        }
+      const token = localStorage.getItem("token");
+      if (token) {
+        headers.append("Authorization", token); // Add Authorization header only if token exists
+      }
     }
 
     return headers;
-}
+  }
 
   /**
    * Helper function to check the response, parse JSON,
@@ -74,7 +74,10 @@ export class ApiService {
    * @param options - Optional fetch options (e.g., headers).
    * @returns JSON data of type T.
    */
-  public async get<T>(endpoint: string, includeAuth: boolean = true): Promise<T> {
+  public async get<T>(
+    endpoint: string,
+    includeAuth: boolean = true,
+  ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
     const res = await fetch(url, {
       method: "GET",
@@ -93,7 +96,11 @@ export class ApiService {
    * @param options - Optional fetch options (e.g., headers).
    * @returns JSON data of type T.
    */
-  public async post<T>(endpoint: string, data: unknown, includeAuth: boolean = true): Promise<T> {
+  public async post<T>(
+    endpoint: string,
+    data: unknown,
+    includeAuth: boolean = true,
+  ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
     const res = await fetch(url, {
       method: "POST",
@@ -113,7 +120,11 @@ export class ApiService {
    * @param options - Optional fetch options (e.g., headers).
    * @returns JSON data of type T.
    */
-  public async put<T>(endpoint: string, data: unknown, includeAuth: boolean = true): Promise<T> {
+  public async put<T>(
+    endpoint: string,
+    data: unknown,
+    includeAuth: boolean = true,
+  ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
     const res = await fetch(url, {
       method: "PUT",
@@ -132,7 +143,10 @@ export class ApiService {
    * @param options - Optional fetch options (e.g., headers).
    * @returns JSON data of type T.
    */
-  public async delete<T>(endpoint: string, includeAuth: boolean = true): Promise<T> {
+  public async delete<T>(
+    endpoint: string,
+    includeAuth: boolean = true,
+  ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
     const res = await fetch(url, {
       method: "DELETE",

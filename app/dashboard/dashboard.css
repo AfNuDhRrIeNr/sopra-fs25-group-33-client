@@ -3,217 +3,217 @@
 }
 
 .dashboard-page {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .dashboard-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-top: clamp(2rem, 11vh, 11vh);
-    padding: 20px;
-    background-color: var(--background);
-  }
- 
-  .dashboard-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 30%;
-  }
-  
-  .dashboard-section h2 {
-    margin-bottom: 10px;
-    font-size: 35px;
-    text-align: center;
-  }
-  
-  .friends-list, .leaderboard {
-    background-color: var(--Box-purple);
-    border-radius: 30px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    padding: 20px;
-    width: 100%;
-    height: var(--Dashboard-box-height);
-    text-align: center;
-  }
-  
-  .scrabble-now {
-    background-color: var(--background);
-    margin-top: 10px;
-    margin-bottom: 10px;
-    height: var(--Dashboard-box-height);
-  }
+  display: flex;
+  flex-direction: column;
+}
 
-  .scrabble-board {
-    position: relative;
-    height: var(--Dashboard-box-height);
-  }
+.dashboard-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: clamp(2rem, 11vh, 11vh);
+  padding: 20px;
+  background-color: var(--background);
+}
 
-  .scrabble-board img {
-    height: 100%;
-    width: 100%;
-    object-fit: cover;
-  }
+.dashboard-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 30%;
+}
 
-  .scrabble-board button {
-    position: absolute;
-    top: -10px; /* Distance from the top */
-    right: -10px; /* Distance from the right */
-    z-index: 10;
-    background-color: var(--Box-purple);
-    border: none;
-    cursor: pointer;
-    font-size: 24px;
-    font-weight: bold;
-    border-radius: 10px;
-    padding: 5px 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-  
-  .friends-list ul {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: flex-start;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    max-height: var(--Dashboard-box-height);
-    overflow-y: auto;
-  }
-    
-  .friends-list li {
-    display: flex;
-    align-items: center;
-    font-size: clamp(1rem, 2vw, 2vw);
-  }
-  
-  .friends-list li img {
-    width: 60px;
-    height: 60px;
-    margin-right: 20px;
-  }
-  
-  .friend-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px;
-    width: 100%;
-    box-sizing: border-box;
-  }
+.dashboard-section h2 {
+  margin-bottom: 10px;
+  font-size: 35px;
+  text-align: center;
+}
 
-  .friend-item .user-icon {
-    flex: 0 0 20%; /* 20% of the width */
-    max-width: 20%;
-    height: auto;
-    object-fit: cover;
-  }
+.friends-list, .leaderboard {
+  background-color: var(--Box-purple);
+  border-radius: 30px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 20px;
+  width: 100%;
+  height: var(--Dashboard-box-height);
+  text-align: center;
+}
 
-  .friend-item .username {
-    flex: 0 0 60%; /* 60% of the width */
-    max-width: 50%;
-    text-align: left;
-    font-size: clamp(1rem, 2vw, 2vw);
-    overflow-x: auto; /* Enable horizontal scrolling */
-    white-space: nowrap; /* Prevent text wrapping */
-    text-overflow: unset; /* Remove ellipsis */
-  }
+.scrabble-now {
+  background-color: var(--background);
+  margin-top: 10px;
+  margin-bottom: 10px;
+  height: var(--Dashboard-box-height);
+}
 
-  /* Base style for the status circle */
-  .friend-item .status-circle {
-    flex: 0 0 auto; /* 10% of the width */
-    max-width: 15%;
-    display: inline-block;
-    width: 15px;
-    height: 15px;
-    border-radius: 50%;
-    margin: 0 auto; /* Center the circle */
-    border: 1.5px solid black; /* Add a black border */
-  }
+.scrabble-board {
+  position: relative;
+  height: var(--Dashboard-box-height);
+}
 
-  /* Status-specific colors */
-  .status-circle.online {
-    background-color: var(--Button-green);
-  }
+.scrabble-board img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
 
-  .status-circle.offline {
-    background-color: var(--Button-red);
-  }
+.scrabble-board button {
+  position: absolute;
+  top: -10px; /* Distance from the top */
+  right: -10px; /* Distance from the right */
+  z-index: 10;
+  background-color: var(--Box-purple);
+  border: none;
+  cursor: pointer;
+  font-size: 24px;
+  font-weight: bold;
+  border-radius: 10px;
+  padding: 5px 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
 
-  .status-circle.in_game {
-    background-color: var(--Button-gold);
-  }
+.friends-list ul {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: var(--Dashboard-box-height);
+  overflow-y: auto;
+}
 
-  .friend-item .play-icon {
-    flex: 0 0 auto; /* 10% of the width */
-    max-width: 15%;
-    cursor: pointer;
-    margin-left: auto;
-    display: block;
-    width: 25px;
-    height: 20px;
-    padding-left:5px;
-  }
+.friends-list li {
+  display: flex;
+  align-items: center;
+  font-size: clamp(1rem, 2vw, 2vw);
+}
 
-  .leaderboard-list {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 40px;
-  }
-  
-  .leaderboard-row {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 60px; /* Space between items */
-  }
-  
-  .leader {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+.friends-list li img {
+  width: 60px;
+  height: 60px;
+  margin-right: 20px;
+}
 
-  .leader .username {
-    font-size: clamp(1rem, 2vw, 2vw);
-    max-width: 130px; /* Limit width */
-    overflow-x: auto; /* Enable horizontal scrolling */
-    white-space: nowrap; /* Prevent text wrapping */
-    text-overflow: unset; /* Remove ellipsis */
-  }
-  
-  .leader img {
-    height: 110px;
-    margin-bottom: 10px; /* Space between image and text */
-  }
-  
-  .add-friend-button, .create-game-button, .show-more-button {
-    margin-top: 10px;
-    padding: 10px;
-    border-radius: 10px;
-    border: none;
-    cursor: pointer;
-    font-size: 24px;
-    font-weight: bold;
-    background-color: var(--Button-gold);
-  }
-  
-  .create-game-button {
-    background-color: var(--Button-green);
-  }
-  
-  .content-container {
-    flex: 1;
-    margin-top: 100px;
-    padding: 20px;
-  }
+.friend-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
 
-  /* Modal Overlay */
+.friend-item .user-icon {
+  flex: 0 0 20%; /* 20% of the width */
+  max-width: 20%;
+  height: auto;
+  object-fit: cover;
+}
+
+.friend-item .username {
+  flex: 0 0 60%; /* 60% of the width */
+  max-width: 50%;
+  text-align: left;
+  font-size: clamp(1rem, 2vw, 2vw);
+  overflow-x: auto; /* Enable horizontal scrolling */
+  white-space: nowrap; /* Prevent text wrapping */
+  text-overflow: unset; /* Remove ellipsis */
+}
+
+/* Base style for the status circle */
+.friend-item .status-circle {
+  flex: 0 0 auto; /* 10% of the width */
+  max-width: 15%;
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  margin: 0 auto; /* Center the circle */
+  border: 1.5px solid black; /* Add a black border */
+}
+
+/* Status-specific colors */
+.status-circle.online {
+  background-color: var(--Button-green);
+}
+
+.status-circle.offline {
+  background-color: var(--Button-red);
+}
+
+.status-circle.in_game {
+  background-color: var(--Button-gold);
+}
+
+.friend-item .play-icon {
+  flex: 0 0 auto; /* 10% of the width */
+  max-width: 15%;
+  cursor: pointer;
+  margin-left: auto;
+  display: block;
+  width: 25px;
+  height: 20px;
+  padding-left: 5px;
+}
+
+.leaderboard-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+
+.leaderboard-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 60px; /* Space between items */
+}
+
+.leader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.leader .username {
+  font-size: clamp(1rem, 2vw, 2vw);
+  max-width: 130px; /* Limit width */
+  overflow-x: auto; /* Enable horizontal scrolling */
+  white-space: nowrap; /* Prevent text wrapping */
+  text-overflow: unset; /* Remove ellipsis */
+}
+
+.leader img {
+  height: 110px;
+  margin-bottom: 10px; /* Space between image and text */
+}
+
+.add-friend-button, .create-game-button, .show-more-button {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 24px;
+  font-weight: bold;
+  background-color: var(--Button-gold);
+}
+
+.create-game-button {
+  background-color: var(--Button-green);
+}
+
+.content-container {
+  flex: 1;
+  margin-top: 100px;
+  padding: 20px;
+}
+
+/* Modal Overlay */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -265,7 +265,7 @@
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  color:black;
+  color: black;
 }
 
 .modal-input-container {
@@ -281,15 +281,15 @@
 }
 
 .modal-button-green {
-  background-color: var(--Button-green, #4AAC55);
+  background-color: var(--Button-green, #4aac55);
 }
 
 .modal-button-red {
-  background-color: var(--Button-red, #D04949);
+  background-color: var(--Button-red, #d04949);
 }
 
 .modal-button-gold {
-  background-color: var(--Button-gold, #DCBB73);
+  background-color: var(--Button-gold, #dcbb73);
   margin-top: 10px;
 }
 
@@ -307,7 +307,7 @@
 
 /* Smaller avatar size for the modal */
 .modal-avatar {
-  width: 40px; 
+  width: 40px;
   height: 40px;
   object-fit: cover; /* Ensure the image scales properly */
   margin-right: 10px; /* Add spacing between the avatar and the text */

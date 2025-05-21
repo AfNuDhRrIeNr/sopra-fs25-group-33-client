@@ -1,146 +1,146 @@
-  /* Modal Overlay */
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-  
-  /* Modal Content */
-  .modal {
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    width: 400px;
-    text-align: center;
-  }
-  
-  .modal h2 {
-    margin-bottom: 20px;
-  }
-  
-  .modal p {
-    margin-bottom: 20px;
-  }
-  
-  .modal span {
-    text-align: left;
-    overflow: hidden;
-  }
-  
-  .modal input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 20px;
-    background-color: var(--Box-purple);
-    border: var(--Box-purple);
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-  
-  .modal button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    color:black;
-  }
-  
-  .modal-input-container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .modal-buttons {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-  }
-  
-  .modal-button-green {
-    background-color: var(--Button-green, #4AAC55);
-  }
-  
-  .modal-button-red {
-    background-color: var(--Button-red, #D04949);
-  }
-  
-  .modal-button-gold {
-    background-color: var(--Button-gold, #DCBB73);
-    margin-top: 10px;
-  }
-  
-  .user-icon {
-    position: relative;
-    display: inline-block;
-    height: clamp(1rem, min(73vh, 7vw), 100%);
-    width: auto;
-    overflow: hidden;
-  }
-  
-  .icon-container {
-    position: relative;
-    display: inline-block;
-    height: 5vh;
-    width: auto;
-    /* border:2px solid black; */
-  }
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
 
-  /* Red notification dot */
-  .notification-dot {
-    position: absolute;
-    top: 4;
-    right: 4;
-    width: 10px;
-    height: 10px;
-    background-color: var(--Button-red);
-    border-radius: 50%;
-    z-index: 10;
-  }
-  
-  /* Smaller avatar size for the modal */
-  .modal-avatar {
-    width: 40px; 
-    height: 40px;
-    object-fit: cover; /* Ensure the image scales properly */
-    margin-right: 10px; /* Add spacing between the avatar and the text */
-  }
-  
-  /* Friend Requests List */
-  .friend-requests-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 15px; /* Space between rows */
-  }
-  
-  /* Friend Request Row */
-  .friend-request-row, .invitations-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between; /* Spread items across the row */
-    padding: 10px;
-    margin-bottom: 10px;
-    background-color: var(--Box-purple); /* Optional: Add a background color */
-    border-radius: 8px; /* Optional: Add rounded corners */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle shadow */
-  }
-  
-  /* Username */
-  .friend-username {
-    flex: 1; /* Take up remaining space between avatar and buttons */
-    margin-left: 10px; /* Space between avatar and username */
-    font-size: 16px;
-    font-weight: bold;
-    color: white; /* Adjust text color */
-  }
+/* Modal Content */
+.modal {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 400px;
+  text-align: center;
+}
+
+.modal h2 {
+  margin-bottom: 20px;
+}
+
+.modal p {
+  margin-bottom: 20px;
+}
+
+.modal span {
+  text-align: left;
+  overflow: hidden;
+}
+
+.modal input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  background-color: var(--Box-purple);
+  border: var(--Box-purple);
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  color: black;
+}
+
+.modal-input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.modal-button-green {
+  background-color: var(--Button-green, #4aac55);
+}
+
+.modal-button-red {
+  background-color: var(--Button-red, #d04949);
+}
+
+.modal-button-gold {
+  background-color: var(--Button-gold, #dcbb73);
+  margin-top: 10px;
+}
+
+.user-icon {
+  position: relative;
+  display: inline-block;
+  height: clamp(1rem, min(73vh, 7vw), 100%);
+  width: auto;
+  overflow: hidden;
+}
+
+.icon-container {
+  position: relative;
+  display: inline-block;
+  height: 5vh;
+  width: auto;
+  /* border:2px solid black; */
+}
+
+/* Red notification dot */
+.notification-dot {
+  position: absolute;
+  top: 4;
+  right: 4;
+  width: 10px;
+  height: 10px;
+  background-color: var(--Button-red);
+  border-radius: 50%;
+  z-index: 10;
+}
+
+/* Smaller avatar size for the modal */
+.modal-avatar {
+  width: 40px;
+  height: 40px;
+  object-fit: cover; /* Ensure the image scales properly */
+  margin-right: 10px; /* Add spacing between the avatar and the text */
+}
+
+/* Friend Requests List */
+.friend-requests-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Space between rows */
+}
+
+/* Friend Request Row */
+.friend-request-row, .invitations-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Spread items across the row */
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: var(--Box-purple); /* Optional: Add a background color */
+  border-radius: 8px; /* Optional: Add rounded corners */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle shadow */
+}
+
+/* Username */
+.friend-username {
+  flex: 1; /* Take up remaining space between avatar and buttons */
+  margin-left: 10px; /* Space between avatar and username */
+  font-size: 16px;
+  font-weight: bold;
+  color: white; /* Adjust text color */
+}

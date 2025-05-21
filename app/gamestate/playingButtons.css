@@ -1,87 +1,85 @@
-
 #game-buttons {
-    width: 100%;
-    height: 27.5vh;
-    display: flex;
-    flex-direction: column;
+  width: 100%;
+  height: 27.5vh;
+  display: flex;
+  flex-direction: column;
 }
 
 button.game-buttons {
-    height: 100%;
-    width: 100%;
-    font-size: 6vh;
-    font-weight: 700;
+  height: 100%;
+  width: 100%;
+  font-size: 6vh;
+  font-weight: 700;
 }
 
 #upper-row-container {
-    width: 100%;
-    height: 45%;
-    display: flex;
-    flex-direction: row;
+  width: 100%;
+  height: 45%;
+  display: flex;
+  flex-direction: row;
 }
 
 #verify-button-container {
-    height: 100%;
-    width: 41%;
-    padding: 1% 1% 1% 0%;
+  height: 100%;
+  width: 41%;
+  padding: 1% 1% 1% 0%;
 }
 
 #verify-button {
-    background-color:#9A9CF5;
+  background-color: #9a9cf5;
 }
 
 #verify-button:not(:disabled):hover {
-    color: inherit;
-    background-color: #7F81D9;
+  color: inherit;
+  background-color: #7f81d9;
 }
 
 #exchange-button-container {
-    height: 100%;
-    width: 37%;
-    padding: 1% 0% 1% 0%;
+  height: 100%;
+  width: 37%;
+  padding: 1% 0% 1% 0%;
 }
 
 #exhange-button {
-    background-color: #9A9CF5;
+  background-color: #9a9cf5;
 }
 
-
 #exhange-button:not(:disabled):hover {
-    color: inherit;
-    background-color: #7F81D9;
+  color: inherit;
+  background-color: #7f81d9;
 }
 
 #skip-button-container {
-    height: 100%;
-    width: 22%;
-    padding: 1% 0% 1% 1%;
+  height: 100%;
+  width: 22%;
+  padding: 1% 0% 1% 1%;
 }
 
 #skip-button {
-    background-color: #CE8D8D;
+  background-color: #ce8d8d;
 }
 
 #skip-button:not(:disabled):hover {
-    color: inherit;
-    background-color: #B37474;
+  color: inherit;
+  background-color: #b37474;
 }
 
 #lower-row-container {
-    width: 100%;
-    height: 45%;
+  width: 100%;
+  height: 45%;
 }
 
 #commit-button-container {
-    width: 100%;
-    height: 100%;
-    padding: 0% 0% 1% 0%;
+  width: 100%;
+  height: 100%;
+  padding: 0% 0% 1% 0%;
 }
 
 #commit-button {
-    background-color: #4AAC55;
+  background-color: #4aac55;
 }
 
 #commit-button:not(:disabled):hover {
-    color: inherit;
-    background-color: #3A8C44;
+  color: inherit;
+  background-color: #3a8c44;
 }

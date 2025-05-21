@@ -1,42 +1,41 @@
-
 .Triple-Word-Score {
-    background-color: #D04949;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  background-color: #d04949;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .Double-Letter-Score {
-    background-color: #8B8FD6;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  background-color: #8b8fd6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .Double-Word-Score {
-    background-color: #CE8D8D;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  background-color: #ce8d8d;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .Triple-Letter-Score {
-    background-color: #5261AC;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  background-color: #5261ac;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .Center {
-    background-color: #C4C4C4;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  background-color: #c4c4c4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .Base {
-    background-color: #DCBB73;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  background-color: #dcbb73;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
