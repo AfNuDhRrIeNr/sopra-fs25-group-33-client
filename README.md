@@ -8,14 +8,17 @@ too much about time, place or if someone owns the game.
 
 ### Technologies
 
-We made use of WebSockets for seemless synchronisation between the players and
+We made use of WebSockets for seemless synchronisation between the players during a game and
 REST endpoints to handle out of game interactions.
 
 ### High-level components:
 
-- [Game Entity](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/entity/Game.java)
-- [Game Controller](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/controller/GameController.java)
-- [Websocket Controller](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/websocket/WebSocketController.java)
+- [Game Entity](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/entity/Game.java):
+  The Game Entity stores all the necessary information for a game like, the players, the start time, the points of the players, the board, the tiles and much more.
+- [Game Controller](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/controller/GameController.java):
+  The Game Controller handles the interactions that lead up to a game, creating a game, adding users to a game, retrieving information about a certain game. The Game Controller accesses and possibly changes the values stored inside the Game Entity
+- [Websocket Controller](https://github.com/AfNuDhRrIeNr/sopra-fs25-group-33-server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/websocket/WebSocketController.java):
+  The Websocket Controller is responsible for all the actions during the actual game. All actions are sent to the Controller where they are then handled and changes are propagated to the Game Entity and saved there.
 
 ### Launch & Deployment
 
