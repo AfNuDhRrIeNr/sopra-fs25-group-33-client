@@ -121,6 +121,7 @@ const Lobby: React.FC = () => {
       );
       router.push("/dashboard");
     } catch (error) {
+      setIsLoading(false);
       console.error("Error leaving game:", error);
       alert("Failed to leave the game. Please try again.");
     }
@@ -142,6 +143,7 @@ const Lobby: React.FC = () => {
         router.push(`/gamestate/${id}`);
       })
       .catch((error) => {
+        setIsLoading(false);
         console.error("Error starting game:", error);
         alert("Failed to start the game. Please try again.");
       });

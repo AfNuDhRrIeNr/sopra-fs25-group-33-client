@@ -153,6 +153,7 @@ const Eval: React.FC = () => {
         router.push("/dashboard");
       })
       .catch((error) => {
+        setIsLoading(false);
         console.error("Error updating user status:", error);
         alert("Failed to update user status. Please try again.");
       });
@@ -171,6 +172,7 @@ const Eval: React.FC = () => {
         router.push(`/lobby/${response.id}`);
       }
     } catch (error) {
+      setIsLoading(false);
       console.error("Error creating lobby:", error);
       alert(`Could not create lobby: ${(error as Error).message}`);
     }

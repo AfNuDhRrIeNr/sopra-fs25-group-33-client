@@ -6,6 +6,9 @@ import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { User } from "@/types/user";
 import "./login.css";
+import React, { useState } from "react";
+import LoadingCubes from "@/components/loadingCubes";
+
 
 const Login: React.FC = () => {
   const router = useRouter();
@@ -13,11 +16,13 @@ const Login: React.FC = () => {
   const { set: setToken } = useLocalStorage<string>("token", "");
   const { set: setUserId } = useLocalStorage<string>("userId", "0");
   const { set: setUsername } = useLocalStorage<string>("username", "");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleRegister = async (
     values: { username: string; password: string },
   ) => {
     try {
+      setIsLoading(true);
       const response = await apiService.post<User>(
         "/users/register",
         values,
@@ -30,6 +35,7 @@ const Login: React.FC = () => {
         router.push("/dashboard");
       }
     } catch (error) {
+      setIsLoading(false);
       console.error("Registration Error:", error);
       alert(`Registration failed: ${(error as Error).message}`);
     }
@@ -39,6 +45,7 @@ const Login: React.FC = () => {
     values: { username: string; password: string },
   ) => {
     try {
+      setIsLoading(true);
       const response = await apiService.post<User>(
         "/users/login",
         values,
@@ -52,6 +59,7 @@ const Login: React.FC = () => {
         router.push("/dashboard");
       }
     } catch (error) {
+      setIsLoading(false);
       console.error("Registration Error:", error);
       alert(`Registration failed: ${(error as Error).message}`);
     }
@@ -69,6 +77,11 @@ const Login: React.FC = () => {
         alignItems: "center",
       }}
     >
+      {isLoading && (
+        <div className="loading-cubes-overlay">
+          <LoadingCubes message="Loading..." />
+        </div>
+      )}
       <div className="login-container">
         <h1>Welcome to ScrabbleNow</h1>
         <p>Who are you?</p>

@@ -141,6 +141,7 @@ const DashboardPage: React.FC = () => {
         router.push(`/lobby/${response.id}`);
       }
     } catch (error) {
+      setIsLoading(false);
       console.error("Error creating lobby:", error);
       alert(`Could not create lobby: ${(error as Error).message}`);
     }
@@ -161,6 +162,7 @@ const DashboardPage: React.FC = () => {
         router.push(`/lobby/${response.id}`);
       }
     } catch (error) {
+      setIsLoading(false);
       console.error("Error creating game or sending invitation:", error);
       alert(
         `Could not start a game with ${friendUsername}: ${
@@ -193,6 +195,7 @@ const DashboardPage: React.FC = () => {
         router.push(`/lobby/${response.game.id}`);
       }
     } catch (error) {
+      setIsLoading(false);
       console.error(`Error handling game invitation (${action}):`, error);
       alert(`Failed to ${action} the game invitation`);
       setPendingInvitations([
@@ -230,6 +233,7 @@ const DashboardPage: React.FC = () => {
       clearUsername();
       router.push("/"); // to login
     } catch (error) {
+      setIsLoading(false);
       console.error("Error during logout:", error);
     }
   };
